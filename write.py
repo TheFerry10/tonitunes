@@ -5,7 +5,7 @@ rfid = SimpleMFRC522()
 
 try:
     print("Hold tag near the module")
-    rfid.write(f"Hello World!")
+    rfid.write(f"101")
     print("Written")
 finally:
     GPIO.cleanup()

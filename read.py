@@ -9,7 +9,7 @@ import json
 from typing import Optional
 
 SLEEP_TIME_BETWEEN_READS_IN_SECONDS = 0.5
-queue_url = os.getenv("TONIBOX_QUEUE_URL")
+queue_url = os.getenv("QUEUE_URL")
 queue_client = QueueClient.from_queue_url(queue_url=queue_url)
 
 
@@ -55,7 +55,6 @@ def convert_dataclass_to_json(dataclass_: dataclass) -> str:
             return field.isoformat()
 
     return json.dumps(dataclass_as_dictionary, default=converter)
-
 
 response = None
 last_response = None
