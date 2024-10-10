@@ -1,11 +1,23 @@
-import RPi.GPIO as GPIO
+from time import sleep
+import sys
 from mfrc522 import SimpleMFRC522
+import os
+
+
 
 reader = SimpleMFRC522()
 
 try:
-    print("Place your tag near the reader...")
-    id, text = reader.read()
-    print(f"ID: {id}\nText: {text}")
-finally:
+    while True:
+        print("Hold a tag near the reader")
+        id, text = reader.read()
+        print("ID: %s\nText: %s" % (id,text))
+        sleep(5)
+except KeyboardInterrupt:
     GPIO.cleanup()
+    raise
+
+
+
+
+

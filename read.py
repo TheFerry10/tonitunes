@@ -7,9 +7,13 @@ import os
 from azure.storage.queue import QueueClient
 import json
 from typing import Optional
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 SLEEP_TIME_BETWEEN_READS_IN_SECONDS = 0.5
-queue_url = os.getenv("QUEUE_URL")
+queue_url = os.getenv("QUEUE_URL_LOCAL")
 queue_client = QueueClient.from_queue_url(queue_url=queue_url)
 
 
@@ -53,8 +57,8 @@ def convert_dataclass_to_json(dataclass_: dataclass) -> str:
     def converter(field):
         if isinstance(field, datetime.datetime):
             return field.isoformat()
-
-    return json.dumps(dataclass_as_dictionary, default=converter)
+    message_json = json.dumps(dataclass_as_dictionary, default=converter)
+    return message_json.encode('utf-8')
 
 response = None
 last_response = None
@@ -63,11 +67,13 @@ try:
     while True:
         id, text = reader.read()
         timestamp = datetime.datetime.now()
-        response = RFIDResponse(id=id, tag=text, timestamp=timestamp)
+        response = RFIDResponse(id=id, tag=text.strip(), timestamp=timestamp)
         if check_responses(current=response, last=last_response):
-            message = convert_dataclass_to_json(response)
+            # message = convert_dataclass_to_json(response)
+            message = json.dumps({"id": 288367552202, "tag": "101", "timestamp": "2024-10-09T23:22:37.171167"})
             print(message)
             queue_client.send_message(message)
+            print("Message sent")
         last_response = response
         time.sleep(SLEEP_TIME_BETWEEN_READS_IN_SECONDS)
 except KeyboardInterrupt:
