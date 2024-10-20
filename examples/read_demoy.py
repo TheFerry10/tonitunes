@@ -1,14 +1,15 @@
-import RPi.GPIO as GPIO
-from mfrc522 import SimpleMFRC522
-from dataclasses import dataclass, asdict
-import datetime
-import time
-import os
-from azure.storage.queue import QueueClient
-import json
-from typing import Optional
-from dotenv import load_dotenv
 import base64
+import datetime
+import json
+import os
+import time
+from dataclasses import asdict, dataclass
+from typing import Optional
+
+import RPi.GPIO as GPIO
+from azure.storage.queue import QueueClient
+from dotenv import load_dotenv
+from mfrc522 import SimpleMFRC522
 
 load_dotenv()
 

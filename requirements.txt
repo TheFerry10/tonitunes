@@ -15,6 +15,7 @@ identify==2.6.1
 idna==3.10
 iniconfig==2.0.0
 isodate==0.7.2
+isort==5.13.2
 mccabe==0.7.0
 mfrc522==0.0.7
 mypy-extensions==1.0.0

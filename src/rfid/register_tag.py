@@ -1,7 +1,9 @@
+from time import sleep
+
 import RPi.GPIO as GPIO
 from mfrc522 import SimpleMFRC522
+
 from adapters.repository import JsonUIDMappingRepository
-from time import sleep
 
 
 def transform_user_input_to_binary(user_input: str) -> bool:

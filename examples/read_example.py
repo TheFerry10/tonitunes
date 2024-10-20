@@ -1,8 +1,8 @@
-from time import sleep
-import sys
-from mfrc522 import SimpleMFRC522
 import os
+import sys
+from time import sleep
 
+from mfrc522 import SimpleMFRC522
 
 reader = SimpleMFRC522()
 
