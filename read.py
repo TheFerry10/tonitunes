@@ -57,8 +57,10 @@ def convert_dataclass_to_json(dataclass_: dataclass) -> str:
     def converter(field):
         if isinstance(field, datetime.datetime):
             return field.isoformat()
+
     message_json = json.dumps(dataclass_as_dictionary, default=converter)
-    return message_json.encode('utf-8')
+    return message_json.encode("utf-8")
+
 
 response = None
 last_response = None
@@ -70,7 +72,13 @@ try:
         response = RFIDResponse(id=id, tag=text.strip(), timestamp=timestamp)
         if check_responses(current=response, last=last_response):
             # message = convert_dataclass_to_json(response)
-            message = json.dumps({"id": 288367552202, "tag": "101", "timestamp": "2024-10-09T23:22:37.171167"})
+            message = json.dumps(
+                {
+                    "id": 288367552202,
+                    "tag": "101",
+                    "timestamp": "2024-10-09T23:22:37.171167",
+                }
+            )
             print(message)
             queue_client.send_message(message)
             print("Message sent")
