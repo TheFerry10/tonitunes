@@ -3,6 +3,7 @@ from mfrc522 import SimpleMFRC522
 from adapters.repository import JsonUIDMappingRepository
 from time import sleep
 
+
 def transform_user_input_to_binary(user_input: str) -> bool:
     user_input = user_input.lower()
     if user_input == "y":
@@ -11,6 +12,7 @@ def transform_user_input_to_binary(user_input: str) -> bool:
         return False
     else:
         raise ValueError(f"Input {user_input} not valid. Choose 'y' or 'n'.")
+
 
 file_name = "output.json"
 mapping = JsonUIDMappingRepository(file_name)
@@ -26,7 +28,7 @@ while True:
     finally:
         GPIO.cleanup()
         print("Cleaning done")
-    
+
     print(f"UID: {uid}")
     # uid = input("enter uid: ")
     if mapping.get_by_uid(uid):
@@ -34,15 +36,9 @@ while True:
         overwrite = transform_user_input_to_binary(input("Overwrite? y/n "))
         if overwrite:
             name = input("Enter name: ")
-            mapping.add(uid = uid, name = name, path="/some/random/file.txt")
+            mapping.add(uid=uid, name=name, path="/some/random/file.txt")
     else:
         name = input("Enter name: ")
-        mapping.add(uid = uid, name = name, path="/some/random/file.txt")
-        
+        mapping.add(uid=uid, name=name, path="/some/random/file.txt")
+
     mapping.save()
-    
-    
-
-
-
-
