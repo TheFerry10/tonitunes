@@ -4,7 +4,12 @@ from itertools import cycle
 from typing import List
 
 from src.adapters.repository import JsonUIDMappingRepository
-from src.adapters.rfid_interface import AbstractRFIDModule, RFIDData, handle_response
+from src.adapters.rfid_interface import (
+    AbstractRFIDModule,
+    RFIDData,
+    handle_response,
+    RFIDResponse,
+)
 
 
 class FakeRFIDModule(AbstractRFIDModule):
@@ -81,16 +86,13 @@ def test_rfid_reader_reads_same_data():
     ]
     out = []
     rfid_module = FakeRFIDModule(uid_text_samples)
-    previous_response = None  # init
+    response = RFIDResponse(current=None, previous=None)
     for iter_ in range(len(uid_text_samples)):
-        current_response = rfid_module.read()
-        if previous_response != current_response:
-            if current_response is None:
-                uid = None
-            else:
-                uid = current_response.uid
-            result = {"iter": iter_, "uid": uid}
+        response.current = rfid_module.read()
+        result = handle_response(response)
+        if result:
+            result["iter"] = iter_
             out.append(result)
-        previous_response = current_response
+        response.update()
 
     assert out == expected_recording

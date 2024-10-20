@@ -41,10 +41,22 @@ class AbstractRFIDModule(ABC):
         pass
 
 
-def handle_response(rfid_module: AbstractRFIDModule):
-    previous_response = None  # init
-    current_response = rfid_module.read()
-    if previous_response != current_response:
-        # None == None
-        # 100 == 100
-        return current_response
+class RFIDResponse:
+    def __init__(self, current: RFIDData, previous: RFIDData = None):
+        self.previous = previous
+        self.current = current
+
+    def update(self):
+        self.previous = self.current
+
+    def is_current_eq_previous(self):
+        return self.previous == self.current
+
+
+def handle_response(response: RFIDResponse):
+    if not response.is_current_eq_previous():
+        if response.current is None:
+            uid = None
+        else:
+            uid = response.current.uid
+        return {"iter": 0, "uid": uid}
