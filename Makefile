@@ -1,5 +1,5 @@
-sources = .
-test_dir = .
+sources = src tests examples
+test_dir = tests
 virtual_env = venv
 SHELL := /bin/bash
 python := ./$(virtual_env)/bin/python
@@ -31,7 +31,7 @@ lint:
 
 .PHONY: test
 test:
-	$(pytest) --cov=src --cov-report=term --cov-report=html $(test_dir)
+	$(pytest) $(test_dir)
 
 .PHONY: inspect-coverage
 inspect-coverage:

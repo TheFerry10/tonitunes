@@ -8,32 +8,26 @@ class AbstractUIDMappingRepository(ABC):
     @abstractmethod
     def get_all(self):
         """Retrieve all UID mappings"""
-        pass
 
     @abstractmethod
     def get_by_uid(self, uid: str):
         """Retrieve the mapping by UID"""
-        pass
 
     @abstractmethod
     def add(self, uid: str, name: Optional[str], path: str):
         """Add a new mapping."""
-        pass
 
     @abstractmethod
     def update(self, uid: str, name: Optional[str], path: str):
         """Update an existing file mapping"""
-        pass
 
     @abstractmethod
     def remove(self, uid: str):
         """Remove a mapping by UID."""
-        pass
 
     @abstractmethod
     def save(self):
         """Persist the current state to the storage"""
-        pass
 
 
 class JsonUIDMappingRepository(AbstractUIDMappingRepository):

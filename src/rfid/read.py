@@ -79,6 +79,7 @@ def convert_dataclass_to_json(dataclass_: dataclass) -> str:
     return message_json.encode("utf-8")
 
 
+# pass queue client object to function
 response = None
 last_response = None
 reader = SimpleMFRC522()

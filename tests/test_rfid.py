@@ -9,7 +9,32 @@ from src.adapters.rfid_interface import (
     RFIDData,
     handle_response,
     RFIDResponse,
+    get_action,
+    Action,
 )
+
+
+class FakeQueueClient:
+    def __init__(self):
+        self.queue = []
+
+    def send_message(self, message):
+        """Simulate sending a message to the queue."""
+        self.queue.append(message)
+        return True
+
+    def receive_message(self):
+        """Simulate receiving a message from the queue."""
+        if self.queue:
+            return self.queue.pop(0)
+        return None
+
+    def get_queue_length(self):
+        """Returns the number of messages in the queue."""
+        return len(self.queue)
+
+    def clear_messages(self):
+        self.queue = []
 
 
 class FakeRFIDModule(AbstractRFIDModule):
@@ -44,17 +69,16 @@ def test_register_rfid_tags(tmp_path):
         "10000002": "name_2",
     }
     expected = {
-        "10000000": {"name": "name_0", "path": "/some/random/file.txt"},
-        "10000001": {"name": "name_1", "path": "/some/random/file.txt"},
-        "10000002": {"name": "name_2", "path": "/some/random/file.txt"},
+        "10000000": {"name": "name_0", "path": ""},
+        "10000001": {"name": "name_1", "path": ""},
+        "10000002": {"name": "name_2", "path": ""},
     }
     mapping = JsonUIDMappingRepository(output_file)
     rfid_module = FakeRFIDModule(uid_text_samples)
     for _ in range(len(uid_text_samples)):
         rfid_response = rfid_module.read()
-        uid = rfid_response.get("uid")
-        name = uid_name_mapping.get(uid)
-        mapping.add(uid=uid, name=name, path="/some/random/file.txt")
+        name = uid_name_mapping.get(rfid_response.uid)
+        mapping.add(uid=rfid_response.uid, name=name, path="")
         mapping.save()
         with open(output_file, encoding="utf8") as f:
             output = json.load(f)
@@ -77,22 +101,35 @@ def test_rfid_reader_reads_same_data():
         (None, None),
         ("10000002", ""),
     ]
+    RFIDData("10000000", "")
     expected_recording = [
-        {"iter": 0, "uid": "10000000"},
-        {"iter": 2, "uid": None},
-        {"iter": 3, "uid": "10000001"},
-        {"iter": 4, "uid": None},
-        {"iter": 6, "uid": "10000002"},
+        {"iter": 0, "rfid_data": RFIDData("10000000", "")},
+        {"iter": 2, "rfid_data": RFIDData(None, None)},
+        {"iter": 3, "rfid_data": RFIDData("10000001", "")},
+        {"iter": 4, "rfid_data": RFIDData(None, None)},
+        {"iter": 6, "rfid_data": RFIDData("10000002", "")},
     ]
     out = []
     rfid_module = FakeRFIDModule(uid_text_samples)
     response = RFIDResponse(current=None, previous=None)
     for iter_ in range(len(uid_text_samples)):
         response.current = rfid_module.read()
-        result = handle_response(response)
-        if result:
-            result["iter"] = iter_
-            out.append(result)
+        handled_response = handle_response(response)
+        if handled_response:
+            out.append({"iter": iter_, "rfid_data": handled_response})
         response.update()
 
     assert out == expected_recording
+
+
+@pytest.mark.parametrize(
+    "rfid_data, expected",
+    [
+        (RFIDData("10000000", ""), Action("play", "10000000")),
+        (RFIDData("10000000", "test"), Action("play", "10000000")),
+        (RFIDData(None, None), Action("pause")),
+    ],
+)
+def test_rfid_to_action(rfid_data, expected):
+    action = get_action(rfid_data)
+    assert action == expected
