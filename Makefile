@@ -29,6 +29,10 @@ lint:
 	@echo "======="
 	flake8 $(sources)
 
+.PHONY: isort
+isort:
+	isort $(sources)
+
 .PHONY: test
 test:
 	$(pytest) $(test_dir)

@@ -16,7 +16,7 @@ class MFRCModule(AbstractRFIDModule):
     def read(self) -> RFIDData:
         try:
             uid, text = self.reader.read_no_block()
-            return {"uid": uid, "text": text}
+            return RFIDData(uid, text)
         except Exception as e:
             raise RFIDReadError("Failed to read from RFID module") from e
 

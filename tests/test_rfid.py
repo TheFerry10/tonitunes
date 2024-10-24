@@ -1,17 +1,31 @@
-import pytest
 import json
+from dataclasses import asdict, dataclass
 from itertools import cycle
 from typing import List
+
+import pytest
 
 from src.adapters.repository import JsonUIDMappingRepository
 from src.adapters.rfid_interface import (
     AbstractRFIDModule,
+    Action,
+    BaseDataclassConverter,
     RFIDData,
-    handle_response,
     RFIDResponse,
     get_action,
-    Action,
+    handle_response,
 )
+
+
+@dataclass
+class ExtendedDataClass(BaseDataclassConverter):
+    key: str
+    value: int
+
+
+@pytest.fixture
+def extended_data_class():
+    return ExtendedDataClass(key="foo", value=42)
 
 
 class FakeQueueClient:
@@ -133,3 +147,42 @@ def test_rfid_reader_reads_same_data():
 def test_rfid_to_action(rfid_data, expected):
     action = get_action(rfid_data)
     assert action == expected
+
+
+def test_e2e():
+    uid_text_samples = [
+        ("10000000", ""),
+        ("10000000", ""),
+        (None, None),
+        ("10000001", ""),
+        (None, None),
+        (None, None),
+        ("10000002", ""),
+    ]
+    expexted_queue = [
+        '{"action": "play", "uid": "10000000"}',
+        '{"action": "pause", "uid": null}',
+        '{"action": "play", "uid": "10000001"}',
+        '{"action": "pause", "uid": null}',
+        '{"action": "play", "uid": "10000002"}',
+    ]
+    queue_client = FakeQueueClient()
+    rfid_module = FakeRFIDModule(uid_text_samples)
+    response = RFIDResponse(current=None, previous=None)
+    for _ in range(len(uid_text_samples)):
+        response.current = rfid_module.read()
+        handled_response = handle_response(response)
+        if handled_response:
+            action = get_action(handled_response)
+            message_json = action.to_json()
+            queue_client.send_message(message_json)
+        response.update()
+    assert queue_client.queue == expexted_queue
+
+
+def test_to_dict_funcionality_for_dataclass(extended_data_class):
+    assert {"key": "foo", "value": 42} == extended_data_class.to_dict()
+
+
+def test_to_json_funcionality_for_dataclass(extended_data_class):
+    assert '{"key": "foo", "value": 42}' == extended_data_class.to_json()

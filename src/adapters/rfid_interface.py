@@ -1,10 +1,20 @@
+import json
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Literal, Optional
 
 
 @dataclass
-class RFIDData:
+class BaseDataclassConverter:
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    def to_json(self) -> str:
+        return json.dumps(asdict(self))
+
+
+@dataclass
+class RFIDData(BaseDataclassConverter):
     uid: int
     text: str
 
@@ -29,28 +39,27 @@ class AbstractRFIDModule(ABC):
     @abstractmethod
     def read(self):
         """Read uid and text information"""
-        pass
 
     @abstractmethod
     def write(self, text: str):
         """Write text to uid"""
-        pass
 
     @abstractmethod
     def cleanup(self):
         """Cleanup reader module"""
-        pass
 
 
 class RFIDResponse:
-    def __init__(self, current: RFIDData, previous: RFIDData = None):
+    def __init__(
+        self, current: Optional[RFIDData] = None, previous: Optional[RFIDData] = None
+    ):
         self.previous = previous
         self.current = current
 
     def update(self):
         self.previous = self.current
 
-    def is_current_eq_previous(self):
+    def is_current_eq_previous(self) -> bool:
         return self.previous == self.current
 
 
@@ -59,13 +68,13 @@ def handle_response(response: RFIDResponse) -> RFIDData:
         return response.current
 
 
-def get_action(rfid: RFIDData):
+@dataclass
+class Action(BaseDataclassConverter):
+    action: Literal["play", "pause"]
+    uid: Optional[str] = None
+
+
+def get_action(rfid: RFIDData) -> Action:
     if rfid.uid:
         return Action("play", rfid.uid)
     return Action("pause")
-
-
-@dataclass
-class Action:
-    action: Literal["play", "pause"]
-    uid: Optional[str] = None

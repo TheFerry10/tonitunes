@@ -1,8 +1,7 @@
-import os
-import sys
 from time import sleep
 
 from mfrc522 import SimpleMFRC522
+from RPi import GPIO
 
 reader = SimpleMFRC522()
 
