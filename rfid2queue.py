@@ -13,8 +13,9 @@ queue_client = FakeQueueClient()
 queue_client.clear_messages()
 
 response = RFIDResponse()
-while True:
-    try:
+
+try:
+    while True:
         response.current = rfid_module.read()
         # NOTE ResponseHandler should be an object
         handled_response = handle_response(response)
@@ -23,10 +24,11 @@ while True:
             action = get_action(handled_response)
             message_json = action.to_json()
             queue_client.send_message(message_json)
+            print(message_json)
         response.update()
         time.sleep(Config.SLEEP_TIME_BETWEEN_READS_IN_SECONDS)
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt detected. Cleaning up...")
-    finally:
-        GPIO.cleanup()
-        print("Cleaning done")
+except KeyboardInterrupt:
+    print("KeyboardInterrupt detected. Cleaning up...")
+finally:
+    GPIO.cleanup()
+    print("Cleaning done")

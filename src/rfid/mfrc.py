@@ -1,7 +1,7 @@
 from mfrc522 import SimpleMFRC522
 from RPi import GPIO
 
-from adapters.rfid_interface import (
+from src.adapters.rfid_interface import (
     AbstractRFIDModule,
     RFIDData,
     RFIDReadError,
@@ -15,7 +15,12 @@ class MFRCModule(AbstractRFIDModule):
 
     def read(self) -> RFIDData:
         try:
-            uid, text = self.reader.read_no_block()
+            response_count = 0
+            while response_count < 2:
+                uid, text = self.reader.read_no_block()
+                if uid:
+                    break
+                response_count += 1
             return RFIDData(uid, text)
         except Exception as e:
             raise RFIDReadError("Failed to read from RFID module") from e
