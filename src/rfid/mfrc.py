@@ -1,3 +1,5 @@
+import time
+
 from mfrc522 import SimpleMFRC522
 from RPi import GPIO
 
@@ -10,18 +12,27 @@ from src.adapters.rfid_interface import (
 
 
 class MFRCModule(AbstractRFIDModule):
+    MAX_RESPONSE_COUNT = 2
+    SLEEP_AFTER_SUCCESSFUL_READING = 5
+
     def __init__(self):
         self.reader = SimpleMFRC522()
+        self.event = RFIDData()
 
     def read(self) -> RFIDData:
         try:
             response_count = 0
-            while response_count < 2:
+            self.event = RFIDData()
+            while response_count < self.MAX_RESPONSE_COUNT:
                 uid, text = self.reader.read_no_block()
                 if uid:
-                    break
+                    time.sleep(
+                        self.SLEEP_AFTER_SUCCESSFUL_READING
+                    )  # TODO I want to sleep AFTER reading
+                    self.event = RFIDData(uid, text)
+                    return self.event
                 response_count += 1
-            return RFIDData(uid, text)
+            return self.event
         except Exception as e:
             raise RFIDReadError("Failed to read from RFID module") from e
 

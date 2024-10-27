@@ -1,13 +1,16 @@
-import time
+import os
 
+from dotenv import load_dotenv
 from RPi import GPIO
 
-from src.adapters.rfid_interface import RFIDResponse, get_action, handle_response
+from src.adapters.rfid_interface import ResponseHandler, RFIDResponse, get_action
 from src.config import config
 from src.rfid.mfrc import MFRCModule
 from tests.test_rfid import FakeQueueClient
 
-Config = config.get("development")
+load_dotenv(override=True)
+CONFIG_NAME = os.getenv("CONFIG_NAME", "default")
+Config = config.get(CONFIG_NAME)
 rfid_module = MFRCModule()
 queue_client = FakeQueueClient()
 queue_client.clear_messages()
@@ -17,16 +20,14 @@ response = RFIDResponse()
 try:
     while True:
         response.current = rfid_module.read()
-        # NOTE ResponseHandler should be an object
-        handled_response = handle_response(response)
-        # NOTE this can be encapsulated
+        response_handler = ResponseHandler(response)
+        handled_response = response_handler.handle()
         if handled_response:
             action = get_action(handled_response)
             message_json = action.to_json()
             queue_client.send_message(message_json)
             print(message_json)
         response.update()
-        time.sleep(Config.SLEEP_TIME_BETWEEN_READS_IN_SECONDS)
 except KeyboardInterrupt:
     print("KeyboardInterrupt detected. Cleaning up...")
 finally:

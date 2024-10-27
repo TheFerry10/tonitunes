@@ -14,11 +14,11 @@ class AbstractUIDMappingRepository(ABC):
         """Retrieve the mapping by UID"""
 
     @abstractmethod
-    def add(self, uid: str, name: Optional[str], path: str):
+    def add(self, uid: str, name: Optional[str]):
         """Add a new mapping."""
 
     @abstractmethod
-    def update(self, uid: str, name: Optional[str], path: str):
+    def update(self, uid: str, name: Optional[str]):
         """Update an existing file mapping"""
 
     @abstractmethod
@@ -47,11 +47,11 @@ class JsonUIDMappingRepository(AbstractUIDMappingRepository):
     def get_by_uid(self, uid: str):
         return self._mapping.get(uid)
 
-    def add(self, uid: str, name: Optional[str], path: str):
-        self._mapping[uid] = {"name": name, "path": path}
+    def add(self, uid: str, name: Optional[str]):
+        self._mapping[uid] = {"name": name}
 
-    def update(self, uid: str, name: Optional[str], path: str):
-        self._mapping[uid] = {"name": name, "path": path}
+    def update(self, uid: str, name: Optional[str]):
+        self._mapping[uid] = {"name": name}
 
     def remove(self, uid: str):
         if uid in self._mapping:

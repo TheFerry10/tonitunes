@@ -1,7 +1,9 @@
 import json
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
-from typing import Literal, Optional
+from typing import Dict, Literal, Optional
+
+from src.adapters.repository import AbstractUIDMappingRepository
 
 
 @dataclass
@@ -15,8 +17,8 @@ class BaseDataclassConverter:
 
 @dataclass
 class RFIDData(BaseDataclassConverter):
-    uid: int
-    text: str
+    uid: Optional[int] = None
+    text: Optional[str] = None
 
 
 class RFIDReadError(Exception):
@@ -63,9 +65,14 @@ class RFIDResponse:
         return self.previous == self.current
 
 
-def handle_response(response: RFIDResponse) -> RFIDData:
-    if not response.is_current_eq_previous():
-        return response.current
+class ResponseHandler:
+    def __init__(self, response: RFIDResponse, response_map=None):
+        self.response = response
+        self.response_map = response_map
+
+    def handle(self) -> RFIDData:
+        if not self.response.is_current_eq_previous():
+            return self.response.current
 
 
 @dataclass
@@ -78,3 +85,27 @@ def get_action(rfid: RFIDData) -> Action:
     if rfid.uid:
         return Action("play", rfid.uid)
     return Action("pause")
+
+
+class TagRegister:
+    def __init__(
+        self,
+        registry: AbstractUIDMappingRepository,
+        rfid_module: AbstractRFIDModule,
+        mapping: Optional[Dict[str, str]] = None,
+    ):
+        self.registry = registry
+        self.rfid_module = rfid_module
+        self.mapping = mapping
+
+    def get_name_from_mapping(self, rfid_response: RFIDData) -> Optional[str]:
+        if self.mapping:
+            return self.mapping.get(rfid_response.uid)
+
+    def register(self, name: Optional[str] = None):
+        rfid_response = self.rfid_module.read()
+        if rfid_response.uid:
+            if name is None:
+                name = self.get_name_from_mapping(rfid_response)
+            self.registry.add(uid=rfid_response.uid, name=name)
+            self.registry.save()

@@ -1,8 +1,5 @@
 import os
 
-from dotenv import load_dotenv
-
-load_dotenv(override=True)
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -11,7 +8,11 @@ class Config:
 
 
 class DevelopmentConfig(Config):
-    pass
+    def init_queue_client(self):
+        pass
+
+    def init_rfid_module(self):
+        pass
 
 
 class TestingConfig(Config):
@@ -52,6 +53,7 @@ class AzureConfig(ProductionConfig):
 
 
 config = {
+    "default": DevelopmentConfig,
     "development": DevelopmentConfig,
     "testing": TestingConfig,
     "production": ProductionConfig,
