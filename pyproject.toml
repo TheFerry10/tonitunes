@@ -1,0 +1,4 @@
+[tool.isort]
+profile = "black"  # If you are using Black, this makes sure isort plays nicely with it
+line_length = 88   # Match Black's default line length
+known_third_party = ["RPi", "mfrc522"]  # List third-party libraries explicitly

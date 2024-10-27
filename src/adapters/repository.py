@@ -1,6 +1,6 @@
-from abc import ABC, abstractmethod
 import json
 import os
+from abc import ABC, abstractmethod
 from typing import Optional
 
 
@@ -8,32 +8,26 @@ class AbstractUIDMappingRepository(ABC):
     @abstractmethod
     def get_all(self):
         """Retrieve all UID mappings"""
-        pass
 
     @abstractmethod
     def get_by_uid(self, uid: str):
         """Retrieve the mapping by UID"""
-        pass
 
     @abstractmethod
-    def add(self, uid: str, name: Optional[str], path: str):
+    def add(self, uid: str, name: Optional[str]):
         """Add a new mapping."""
-        pass
 
     @abstractmethod
-    def update(self, uid: str, name: Optional[str], path: str):
+    def update(self, uid: str, name: Optional[str]):
         """Update an existing file mapping"""
-        pass
 
     @abstractmethod
     def remove(self, uid: str):
         """Remove a mapping by UID."""
-        pass
 
     @abstractmethod
     def save(self):
         """Persist the current state to the storage"""
-        pass
 
 
 class JsonUIDMappingRepository(AbstractUIDMappingRepository):
@@ -53,11 +47,11 @@ class JsonUIDMappingRepository(AbstractUIDMappingRepository):
     def get_by_uid(self, uid: str):
         return self._mapping.get(uid)
 
-    def add(self, uid: str, name: Optional[str], path: str):
-        self._mapping[uid] = {"name": name, "path": path}
+    def add(self, uid: str, name: Optional[str]):
+        self._mapping[uid] = {"name": name}
 
-    def update(self, uid: str, name: Optional[str], path: str):
-        self._mapping[uid] = {"name": name, "path": path}
+    def update(self, uid: str, name: Optional[str]):
+        self._mapping[uid] = {"name": name}
 
     def remove(self, uid: str):
         if uid in self._mapping:
