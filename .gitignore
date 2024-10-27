@@ -166,4 +166,4 @@ __azurite*
 __blobstorage__
 __queuestorage__
 
-tmp/
+out.json

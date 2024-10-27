@@ -1,9 +1,12 @@
 import json
+import logging
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
 from typing import Dict, Literal, Optional
 
-from src.adapters.repository import AbstractUIDMappingRepository
+from adapters.repository import AbstractUIDMappingRepository
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -17,8 +20,13 @@ class BaseDataclassConverter:
 
 @dataclass
 class RFIDData(BaseDataclassConverter):
-    uid: Optional[int] = None
+    uid: Optional[str] = None
     text: Optional[str] = None
+    
+    def __post_init__(self):
+        # Convert uid to a string if it's an integer
+        if isinstance(self.uid, int):
+            self.uid = str(self.uid)
 
 
 class RFIDReadError(Exception):
@@ -97,15 +105,23 @@ class TagRegister:
         self.registry = registry
         self.rfid_module = rfid_module
         self.mapping = mapping
+        self.response = RFIDResponse()
 
     def get_name_from_mapping(self, rfid_response: RFIDData) -> Optional[str]:
         if self.mapping:
             return self.mapping.get(rfid_response.uid)
 
     def register(self, name: Optional[str] = None):
-        rfid_response = self.rfid_module.read()
-        if rfid_response.uid:
-            if name is None:
-                name = self.get_name_from_mapping(rfid_response)
-            self.registry.add(uid=rfid_response.uid, name=name)
-            self.registry.save()
+        self.response.current = self.rfid_module.read()
+        response_handler = ResponseHandler(self.response)
+        handled_response = response_handler.handle()
+        if handled_response:
+            if self.response.current.uid:
+                if name is None:
+                    name = self.get_name_from_mapping(self.response.current)
+                self.registry.add(uid=self.response.current.uid, name=name)
+                self.registry.save()
+                logger.info(
+                    f"Successfully registered uid {self.response.current.uid} with name {name}"
+                )
+        self.response.update()
