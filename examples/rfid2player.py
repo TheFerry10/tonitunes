@@ -47,7 +47,7 @@ def execute():
                 controller_action = get_action(handled_response)
                 if controller_action.action == "play":
                     print(controller_action.to_dict())
-                    file_name = file_path_mapping.get(controller_action.uid)
+                    file_name = file_path_mapping.get(controller_action.uid, "186428096695")
                     file_path = Path(AUDIO_DIR, file_name)
                     audio_controller.play(file_path)
 
