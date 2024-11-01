@@ -1,14 +1,13 @@
 from pathlib import Path
 
-from adapters.repository import JsonFileMappingRepository
+from adapters.repository import JsonUIDMappingRepository
 
 
 class FilePathMapper:
-    def __init__(self, media_mapping_path, audio_dir):
-        self.media_mapping_path = media_mapping_path
+    def __init__(self, uid_mapping, audio_dir):
+        self.uid_mapping = uid_mapping
         self.audio_dir = audio_dir
-        self.mapping_repo = JsonFileMappingRepository(file_path=self.media_mapping_path)
 
     def get_file_path_from_id(self, file_id) -> Path:
-        file_name = self.mapping_repo.get_by_id(file_id)
+        file_name = self.uid_mapping.get_by_id(file_id)
         return Path(self.audio_dir, file_name)
