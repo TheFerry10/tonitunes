@@ -10,6 +10,7 @@ from player.player import VlcAudioController
 from rfid.mfrc import MFRCModule
 from utils.mapper import FilePathMapper
 from pathlib import Path
+import vlc
 
 load_dotenv(override=True)
 CONFIG_NAME = os.getenv("CONFIG_NAME", "default")
@@ -18,6 +19,7 @@ Config = config.get(CONFIG_NAME)
 
 AUDIO_DIR = os.environ.get("AUDIO_DIR")
 MEDIA_MAPPING_PATH = os.environ.get("MEDIA_MAPPING_PATH")
+vlc_instance = vlc.Instance("--aout=alsa")
 
 # mapping_repo = JsonUIDMappingRepository(file_path=MEDIA_MAPPING_PATH)
 # file_path_mapper = FilePathMapper(mapping_repo, AUDIO_DIR)
@@ -34,7 +36,7 @@ def execute():
 
     rfid_module = MFRCModule()
     response = RFIDResponse()
-    audio_controller = VlcAudioController()
+    audio_controller = VlcAudioController(vlc_instance=vlc_instance)
 
     try:
         while True:
