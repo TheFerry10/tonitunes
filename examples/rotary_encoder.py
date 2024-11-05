@@ -3,8 +3,8 @@ from gpiozero import Button
 from signal import pause
 
 # Define GPIO pins for clk and dt
-clk = 21
-dt = 20
+clk = 20
+dt = 21
 sw = 16
 
 # Initialize the rotary encoder
@@ -21,13 +21,23 @@ def button_pressed():
 
 def button_released():
     print("The button is released!")
-    
+
+STEP = 5
 # Event to trigger when the encoder moves
 def on_rotate():
-    print("Counter:", -encoder.steps)
+    print("Counter:", encoder.steps)
+
+def on_clockwise_rotate():
+    
+    print("Increase volume by ", STEP)
+    
+def on_counter_clockwise_rotate():
+    print("Decrease volume by ", STEP)
 
 # Attach the event
-encoder.when_rotated = on_rotate
+# encoder.when_rotated = on_rotate
+encoder.when_rotated_clockwise = on_clockwise_rotate
+encoder.when_rotated_counter_clockwise = on_counter_clockwise_rotate
 # Attach actions to button events
 button.when_pressed = button_pressed
 button.when_released = button_released

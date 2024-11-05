@@ -15,5 +15,5 @@ Flask-SQLAlchemy
 Flask-WTF
 Flask
 pygame
-pygame
 python-vlc
+gpiozero
