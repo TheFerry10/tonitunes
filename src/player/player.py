@@ -33,7 +33,9 @@ class AbstractAudioController(ABC):
     def decrease_volume(self, step: int):
         """Decrease volume by step"""
 
+
 DEFAULT_INSTANCE = vlc.Instance()
+
 
 class VlcAudioController(AbstractAudioController):
     """
@@ -63,8 +65,7 @@ class VlcAudioController(AbstractAudioController):
     """
 
     VOLUME = {"min": 0, "max": 100, "default": 75}
-    
-    
+
     def __init__(self, vlc_instance: vlc.Instance = DEFAULT_INSTANCE):
         self.instance = vlc_instance
         self.player = self.instance.media_player_new()

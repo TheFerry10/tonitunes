@@ -10,6 +10,7 @@ red_button = Button(RED_BUTTON_PIN, pull_up=True)
 
 counter = 0
 
+
 # Define actions for button press and release
 def blue_button_pressed():
     global counter
@@ -17,8 +18,10 @@ def blue_button_pressed():
     print("The blue button is pressed!")
     print("Counter:", counter)
 
+
 def blue_button_released():
     print("The blue button is released!")
+
 
 def red_button_pressed():
     global counter
@@ -26,8 +29,10 @@ def red_button_pressed():
     print("The red button is pressed!")
     print("Counter:", counter)
 
+
 def red_button_released():
     print("The red button is released!")
+
 
 # Attach actions to button events
 blue_button.when_pressed = blue_button_pressed

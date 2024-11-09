@@ -15,4 +15,3 @@ for i in range(100):
     v += step
     led.value = v
     sleep(1)
-

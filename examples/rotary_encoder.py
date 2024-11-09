@@ -12,6 +12,7 @@ encoder = RotaryEncoder(clk, dt, max_steps=0)  # Set max_steps=0 for unlimited s
 button = Button(sw, pull_up=True)
 counter = 0
 
+
 # Define actions for button press and release
 def button_pressed():
     global counter
@@ -19,20 +20,27 @@ def button_pressed():
     print("The button is pressed!")
     print("Counter:", counter)
 
+
 def button_released():
     print("The button is released!")
 
+
 STEP = 5
+
+
 # Event to trigger when the encoder moves
 def on_rotate():
     print("Counter:", encoder.steps)
 
+
 def on_clockwise_rotate():
-    
+
     print("Increase volume by ", STEP)
-    
+
+
 def on_counter_clockwise_rotate():
     print("Decrease volume by ", STEP)
+
 
 # Attach the event
 # encoder.when_rotated = on_rotate
@@ -45,13 +53,3 @@ button.when_released = button_released
 # Keep the program running
 print("Rotary encoder is ready. Rotate to see the counter...")
 pause()
-
-
-
-
-
-
-
-
-
-

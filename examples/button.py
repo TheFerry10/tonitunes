@@ -1,6 +1,7 @@
 from gpiozero import Button
 import RPi.GPIO as GPIO
 import time
+
 BLUE_BUTTON_PIN = 26
 RED_BUTTON_PIN = 19
 
@@ -48,7 +49,6 @@ try:
             else:  # Button is released
                 print("The red button is released!")
 
-        
             # Update the previous button state
             prev_button_state_red = button_state_red
 
@@ -59,4 +59,3 @@ except KeyboardInterrupt:
     print("\nExiting...")
     # Clean up GPIO settings
     GPIO.cleanup()
-
