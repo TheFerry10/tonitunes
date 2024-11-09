@@ -22,7 +22,7 @@ class BaseDataclassConverter:
 class RFIDData(BaseDataclassConverter):
     uid: Optional[str] = None
     text: Optional[str] = None
-    
+
     def __post_init__(self):
         # Convert uid to a string if it's an integer
         if isinstance(self.uid, int):

@@ -7,7 +7,7 @@ from adapters.rfid_interface import TagRegister
 from rfid.mfrc import MFRCModule
 
 logging.basicConfig(
-    level=logging.INFO, 
+    level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
