@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}UID2Song mapping{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <table>
+        <thead>
+            <tr>
+                {% for heading in table_header %}
+                <th>{{ heading }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in table_data %}
+            <tr>
+                {% for cell in row %}
+                <td>{{cell}}</td>
+                {% endfor %}
+                <td> 
+                    <select name="media">
+                        {% for file_name in  file_names%}
+                        
+                        <option value={{ file_name }} {% if file_name == "UK" %}selected{% endif %}> {{ file_name }} </option>
+                        {% endfor %}
+                    </select>    
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% for key, form in forms.items() %}
+    {{ wtf.quick_form(form) }}
+{% endfor %}
+{% endblock %}

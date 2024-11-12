@@ -167,3 +167,4 @@ __blobstorage__
 __queuestorage__
 
 out.json
+*/data.sqlite
