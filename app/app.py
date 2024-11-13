@@ -1,11 +1,16 @@
+# TODO Create dummy card entries in the DB to mimic that these have been filled by the
+# registration
+# TODO Create a script which is reading the media files in the linked folder. Put the
+#  the filenames into the DB. Update by triggering the script.
+
 import os
 
-from flask import Flask, flash, redirect, render_template, session, url_for
+from flask import Flask, flash, redirect, render_template, url_for
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, SubmitField
+from wtforms import SelectField, SubmitField
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -40,12 +45,23 @@ class FilePathForm(FlaskForm):
 
 
 class Card(db.Model):
-    __tablename__ = "card"
+    __tablename__ = "cards"
     uid = db.Column(db.String(64), primary_key=True)
-    name = db.Column(db.String(64))
+    name = db.Column(db.String(64), unique=True)
+    audio_file_id = db.Column(db.Integer, db.ForeignKey("audio_files.id"))
 
     def __repr__(self):
-        return "<Card %r>" % self.name
+        return f"<Card {self.uid}>"
+
+
+class AudioFile(db.Model):
+    __tablename__ = "audio_files"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    filename = db.Column(db.String(64), unique=True, nullable=False)
+    cards = db.relationship("Card", backref="audio_file", lazy="joined")
+
+    def __repr__(self):
+        return f"<AudioFile {self.filename}>"
 
 
 @app.route("/", methods=["GET", "POST"])
