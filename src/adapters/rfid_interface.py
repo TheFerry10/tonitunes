@@ -122,6 +122,9 @@ class TagRegister:
                 self.registry.add(uid=self.response.current.uid, name=name)
                 self.registry.save()
                 logger.info(
-                    f"Successfully registered uid {self.response.current.uid} with name {name}"
+                    "Successfully registered uid %s with name %s",
+                    self.response.current.uid,
+                    name,
                 )
+
         self.response.update()
