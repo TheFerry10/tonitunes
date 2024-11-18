@@ -1,5 +1,3 @@
-# TODO Create dummy card entries in the DB to mimic that these have been filled by the
-# registration
 # TODO Create a script which is reading the media files in the linked folder. Put the
 #  the filenames into the DB. Update by triggering the script.
 
@@ -26,7 +24,7 @@ db = SQLAlchemy(app)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 
-table_header = ("Name", "Age", "Country", "NewCountry")
+table_header = ("Card UID", "Card Name", "Song")
 table_data = (
     ("Alice", 30, "USA"),
     ("Bob", 25, "Canada"),
