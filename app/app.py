@@ -39,6 +39,12 @@ class FileNameForm(Form):
     )
 
 
+class FileMappingForm(FlaskForm):
+    card_identifier = SelectField("Card", choices=["001", "002", "003", "004"])
+    file_name = SelectField("File Name", choices=["A", "B", "C", "D"])
+    submit = SubmitField("Save")
+
+
 class TableForm(FlaskForm):
     dropdown_fields = FieldList(FormField(FileNameForm), min_entries=3)
     submit = SubmitField("Submit")
@@ -64,18 +70,23 @@ class AudioFile(db.Model):
         return f"<AudioFile {self.filename}>"
 
 
+def get_card_identifier_options() -> list:
+    return [("001", "001 - A"), ("002", "002 - B"), ("003", "003 - C")]
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
 
     form = TableForm()
+    file_mapping_form = FileMappingForm()
+    card_options = get_card_identifier_options()
+    print(dir(file_mapping_form))
+    file_mapping_form.card_identifier.choices = card_options
     if form.validate_on_submit():
         for value in form.dropdown_fields.data:
             print(value)
         flash("File mapping successfully updated!")
-    return render_template(
-        "index.html",
-        form=form,
-    )
+    return render_template("index.html", form=form, file_mapping_form=file_mapping_form)
 
 
 if __name__ == "__main__":

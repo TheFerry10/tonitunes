@@ -28,7 +28,9 @@
         {{ form.submit(class="btn btn-primary") }}
     </form>
 </div>
-
+<form action="/" method="post">
+    {{ wtf.quick_form(file_mapping_form) }}
+</form>
 
 
 {% endblock %}
