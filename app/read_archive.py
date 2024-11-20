@@ -21,7 +21,7 @@ def insert_filenames():
 
 def read_filenames():
     session = Session()
-    return session.query(AudioFile.filename).all()
+    return [row[0] for row in session.query(AudioFile.filename).all()]
 
 
 def read_cards():
@@ -34,5 +34,5 @@ def read_cards():
 
 
 if __name__ == "__main__":
-    result = read_cards()
+    result = read_filenames()
     print(result)

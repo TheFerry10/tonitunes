@@ -8,7 +8,7 @@ from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
-from wtforms import SelectField, SubmitField
+from wtforms import SelectField, SubmitField, FormField, FieldList, Form
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -24,22 +24,24 @@ db = SQLAlchemy(app)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 
-table_header = ("Card UID", "Card Name", "Song")
-table_data = (
-    ("Alice", 30, "USA"),
-    ("Bob", 25, "Canada"),
-    ("Charlie", 40, "UK"),
-)
-file_names = ("USA", "UK", "Germany", "")
+
+table_header = ("Card UID", "Card Name", "Connected Song")
 
 
-class FilePathForm(FlaskForm):
-    file_path = SelectField(
-        "FileName",
-        choices=[("song1", "Song 1"), ("song2", "Song 2"), ("song3", "Song 3")],
-        default="song2",
+class FileNameForm(Form):
+    file_name = SelectField(
+        label="Dropdown",
+        choices=[
+            ("option1", "Option 1"),
+            ("option2", "Option 2"),
+            ("option3", "Option 3"),
+        ],
     )
-    submit = SubmitField("Save")
+
+
+class TableForm(FlaskForm):
+    dropdown_fields = FieldList(FormField(FileNameForm), min_entries=3)
+    submit = SubmitField("Submit")
 
 
 class Card(db.Model):
@@ -64,19 +66,15 @@ class AudioFile(db.Model):
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    forms = {"uid0": FilePathForm(), "uid1": FilePathForm()}
-    for key, form in forms.items():
-        if form.validate_on_submit():
-            file_path = form.file_path.data
-            print(key, file_path)
-            flash("File mapping successfully updated!")
-            return redirect(url_for("index"))
+
+    form = TableForm()
+    if form.validate_on_submit():
+        for value in form.dropdown_fields.data:
+            print(value)
+        flash("File mapping successfully updated!")
     return render_template(
         "index.html",
-        table_header=table_header,
-        table_data=table_data,
-        file_names=file_names,
-        forms=forms,
+        form=form,
     )
 
 

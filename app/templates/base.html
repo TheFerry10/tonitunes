@@ -6,6 +6,13 @@
 {{ super() }}
 <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
 <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+<style>
+    .form-inline {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+</style>
 {% endblock %}
 
 {% block navbar %}
