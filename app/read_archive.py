@@ -34,5 +34,5 @@ def read_cards():
 
 
 if __name__ == "__main__":
-    result = read_filenames()
+    result = read_cards()
     print(result)

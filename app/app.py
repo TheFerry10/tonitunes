@@ -25,29 +25,10 @@ bootstrap = Bootstrap(app)
 moment = Moment(app)
 
 
-table_header = ("Card UID", "Card Name", "Connected Song")
-
-
-class FileNameForm(Form):
-    file_name = SelectField(
-        label="Dropdown",
-        choices=[
-            ("option1", "Option 1"),
-            ("option2", "Option 2"),
-            ("option3", "Option 3"),
-        ],
-    )
-
-
 class FileMappingForm(FlaskForm):
     card_identifier = SelectField("Card", choices=["001", "002", "003", "004"])
     file_name = SelectField("File Name", choices=["A", "B", "C", "D"])
     submit = SubmitField("Save")
-
-
-class TableForm(FlaskForm):
-    dropdown_fields = FieldList(FormField(FileNameForm), min_entries=3)
-    submit = SubmitField("Submit")
 
 
 class Card(db.Model):
@@ -70,24 +51,48 @@ class AudioFile(db.Model):
         return f"<AudioFile {self.filename}>"
 
 
+table_header = ("Card Id", "Card Name", "File Name")
+
+
+def get_cards():
+    return (
+        db.session.query(Card.uid, Card.name, AudioFile.filename)
+        .outerjoin(AudioFile)
+        .all()
+    )
+
+
 def get_card_identifier_options() -> list:
-    return [("001", "001 - A"), ("002", "002 - B"), ("003", "003 - C")]
+    return [(card.uid, " - ".join([card.uid, card.name])) for card in Card.query.all()]
+
+
+def get_filenames():
+    return [
+        (audio_file.id, audio_file.filename) for audio_file in AudioFile.query.all()
+    ]
 
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-
-    form = TableForm()
-    file_mapping_form = FileMappingForm()
+    table_data = get_cards()
+    form = FileMappingForm()
     card_options = get_card_identifier_options()
-    print(dir(file_mapping_form))
-    file_mapping_form.card_identifier.choices = card_options
+    form.card_identifier.choices = card_options
+    form.file_name.choices = get_filenames()
     if form.validate_on_submit():
-        for value in form.dropdown_fields.data:
-            print(value)
+        card = Card.query.filter_by(uid=form.card_identifier.data).first()
+        card.audio_file_id = form.file_name.data
+        db.session.add(card)
+        db.session.commit()
         flash("File mapping successfully updated!")
-    return render_template("index.html", form=form, file_mapping_form=file_mapping_form)
+        return redirect(url_for("index"))
+    return render_template(
+        "index.html",
+        form=form,
+        table_header=table_header,
+        table_data=table_data,
+    )
 
 
 if __name__ == "__main__":
-    app.run(host="localhost", debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

@@ -4,33 +4,31 @@
 {% block title %}UID2Song mapping{% endblock %}
 
 {% block page_content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
 
 <div class="container mt-5">
-    <h2>Dynamic Table with Dropdowns</h2>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        <table>
-            <thead>
+    <table>
+        <thead>
             <tr>
-                <th>Name</th>
-                <th>Option</th>
-            </tr>
-            </thead>
-            <tbody>
-                {% for dropdown_field in form.dropdown_fields %}
-                <tr>
-                    <td>{{ dropdown_field.file_name.label }}</td>
-                    <td>{{ dropdown_field.file_name() }}</td>
-                </tr>
+                {% for heading in table_header %}
+                <th>{{ heading }}</th>
                 {% endfor %}
-            </tbody>
-        </table>
-        {{ form.submit(class="btn btn-primary") }}
-    </form>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in table_data %}
+            <tr>
+                {% for cell in row %}
+                <td>{{ cell }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 <form action="/" method="post">
-    {{ wtf.quick_form(file_mapping_form) }}
+    {{ wtf.quick_form(form) }}
 </form>
-
 
 {% endblock %}
