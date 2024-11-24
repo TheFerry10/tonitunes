@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from app import AudioFile, Card
+from cardsync import AudioFile, Card
 
 DATABASE_URL = "sqlite:///data.sqlite"
 engine = create_engine(DATABASE_URL, echo=True)

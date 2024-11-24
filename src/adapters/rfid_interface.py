@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
 from typing import Dict, Literal, Optional
 
-
 from adapters.repository import AbstractUIDMappingRepository
 
 logger = logging.getLogger(__name__)

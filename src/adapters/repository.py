@@ -5,7 +5,7 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from app.models import Card
+from cardsync.app.models import Card
 
 
 class AbstractUIDMappingRepository(ABC):

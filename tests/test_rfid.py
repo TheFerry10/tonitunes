@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 import pytest
 
-from app import models
+from cardsync.app import models
 from src.adapters.repository import SqlAlchemyUIDMappingRepositoriy
 from src.adapters.rfid_interface import (
     AbstractRFIDModule,
