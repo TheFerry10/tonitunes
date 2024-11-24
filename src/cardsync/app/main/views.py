@@ -1,6 +1,6 @@
 from flask import flash, redirect, render_template, url_for
 
-from .. import db
+from ..database import db_session
 from ..models import AudioFile, Card
 from . import main
 from .forms import FileMappingForm
@@ -8,7 +8,7 @@ from .forms import FileMappingForm
 
 def get_cards():
     return (
-        db.session.query(Card.uid, Card.name, AudioFile.filename)
+        db_session.query(Card.uid, Card.name, AudioFile.filename)
         .outerjoin(AudioFile)
         .all()
     )
@@ -37,8 +37,8 @@ def index():
     if form.validate_on_submit():
         card = Card.query.filter_by(uid=form.card_identifier.data).first()
         card.audio_file_id = form.file_name.data
-        db.session.add(card)
-        db.session.commit()
+        db_session.add(card)
+        db_session.commit()
         flash("File mapping successfully updated!")
         return redirect(url_for(".index"))
     return render_template(

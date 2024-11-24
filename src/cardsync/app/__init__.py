@@ -1,13 +1,11 @@
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
-from flask_sqlalchemy import SQLAlchemy
-
+from .database import init_db, db_session
 from config import config
 
 bootstrap = Bootstrap()
 moment = Moment()
-db = SQLAlchemy()
 
 
 def create_app(config_name):
@@ -17,10 +15,14 @@ def create_app(config_name):
 
     bootstrap.init_app(app)
     moment.init_app(app)
-    db.init_app(app)
+    init_db()
 
     from .main import main as main_blueprint
 
     app.register_blueprint(main_blueprint)
+
+    @app.teardown_appcontext
+    def shutdown_session(exception=None):
+        db_session.remove()
 
     return app
