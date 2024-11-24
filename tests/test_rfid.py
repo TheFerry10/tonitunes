@@ -1,9 +1,9 @@
-import json
 from dataclasses import dataclass
 
 import pytest
 
-from src.adapters.repository import JsonUIDMappingRepository
+from app import models
+from src.adapters.repository import SqlAlchemyUIDMappingRepositoriy
 from src.adapters.rfid_interface import (
     AbstractRFIDModule,
     Action,
@@ -66,8 +66,9 @@ class FakeRFIDModule(AbstractRFIDModule):
         pass
 
 
-def test_register_rfid_tags(tmp_path):
-    output_file = tmp_path / "output.json"
+def test_register_rfid_tags(session):
+
+    # output_file = tmp_path / "output.json"
     rifd_data_samples = [
         RFIDData(uid="10000000"),
         RFIDData(uid="10000000"),
@@ -81,19 +82,20 @@ def test_register_rfid_tags(tmp_path):
         "10000001": "name_1",
         "10000002": "name_2",
     }
-    expected = {
-        "10000000": {"name": "name_0"},
-        "10000001": {"name": "name_1"},
-        "10000002": {"name": "name_2"},
-    }
-    registry = JsonUIDMappingRepository(output_file)
+    expected = [
+        ("10000000", "name_0", None),
+        ("10000001", "name_1", None),
+        ("10000002", "name_2", None),
+    ]
+    registry = SqlAlchemyUIDMappingRepositoriy(session)
     rfid_module = FakeRFIDModule()
     tag_registry = TagRegister(registry, rfid_module, mapping)
     for rifd_data in rifd_data_samples:
         rfid_module.event = rifd_data
         tag_registry.register()
-    with open(output_file, encoding="utf8") as f:
-        output = json.load(f)
+    output = session.query(
+        models.Card.uid, models.Card.name, models.Card.audio_file_id
+    ).all()
     assert output == expected
 
 

@@ -1,4 +1,4 @@
-sources = src tests app examples
+sources = src tests examples
 test_dir = tests
 virtual_env = venv
 SHELL := /bin/bash

@@ -1,5 +1,6 @@
-from app import Card, db
 from faker import Faker
+
+from app import Card, db
 
 fake = Faker()
 

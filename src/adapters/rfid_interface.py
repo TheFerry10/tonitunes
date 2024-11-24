@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
 from typing import Dict, Literal, Optional
 
+
 from adapters.repository import AbstractUIDMappingRepository
 
 logger = logging.getLogger(__name__)
@@ -119,12 +120,16 @@ class TagRegister:
             if self.response.current.uid:
                 if name is None:
                     name = self.get_name_from_mapping(self.response.current)
-                self.registry.add(uid=self.response.current.uid, name=name)
-                self.registry.save()
-                logger.info(
-                    "Successfully registered uid %s with name %s",
-                    self.response.current.uid,
-                    name,
-                )
+                    print(name)
+                    if self.registry.get_by_uid(self.response.current.uid) is None:
+                        self.registry.add(uid=self.response.current.uid, name=name)
+                        self.registry.save()
+                        logger.info(
+                            "Successfully registered uid %s with name %s",
+                            self.response.current.uid,
+                            name,
+                        )
+                    else:
+                        logging.info("UID %s already registered")
 
         self.response.update()
