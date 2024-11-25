@@ -1,11 +1,72 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import scoped_session, declarative_base
+from sqlalchemy.orm import DeclarativeBase
+import os
+from sqlalchemy import ForeignKey, String, Table, Column
+from sqlalchemy.orm import relationship, Mapped, mapped_column
+from typing import List
+from faker import Faker
 
-from cardsync import AudioFile, Card
+fake = Faker()
 
-DATABASE_URL = "sqlite:///data.sqlite"
-engine = create_engine(DATABASE_URL, echo=True)
-Session = sessionmaker(bind=engine)
+basedir = os.path.abspath(os.path.dirname(__file__))
+DATABASE_URI = "sqlite:///" + os.path.join(basedir, "test-db.sqlite")
+engine = create_engine(DATABASE_URI)
+
+session_factory = sessionmaker(bind=engine)
+Session = scoped_session(session_factory)
+
+
+class Base(DeclarativeBase):
+    query = Session.query_property()
+
+
+association_table = Table(
+    "association_table",
+    Base.metadata,
+    Column("playlist_id", ForeignKey("playlists.id")),
+    Column("audio_files_id", ForeignKey("audio_files.id")),
+)
+
+
+class AudioFile(Base):
+    __tablename__ = "audio_files"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    filename: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    cards: Mapped[List["Card"]] = relationship(
+        "Card", backref="audio_file", lazy="joined"
+    )
+
+    def __repr__(self):
+        return f"<AudioFile {self.filename}>"
+
+
+class Card(Base):
+    __tablename__ = "cards"
+
+    uid: Mapped[str] = mapped_column(String(30), primary_key=True)
+    name: Mapped[str] = mapped_column(String(64))
+    audio_file_id: Mapped[int] = mapped_column(ForeignKey("audio_files.id"))
+
+    def __repr__(self):
+        return f"<Card {self.uid}>"
+
+
+class Playlist(Base):
+    __tablename__ = "playlists"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    audio_files: Mapped[List[AudioFile]] = relationship(secondary=association_table)
+
+    def __repr__(self):
+        return f"<Playlist {self.id}>"
+
+
+Base.metadata.drop_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 
 def insert_filenames():
@@ -34,6 +95,24 @@ def read_cards():
     )
 
 
+def add_filenames():
+    with Session() as session:
+        audio_files = [AudioFile(filename=fake.name()) for _ in range(10)]
+        playlist = Playlist(name="my playlist")
+        playlist.audio_files.append(audio_files[0])
+        playlist.audio_files.append(audio_files[1])
+        session.add_all(audio_files)
+        session.add(playlist)
+        session.commit()
+
+
 if __name__ == "__main__":
-    result = read_cards()
-    print(result)
+    add_filenames()
+    playlist = Playlist.query.first()
+    print(playlist.audio_files)
+    with Session() as session:
+        a = AudioFile(filename=fake.name())
+        p = Playlist(name="new")
+        p.audio_files = AudioFile.query.all()
+        session.add(p)
+        session.commit()

@@ -168,3 +168,4 @@ __queuestorage__
 
 out.json
 */data.sqlite
+*/*.sqlite

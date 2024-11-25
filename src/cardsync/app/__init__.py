@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
-from .database import init_db, db_session
+from .database import init_db
 from config import config
 
 bootstrap = Bootstrap()
@@ -20,9 +20,4 @@ def create_app(config_name):
     from .main import main as main_blueprint
 
     app.register_blueprint(main_blueprint)
-
-    @app.teardown_appcontext
-    def shutdown_session(exception=None):
-        db_session.remove()
-
     return app
