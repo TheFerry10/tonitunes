@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import scoped_session, declarative_base
+from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import DeclarativeBase
 import os
 from sqlalchemy import ForeignKey, String, Table, Column
@@ -43,6 +43,17 @@ class AudioFile(Base):
         return f"<AudioFile {self.filename}>"
 
 
+class Song(Base):
+    __tablename__ = "songs"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    title: Mapped[str]
+    artist: Mapped[str]
+    album: Mapped[str]
+    filename: Mapped[str] = mapped_column(nullable=False, unique=True)
+    duration: Mapped[int]
+
+
 class Card(Base):
     __tablename__ = "cards"
 
@@ -63,10 +74,6 @@ class Playlist(Base):
 
     def __repr__(self):
         return f"<Playlist {self.id}>"
-
-
-Base.metadata.drop_all(bind=engine)
-Base.metadata.create_all(bind=engine)
 
 
 def insert_filenames():
@@ -106,13 +113,31 @@ def add_filenames():
         session.commit()
 
 
-if __name__ == "__main__":
-    add_filenames()
-    playlist = Playlist.query.first()
-    print(playlist.audio_files)
+def add_songs():
+    import csv
+
+    with open("input/out.csv", "r") as csvfile:
+        reader = csv.DictReader(csvfile)
+        songs = [Song(**row) for row in reader]
     with Session() as session:
-        a = AudioFile(filename=fake.name())
-        p = Playlist(name="new")
-        p.audio_files = AudioFile.query.all()
-        session.add(p)
+        session.add_all(songs)
         session.commit()
+
+    # add_filenames()
+    # playlist = Playlist.query.first()
+    # print(playlist.audio_files)
+    # with Session() as session:
+    #     a = AudioFile(filename=fake.name())
+    #     p = Playlist(name="new")
+    #     p.audio_files = AudioFile.query.all()
+    #     session.add(p)
+    #     session.commit()
+
+
+if __name__ == "__main__":
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+    add_songs()
+
+# read all cards
+#
