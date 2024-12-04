@@ -3,7 +3,7 @@ import os
 
 from app import create_app
 from app.database import db_session
-from app.models import Card, AudioFile, Playlist
+from app.models import Card, Song, Playlist
 
 app = create_app(os.getenv("FLASK_CONFIG") or "default")
 
@@ -13,7 +13,7 @@ def make_shell_context():
     return {
         "db": db_session,
         "Card": Card,
-        "AudioFile": AudioFile,
+        "Song": Song,
         "Playlist": Playlist,
         "app": app,
     }

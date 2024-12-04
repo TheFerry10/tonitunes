@@ -19,6 +19,6 @@ class Base(DeclarativeBase):
 
 def init_db():
 
-    from .models import Card, AudioFile
+    from .models import Card, Song, Playlist
 
     Base.metadata.create_all(bind=engine)

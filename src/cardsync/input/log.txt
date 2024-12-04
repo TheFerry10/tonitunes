@@ -1,0 +1,8 @@
+test_files/ CREATE test.txt
+test_files/ CREATE test_.txt
+test_files/ CREATE test my file.txt
+test_files/ CREATE,ISDIR new
+test_files/ DELETE,ISDIR new
+test_files/ DELETE test_.txt
+test_files/ DELETE test my file.txt
+test_files/ DELETE test.txt
