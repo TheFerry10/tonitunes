@@ -1,8 +1,11 @@
-from sqlalchemy import ForeignKey, String, Table, Column
-from sqlalchemy.orm import relationship, Mapped, mapped_column
-from .database import Base
-from typing import List, Dict, Union
-from dataclasses import asdict
+from typing import Dict, List, Union
+
+from sqlalchemy import Column, ForeignKey, String, Table
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
+
+class Base(DeclarativeBase):
+    pass
 
 
 association_table = Table(
@@ -22,7 +25,7 @@ class Song(Base):
     album: Mapped[str]
     filename: Mapped[str] = mapped_column(nullable=False, unique=True)
     duration: Mapped[int]
-    cards: Mapped[List["Card"]] = relationship("Card", back_populates="song")
+    cards: Mapped[list["Card"]] = relationship("Card", back_populates="song")
 
     def __repr__(self):
         return f"<Song {self.artist} - {self.title}>"
@@ -74,6 +77,19 @@ class Playlist(Base):
     name: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
     songs: Mapped[List[Song]] = relationship(secondary=association_table)
     cards: Mapped[List[Card]] = relationship("Card", back_populates="playlist")
+
+    def from_json(
+        self, json_playlist: Dict[str, Union[str, List[Dict[str, Union[str, str]]]]]
+    ):
+        raise NotImplementedError()
+
+    def to_json(self):
+        playlist_json = {
+            "id": self.id,
+            "name": self.name,
+            "songs": [song.to_json() for song in self.songs],
+        }
+        return playlist_json
 
     def __repr__(self):
         return f"<Playlist {self.id}>"
