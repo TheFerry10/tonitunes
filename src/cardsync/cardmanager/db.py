@@ -17,7 +17,7 @@ db_session = scoped_session(
 
 def init_db():
     """Initialize the database schema (creates tables)."""
-    from cardmanager.models import Base, Card, Playlist, Song
+    from cardmanager.models import Base, Card, Playlist, Song  # noqa: F401
 
     Base.query = db_session.query_property()
     Base.metadata.create_all(bind=engine)

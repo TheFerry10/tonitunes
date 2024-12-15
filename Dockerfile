@@ -9,4 +9,7 @@ COPY src/cardsync /app
 
 EXPOSE 5000
 
+ENV FLASK_APP=cardmanager.py
+ENV FLASK_RUN_HOST=0.0.0.0
+
 CMD ["flask", "run"]

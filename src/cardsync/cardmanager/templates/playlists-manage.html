@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Manage Playlists{% endblock %}
+
+
+
+{% block page_content %}
+<div class="container mt-5">
+    <h2>Create a New Playlist</h2>
+    <form action="{{ url_for('main.manage_playlists') }}" method="post">
+        {{ wtf.quick_form(form) }}
+    </form>
+
+    <h2 class="mt-5">Existing Playlists</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for playlist in playlists %}
+            <tr>
+                <td>{{ playlist.id }}</td>
+                <td>{{ playlist.name }}</td>
+                <td>
+                    <form action="{{ url_for('main.delete_playlist', playlist_id=playlist.id) }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

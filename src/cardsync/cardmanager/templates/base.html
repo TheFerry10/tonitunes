@@ -4,19 +4,45 @@
 
 {% block head %}
 {{ super() }}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 <style>
     .form-inline {
         display: flex;
         align-items: center;
         gap: 10px;
     }
+    .navbar-brand {
+        font-weight: bold;
+    }
+    .navbar-nav .nav-link {
+        margin-right: 15px;
+    }
 </style>
 {% endblock %}
 
-
-
 {% block content %}
-<div class="container">
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="{{ url_for('main.index') }}">Tonibox RFID</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('main.index') }}">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('main.manage_playlists') }}">Manage Playlists</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('main.edit_playlist') }}">Modify Playlist</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container mt-4">
     {% for message in get_flashed_messages() %}
     <div class="alert alert-success">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -30,5 +56,7 @@
 
 {% block scripts %}
 {{ super() }}
-{{ moment.include_moment() }}
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 {% endblock %}

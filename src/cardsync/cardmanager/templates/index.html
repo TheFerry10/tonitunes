@@ -1,32 +1,18 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
+{% from "macros.html" import render_table %}
 
 {% block title %}UID2Song mapping{% endblock %}
 
 {% block page_content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+
 
 
 <div class="container mt-5">
-    <table>
-        <thead>
-            <tr>
-                {% for heading in table_header %}
-                <th>{{ heading }}</th>
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in table_data %}
-            <tr>
-                {% for cell in row %}
-                <td>{{ cell }}</td>
-                {% endfor %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    {{ render_table(table_header, table_data) }}
 </div>
+
 <form action="/" method="post">
     {{ wtf.quick_form(form) }}
 </form>

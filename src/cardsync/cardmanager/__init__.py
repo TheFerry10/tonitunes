@@ -1,11 +1,16 @@
+"""
+This module initializes the Flask application and sets up the database, CLI commands,
+and shell context.
+"""
+
 import click
-from cardmanager import models
-from cardmanager.db import bind_query_property, db_session, init_db
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 
 from config import config
+
+from . import db, models
 
 bootstrap = Bootstrap()
 moment = Moment()
@@ -16,22 +21,24 @@ def create_app(config_name="default"):
     app.config.from_object(config[config_name])
     bootstrap.init_app(app)
     moment.init_app(app)
-    bind_query_property()
+    db.bind_query_property()
 
     @app.teardown_appcontext
     def shutdown_session(exception=None):
-        db_session.remove()
+        """Remove the database session at the end of the request."""
+        db.db_session.remove()
 
     @app.cli.command("init-db")
     def initialize_database():
         """Initialize the database."""
-        init_db()
+        db.init_db()
         click.echo("Database initialized.")
 
     @app.shell_context_processor
     def make_shell_context():
+        """Provide shell context objects for the Flask shell."""
         return {
-            "db_session": db_session,
+            "db_session": db.db_session,
             "Card": models.Card,
             "Song": models.Song,
             "Playlist": models.Playlist,

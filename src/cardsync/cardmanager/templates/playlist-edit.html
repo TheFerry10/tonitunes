@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% from "macros.html" import render_table %}
+
+{% block title %}Playlist{% endblock %}
+
+{% block page_content %}
+
+
+<div class="container mt-5">
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Playlist Id</th>
+            <th>Playlist Name</th>
+            <th>Artist</th>
+            <th>Title</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for playlist in playlists %}
+        {% for song in playlist.songs%}
+        <tr>
+            <td>{{ playlist.id }}</td>
+            <td>{{ playlist.name }}</td>
+            <td>{{ song.artist }}</td>
+            <td>{{ song.title }}</td>
+            <td>
+                <form action="{{ url_for('main.remove_song_from_playlist', song_id=song.id, playlist_id=playlist.id) }}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+    </tbody>
+</table>
+
+    
+<form action="{{ url_for('main.edit_playlist') }}" method="post">
+    {{ wtf.quick_form(form) }}
+</form>
+
+</div>
+
+
+
+
+
+{% endblock %}
