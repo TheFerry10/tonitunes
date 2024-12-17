@@ -3,74 +3,53 @@ from flask import flash, redirect, render_template, url_for
 from ..db import db_session
 from ..models import Card, Playlist, Song
 from . import main
-from .forms import FileMappingForm, PlaylistAddSongForm, PlaylistForm
+from .forms import CardPlaylistMappingForm, PlaylistAddSongForm, PlaylistForm
 
 
-def get_cards():
-    return (
-        db_session.query(Card.uid, Card.name, Song.artist, Song.title)
-        .outerjoin(Song)
-        .all()
-    )
-
-
-def get_card_identifier_options() -> list:
+def get_card_choices() -> list:
     return [
         (card.uid, " - ".join([str(card.uid), card.name])) for card in Card.query.all()
     ]
 
 
-def get_filenames():
-    return [(audio_file.id, audio_file.filename) for audio_file in Song.query.all()]
+def get_playlist_choices() -> list:
+    return [(playlist.id, playlist.name) for playlist in Playlist.query.all()]
 
 
 @main.route("/", methods=["GET", "POST"])
 def index():
-    table_header = ("Card Id", "Card Name", "Artist", "Title")
-    table_data = get_cards()
-    form = FileMappingForm()
-    card_options = get_card_identifier_options()
-    form.card_identifier.choices = card_options
-    form.file_name.choices = get_filenames()
+    form = CardPlaylistMappingForm()
+    form.card_select.choices = get_card_choices()
+    form.playlist_select.choices = get_playlist_choices()
     if form.validate_on_submit():
-        card = Card.query.filter_by(uid=form.card_identifier.data).first()
-        card.song_id = form.file_name.data
+        card = Card.query.get(form.card_select.data)
+        card.playlist_id = form.playlist_select.data
         db_session.add(card)
         db_session.commit()
-        flash("File mapping successfully updated!")
+        flash("Card mapping successful!")
         return redirect(url_for(".index"))
-    return render_template(
-        "index.html",
-        form=form,
-        table_header=table_header,
-        table_data=table_data,
-    )
+    cards = Card.query.all()
+    return render_template("index.html", form=form, cards=cards)
 
 
-@main.route("/playlist/edit", methods=["GET", "POST"])
-def edit_playlist():
-    table_header = ("Playlist Name", "Artist", "Title", "Action")
-    playlists = Playlist.query.all()
+@main.route("/playlist/edit/<int:playlist_id>", methods=["GET", "POST"])
+def edit_playlist(playlist_id: int):
     form = PlaylistAddSongForm()
-    form.playlist_identifier.choices = [(p.id, p.name) for p in playlists]
-    form.song_selection.choices = [
+    form.song_select.choices = [
         (s.id, f"{s.artist} - {s.title}") for s in Song.query.all()
     ]
+    playlist = Playlist.query.get(playlist_id)
 
     if form.validate_on_submit():
-        playlist_id = form.playlist_identifier.data
-        song_id = form.song_selection.data
+        song_id = form.song_select.data
         song_to_add = Song.query.get(song_id)
-        playlist = Playlist.query.get(playlist_id)
         playlist.songs.append(song_to_add)
         db_session.add(playlist)
         db_session.commit()
         flash("Song added to playlist successfully!")
-        return redirect(url_for(".edit_playlist"))
+        return redirect(url_for(".edit_playlist", playlist_id=playlist_id))
 
-    return render_template(
-        "playlist-edit.html", form=form, table_header=table_header, playlists=playlists
-    )
+    return render_template("playlist-edit.html", form=form, playlist=playlist)
 
 
 @main.route("/playlist/manage", methods=["GET", "POST"])
@@ -110,4 +89,4 @@ def remove_song_from_playlist(playlist_id, song_id):
             flash("Song deleted successfully!")
     else:
         flash("Song not found!")
-    return redirect(url_for(".edit_playlist"))
+    return redirect(url_for(".edit_playlist", playlist_id=playlist_id))

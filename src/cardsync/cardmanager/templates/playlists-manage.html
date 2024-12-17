@@ -27,13 +27,28 @@
                 <td>{{ playlist.id }}</td>
                 <td>{{ playlist.name }}</td>
                 <td>
-                    <form action="{{ url_for('main.delete_playlist', playlist_id=playlist.id) }}" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                    </form>
+                    <button type="submit" onclick="deletePlaylist('{{ playlist.id }}')" class="btn btn-danger">Delete</button>
+                    <a href="/playlist/edit/{{ playlist.id }}" class="btn btn-primary">Edit</a>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+<script>
+    function deletePlaylist(id) {        
+        fetch(`/api/playlists/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+            }
+        });
+    }
+</script>
 {% endblock %}

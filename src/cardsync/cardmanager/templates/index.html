@@ -10,11 +10,51 @@
 
 
 <div class="container mt-5">
-    {{ render_table(table_header, table_data) }}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Card Id</th>
+            <th>Card Name</th>
+            <th>Playlist Id</th>
+            <th>Playlist Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for card in cards %}
+        <tr>
+            <td>{{ card.uid }}</td>
+            <td>{{ card.name }}</td>
+            <td>{{ card.playlist.id }}</td>
+            <td>{{ card.playlist.name }}</td>
+            <td>
+                <button type="submit" onclick="deleteCard('{{ card.uid }}')" class="btn btn-danger">Delete</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+
+</table>    
 </div>
 
 <form action="/" method="post">
     {{ wtf.quick_form(form) }}
 </form>
+
+<script>
+    function deleteCard(uid) {
+        fetch(`/api/card/${uid}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+            }
+        });
+    }
+</script>
 
 {% endblock %}

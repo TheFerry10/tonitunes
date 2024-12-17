@@ -20,6 +20,17 @@ def get_playlists():
     return jsonify(playlists_)
 
 
+@api.route("/playlists/<int:playlist_id>", methods=["DELETE"])
+def delete_playlist(playlist_id: int):
+    playlist = Playlist.query.get(playlist_id)
+    if playlist:
+        db_session.delete(playlist)
+        db_session.commit()
+        return jsonify(playlist.to_json())
+    else:
+        return jsonify({"msg": f"Playlist with id {playlist_id} does not exist"})
+
+
 @api.route("/playlists/", methods=["POST"])
 def create_playlist():
     data = request.get_json()
