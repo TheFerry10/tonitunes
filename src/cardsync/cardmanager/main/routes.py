@@ -1,4 +1,4 @@
-from flask import flash, redirect, render_template, url_for
+from flask import flash, redirect, render_template, url_for, jsonify, request
 
 from ..db import db_session
 from ..models import Card, Playlist, Song
@@ -18,30 +18,39 @@ def get_playlist_choices() -> list:
 
 @main.route("/", methods=["GET", "POST"])
 def index():
+    cards = Card.query.all()
+    return render_template("index.html", cards=cards)
+
+
+@main.route("/card/add/<int:card_uid>", methods=["GET", "POST"])
+def add_card(card_uid: int):
     form = CardPlaylistMappingForm()
-    form.card_select.choices = get_card_choices()
     form.playlist_select.choices = get_playlist_choices()
     if form.validate_on_submit():
-        card = Card.query.get(form.card_select.data)
+        card = Card.query.get(card_uid)
         card.playlist_id = form.playlist_select.data
         db_session.add(card)
         db_session.commit()
         flash("Card mapping successful!")
         return redirect(url_for(".index"))
-    cards = Card.query.all()
-    return render_template("index.html", form=form, cards=cards)
+    return render_template("add-card.html", form=form, card_uid=card_uid)
 
 
 @main.route("/playlist/edit/<int:playlist_id>", methods=["GET", "POST"])
 def edit_playlist(playlist_id: int):
+    """
+    Edit a playlist by adding songs to it.
+    """
     form = PlaylistAddSongForm()
-    form.song_select.choices = [
-        (s.id, f"{s.artist} - {s.title}") for s in Song.query.all()
-    ]
+    artists = [song[0] for song in db_session.query(Song.artist).distinct().all()]
+    form.artist_select.choices = [(artist, artist) for artist in artists]
+    form.title_select.choices = []
     playlist = Playlist.query.get(playlist_id)
 
-    if form.validate_on_submit():
-        song_id = form.song_select.data
+    if request.method == "POST":
+        form.validate()
+        print(form.errors)
+        song_id = form.title_select.data
         song_to_add = Song.query.get(song_id)
         playlist.songs.append(song_to_add)
         db_session.add(playlist)
@@ -49,7 +58,9 @@ def edit_playlist(playlist_id: int):
         flash("Song added to playlist successfully!")
         return redirect(url_for(".edit_playlist", playlist_id=playlist_id))
 
-    return render_template("playlist-edit.html", form=form, playlist=playlist)
+    return render_template(
+        "playlist-edit.html", form=form, playlist=playlist, artists=artists
+    )
 
 
 @main.route("/playlist/manage", methods=["GET", "POST"])
@@ -90,3 +101,10 @@ def remove_song_from_playlist(playlist_id, song_id):
     else:
         flash("Song not found!")
     return redirect(url_for(".edit_playlist", playlist_id=playlist_id))
+
+
+@main.route("/songs/artist/<artist>", methods=["GET"])
+def get_songs_by_artist(artist: str):
+    songs = Song.query.filter_by(artist=artist).all()
+    songs_json = [song.to_json() for song in songs]
+    return jsonify(songs_json)

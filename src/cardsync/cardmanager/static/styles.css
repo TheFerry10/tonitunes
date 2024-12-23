@@ -1,3 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&display=swap');
+
+body {
+    background-color: #f0f8ff;
+    font-family: 'Baloo 2', cursive, sans-serif;
+}
+
+.navbar {
+    background-color: #ffcccb;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand, .nav-link {
+    color: #ff69b4 !important;
+    font-family: 'Baloo 2', cursive, sans-serif;
+    font-weight: bold;
+}
+
+.navbar-brand img {
+    border-radius: 50%;
+    border: 2px solid #ff69b4;
+}
+
+.nav-link {
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #ff1493 !important;
+}
+
+.btn-primary {
+    background-color: #ff69b4;
+    border-color: #ff69b4;
+    font-family: 'Baloo 2', cursive, sans-serif;
+    border-radius: 20px;
+    padding: 10px 20px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #ff1493;
+    transform: scale(1.05);
+}
+
+.btn-danger {
+    background-color: #ff6347;
+    border-color: #ff6347;
+    font-family: 'Baloo 2', cursive, sans-serif;
+    border-radius: 20px;
+    padding: 10px 20px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-danger:hover {
+    background-color: #ff4500;
+    transform: scale(1.05);
+}
+
+.alert-success {
+    background-color: #98fb98;
+    border-color: #98fb98;
+    font-family: 'Baloo 2', cursive, sans-serif;
+}
+
+.table {
+    background-color: #fffacd;
+    font-family: 'Baloo 2', cursive, sans-serif;
+}
+
+.table th, .table td {
+    border-color: #ffebcd;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -24,4 +98,77 @@ tbody tr:nth-child(even) {
 
 tbody tr:hover {
     background-color: #f1f1f1;
+}
+
+.form-inline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.navbar-nav .nav-link {
+    margin-right: 15px;
+}
+
+/* Custom styles for wtf.quick_form */
+.wtf-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.wtf-form .form-control {
+    border-radius: 10px;
+    font-size: 1rem;
+}
+
+.wtf-form .form-control:focus {
+    border-color: #ff69b4;
+    box-shadow: 0 0 5px rgba(255, 105, 180, 0.5);
+}
+
+.wtf-form label {
+    font-weight: bold;
+    color: #ff69b4;
+}
+
+.wtf-form .btn {
+    border-radius: 20px;
+    padding: 10px 20px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    background-color: #ff69b4;
+    border-color: #ff69b4;
+}
+
+.wtf-form .btn-primary {
+    background-color: #ff69b4;
+    border-color: #ff69b4;
+}
+
+.wtf-form .btn-primary:hover {
+    background-color: #ff1493;
+    transform: scale(1.05);
+}
+
+.wtf-form .btn-danger {
+    background-color: #ff6347;
+    border-color: #ff6347;
+}
+
+.wtf-form .btn-danger:hover {
+    background-color: #ff4500;
+    transform: scale(1.05);
+}
+
+/* Custom styles for form cards */
+.wtf-form-card {
+    margin-top: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.wtf-form-card .card-body {
+    padding: 20px;
 }

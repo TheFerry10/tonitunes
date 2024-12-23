@@ -4,14 +4,18 @@ from wtforms.validators import DataRequired
 
 
 class CardPlaylistMappingForm(FlaskForm):
-    card_select = SelectField("Card", choices=["001", "002", "003", "004"])
     playlist_select = SelectField("Playlist", choices=["A", "B", "C", "D"])
     submit = SubmitField("Save")
 
 
 class PlaylistAddSongForm(FlaskForm):
-    song_select = SelectField("Song", choices=["01", "02"])
-    submit = SubmitField("Add")
+    artist_select = SelectField(
+        "Artist",
+    )
+    title_select = SelectField(
+        "Title",
+    )
+    submit = SubmitField("Add Song")
 
 
 class PlaylistForm(FlaskForm):

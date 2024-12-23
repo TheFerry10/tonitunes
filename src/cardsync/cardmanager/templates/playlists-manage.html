@@ -7,12 +7,18 @@
 
 {% block page_content %}
 <div class="container mt-5">
-    <h2>Create a New Playlist</h2>
-    <form action="{{ url_for('main.manage_playlists') }}" method="post">
-        {{ wtf.quick_form(form) }}
-    </form>
+    <div class="card wtf-form-card">
+        <div class="card-body">
+            <h5 class="card-title">Create a New Playlist</h5>
+            <form action="{{ url_for('main.manage_playlists') }}" method="post" class="wtf-form">
+                {{ wtf.quick_form(form) }}
+            </form>
+        </div>
+    </div>
 
-    <h2 class="mt-5">Existing Playlists</h2>
+    <div class="card wtf-form-card">
+        <div class="card-body">
+            <h5 class="card-title">Existing Playlists</h5>
     <table class="table">
         <thead>
             <tr>
@@ -34,6 +40,8 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
+</div>
 </div>
 
 <script>

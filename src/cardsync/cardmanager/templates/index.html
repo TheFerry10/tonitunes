@@ -2,14 +2,16 @@
 {% import "bootstrap/wtf.html" as wtf %}
 {% from "macros.html" import render_table %}
 
-{% block title %}UID2Song mapping{% endblock %}
+{% block title %}Toni Tunes{% endblock %}
 
 {% block page_content %}
 
 
 
-
 <div class="container mt-5">
+    <div class="card wtf-form-card">
+        <div class="card-body">
+            <h5 class="card-title">Card Mappings</h5>
 <table class="table table-striped">
     <thead>
         <tr>
@@ -29,6 +31,7 @@
             <td>{{ card.playlist.name }}</td>
             <td>
                 <button type="submit" onclick="deleteCard('{{ card.uid }}')" class="btn btn-danger">Delete</button>
+                <a href="/card/add/{{ card.uid }}" class="btn btn-primary">Edit</a>
             </td>
         </tr>
         {% endfor %}
@@ -36,10 +39,9 @@
 
 </table>    
 </div>
+</div>
 
-<form action="/" method="post">
-    {{ wtf.quick_form(form) }}
-</form>
+
 
 <script>
     function deleteCard(uid) {

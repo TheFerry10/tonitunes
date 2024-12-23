@@ -5,15 +5,19 @@
 {% block title %}Create Playlist{% endblock %}
 
 {% block page_content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 
 <div class="container mt-5">
 
 {{ render_table(table_header, table_data) }}
 
-<form action="/playlist-create" method="post">
+<div class="card wtf-form-card">
+    <div class="card-body">
+        <h5 class="card-title">Create a new Playlist</h5>
+<form action="/playlist-create" method="post", class="wtf-form">
     {{ wtf.quick_form(create_playlist_form) }}
 </form>
+</div>
+</div>
 </div>
 
 
