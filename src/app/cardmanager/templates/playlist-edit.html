@@ -26,9 +26,7 @@
             <td>{{ song.artist }}</td>
             <td>{{ song.title }}</td>
             <td>
-                <form action="{{ url_for('main.remove_song_from_playlist', song_id=song.id, playlist_id=playlist.id) }}" method="post" style="display:inline;">
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
+                <button type="submit" onclick="removeSongFromPlaylist('{{ playlist.id }}', '{{ song.id }}')" class="btn btn-danger">Delete</button>
             </td>
         </tr>
         {% endfor %}
@@ -67,7 +65,7 @@
 <script>
     document.getElementById('artist_select').addEventListener('change', function() {
         const artist = this.value;
-        fetch(`/songs/artist/${artist}`)
+        fetch(`/api/songs/artist/${artist}`)
             .then(response => response.json())
             .then(data => {
                 const titleSelect = document.getElementById('title_select');
@@ -81,6 +79,20 @@
             })
             .catch(error => console.error('Error fetching songs:', error));
     });
+
+    function removeSongFromPlaylist(playlist_id, song_id) {        
+        fetch(`/api/playlists/${playlist_id}/songs/${song_id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+            }
+        });
+    }
 </script>
             
 

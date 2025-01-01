@@ -10,3 +10,6 @@ services:
     environment:
       FLASK_APP: cardmanager.py
       FLASK_RUN_HOST: 0.0.0.0
+      FLASK_CONFIG: production
+    volumes:
+      - ./src/app/resources:/app/resources

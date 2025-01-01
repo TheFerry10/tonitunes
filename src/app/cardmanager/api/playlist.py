@@ -56,7 +56,7 @@ def delete_song_from_playlist(playlist_id: int, song_id: int):
             db_session.commit()
             return jsonify(
                 {
-                    "msg": f"Song {song.artist} - {song.title} removed from playlist {playlist.name}"
+                    "msg": f"Song {song.artist} - {song.title} removed from playlist {playlist.name}"  # noqa: E501
                 }
             )
         else:
@@ -74,6 +74,6 @@ def add_song_to_playlist(playlist_id: int, song_id: int):
         db_session.commit()
         return jsonify(
             {
-                "msg": f"Song {song.artist} - {song.title} added to playlist {playlist.name}"
+                "msg": f"Song {song.artist} - {song.title} added to playlist {playlist.name}"  # noqa: E501
             }
         )

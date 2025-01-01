@@ -3,9 +3,8 @@ import os
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from sqlalchemy.orm import Session
-
 from cardsync.app.models import Card
+from sqlalchemy.orm import Session
 
 
 class AbstractUIDMappingRepository(ABC):

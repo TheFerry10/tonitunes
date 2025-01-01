@@ -12,9 +12,7 @@ class PlaylistAddSongForm(FlaskForm):
     artist_select = SelectField(
         "Artist",
     )
-    title_select = SelectField(
-        "Title",
-    )
+    title_select = SelectField("Title", validate_choice=False)
     submit = SubmitField("Add Song")
 
 

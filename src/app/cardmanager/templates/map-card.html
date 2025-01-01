@@ -9,7 +9,7 @@
 <div class="card wtf-form-card">
     <div class="card-body">
         <h5 class="card-title">Mapping for Card UID {{card_uid}}</h5>
-<form action="{{ url_for('main.add_card', card_uid=card_uid) }}" method="post", class="wtf-form">
+<form action="{{ url_for('main.map_card', card_uid=card_uid) }}" method="post", class="wtf-form">
     {{ wtf.quick_form(form) }}
 </form>
 </div>

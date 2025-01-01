@@ -3,6 +3,8 @@ This module initializes the Flask application and sets up the database, CLI comm
 and shell context.
 """
 
+import os
+
 import click
 from flask import Flask
 from flask_bootstrap import Bootstrap
@@ -16,12 +18,14 @@ bootstrap = Bootstrap()
 moment = Moment()
 
 
-def create_app(config_name="default"):
+def create_app(config_name=None):
     app = Flask(__name__, instance_relative_config=True)
+    if config_name is None:
+        config_name = os.getenv("FLASK_CONFIG", "default")
     app.config.from_object(config[config_name])
     bootstrap.init_app(app)
     moment.init_app(app)
-    db.bind_query_property()
+    db.init_db()
 
     @app.teardown_appcontext
     def shutdown_session(exception=None):

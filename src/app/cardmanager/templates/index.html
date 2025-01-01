@@ -30,8 +30,9 @@
             <td>{{ card.playlist.id }}</td>
             <td>{{ card.playlist.name }}</td>
             <td>
+                
+                <a href="{{ url_for('main.map_card', card_uid=card.uid) }}" class="btn btn-primary">Edit</a>
                 <button type="submit" onclick="deleteCard('{{ card.uid }}')" class="btn btn-danger">Delete</button>
-                <a href="/card/add/{{ card.uid }}" class="btn btn-primary">Edit</a>
             </td>
         </tr>
         {% endfor %}
@@ -41,7 +42,8 @@
 </div>
 </div>
 
-
+<a href="{{ url_for('main.load_songs') }}" class="btn btn-primary">Load songs</a>
+<a href="{{ url_for('main.load_cards') }}" class="btn btn-primary">Load cards</a>
 
 <script>
     function deleteCard(uid) {
