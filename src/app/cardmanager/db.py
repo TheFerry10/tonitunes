@@ -3,7 +3,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from config import config
+from .config import config
 
 flask_config = os.getenv("FLASK_CONFIG", "default")
 DATABASE_URI = config[flask_config].SQLALCHEMY_DATABASE_URI

@@ -1,7 +1,8 @@
 import pytest
-from cardsync.app.models import Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+from app.cardmanager.models import Base
 
 
 @pytest.fixture

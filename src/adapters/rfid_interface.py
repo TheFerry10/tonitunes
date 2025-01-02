@@ -20,13 +20,8 @@ class BaseDataclassConverter:
 
 @dataclass
 class RFIDData(BaseDataclassConverter):
-    uid: Optional[str] = None
+    uid: Optional[int] = None
     text: Optional[str] = None
-
-    def __post_init__(self):
-        # Convert uid to a string if it's an integer
-        if isinstance(self.uid, int):
-            self.uid = str(self.uid)
 
 
 class RFIDReadError(Exception):

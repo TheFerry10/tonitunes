@@ -10,9 +10,8 @@ from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 
-from config import config
-
 from . import db, models
+from .config import config
 
 bootstrap = Bootstrap()
 moment = Moment()
