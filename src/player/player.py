@@ -1,7 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Union
+from typing import Union, List
 
 import vlc
 
@@ -34,7 +34,7 @@ class AbstractAudioController(ABC):
         """Decrease volume by step"""
 
 
-DEFAULT_INSTANCE = vlc.Instance()
+DEFAULT_INSTANCE = vlc.Instance("--aout=alsa")
 
 
 class VlcAudioController(AbstractAudioController):
@@ -69,20 +69,18 @@ class VlcAudioController(AbstractAudioController):
     def __init__(self, vlc_instance: vlc.Instance = DEFAULT_INSTANCE):
         self.instance = vlc_instance
         self.player = self.instance.media_player_new()
-        # self.player = vlc.MediaPlayer()
         self.current_media_path = None
+        self.playlist = []
+        self.current_index = 0
         self.player.audio_set_volume(self.VOLUME["default"])
 
     def play(self, file_path: Union[Path, str]):
-
         if file_path == self.current_media_path:
-
             if not self.player.is_playing():
                 self.player.play()
                 logging.info("Resume with filepath %s", file_path)
             else:
                 logging.info("Already playing %s", file_path)
-
         else:
             self.current_media_path = file_path
             media = vlc.Media(file_path)
@@ -108,6 +106,7 @@ class VlcAudioController(AbstractAudioController):
         if current_volume < self.VOLUME["max"]:
             new_volume = min(current_volume + step, self.VOLUME["max"])
             self.player.audio_set_volume(new_volume)
+            logging.info("Volume increased to %d", new_volume)
 
     def decrease_volume(self, step: int):
         step = abs(step)
@@ -115,3 +114,21 @@ class VlcAudioController(AbstractAudioController):
         if current_volume > self.VOLUME["min"]:
             new_volume = max(current_volume - step, self.VOLUME["min"])
             self.player.audio_set_volume(new_volume)
+            logging.info("Volume decreased to %d", new_volume)
+
+    def load_playlist(self, playlist: List[Union[Path, str]]):
+        self.playlist = playlist
+        self.current_index = 0
+        logging.info("Playlist loaded with %d songs", len(playlist))
+
+    def play_next(self):
+        if self.playlist:
+            self.current_index = (self.current_index + 1) % len(self.playlist)
+            self.play(self.playlist[self.current_index])
+            logging.info("Playing next song: %s", self.playlist[self.current_index])
+
+    def play_previous(self):
+        if self.playlist:
+            self.current_index = (self.current_index - 1) % len(self.playlist)
+            self.play(self.playlist[self.current_index])
+            logging.info("Playing previous song: %s", self.playlist[self.current_index])
