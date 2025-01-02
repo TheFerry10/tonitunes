@@ -1,9 +1,9 @@
-import json
 from dataclasses import dataclass
 
 import pytest
 
-from src.adapters.repository import JsonUIDMappingRepository
+from app.cardmanager import models
+from src.adapters.repository import SqlAlchemyUIDMappingRepositoriy
 from src.adapters.rfid_interface import (
     AbstractRFIDModule,
     Action,
@@ -66,34 +66,34 @@ class FakeRFIDModule(AbstractRFIDModule):
         pass
 
 
-def test_register_rfid_tags(tmp_path):
-    output_file = tmp_path / "output.json"
+def test_register_rfid_tags(session):
+
+    # output_file = tmp_path / "output.json"
     rifd_data_samples = [
-        RFIDData(uid="10000000"),
-        RFIDData(uid="10000000"),
+        RFIDData(uid=10000000),
+        RFIDData(uid=10000000),
         RFIDData(),
-        RFIDData(uid="10000001"),
-        RFIDData(uid="10000002"),
-        RFIDData(uid="10000001"),
+        RFIDData(uid=10000001),
+        RFIDData(uid=10000002),
+        RFIDData(uid=10000001),
     ]
     mapping = {
-        "10000000": "name_0",
-        "10000001": "name_1",
-        "10000002": "name_2",
+        10000000: "name_0",
+        10000001: "name_1",
+        10000002: "name_2",
     }
-    expected = {
-        "10000000": {"name": "name_0"},
-        "10000001": {"name": "name_1"},
-        "10000002": {"name": "name_2"},
-    }
-    registry = JsonUIDMappingRepository(output_file)
+    expected = [
+        (10000000, "name_0"),
+        (10000001, "name_1"),
+        (10000002, "name_2"),
+    ]
+    registry = SqlAlchemyUIDMappingRepositoriy(session)
     rfid_module = FakeRFIDModule()
     tag_registry = TagRegister(registry, rfid_module, mapping)
     for rifd_data in rifd_data_samples:
         rfid_module.event = rifd_data
         tag_registry.register()
-    with open(output_file, encoding="utf8") as f:
-        output = json.load(f)
+    output = session.query(models.Card.uid, models.Card.name).all()
     assert output == expected
 
 
@@ -101,20 +101,20 @@ def test_rfid_reader_reads_same_data():
     """The rfid module reads data with a high frequency. Only a change in the received
     data should be recorded"""
     rfid_data_samples = [
-        RFIDData(uid="10000000"),
-        RFIDData(uid="10000000"),
+        RFIDData(uid=10000000),
+        RFIDData(uid=10000000),
         RFIDData(),
-        RFIDData(uid="10000001"),
+        RFIDData(uid=10000001),
         RFIDData(),
         RFIDData(),
-        RFIDData(uid="10000002"),
+        RFIDData(uid=10000002),
     ]
     expected_recording = [
-        {"iter": 0, "rfid_data": RFIDData("10000000")},
+        {"iter": 0, "rfid_data": RFIDData(10000000)},
         {"iter": 2, "rfid_data": RFIDData(None, None)},
-        {"iter": 3, "rfid_data": RFIDData("10000001")},
+        {"iter": 3, "rfid_data": RFIDData(10000001)},
         {"iter": 4, "rfid_data": RFIDData(None, None)},
-        {"iter": 6, "rfid_data": RFIDData("10000002")},
+        {"iter": 6, "rfid_data": RFIDData(10000002)},
     ]
     out = []
     rfid_module = FakeRFIDModule()
@@ -134,8 +134,8 @@ def test_rfid_reader_reads_same_data():
 @pytest.mark.parametrize(
     "rfid_data, expected",
     [
-        (RFIDData("10000000", ""), Action("play", "10000000")),
-        (RFIDData("10000000", "test"), Action("play", "10000000")),
+        (RFIDData(10000000, ""), Action("play", 10000000)),
+        (RFIDData(10000000, "test"), Action("play", 10000000)),
         (RFIDData(None, None), Action("pause")),
     ],
 )
@@ -146,20 +146,20 @@ def test_rfid_to_action(rfid_data, expected):
 
 def test_e2e():
     rfid_data_samples = [
-        RFIDData(uid="10000000"),
-        RFIDData(uid="10000000"),
+        RFIDData(uid=10000000),
+        RFIDData(uid=10000000),
         RFIDData(),
-        RFIDData(uid="10000001"),
+        RFIDData(uid=10000001),
         RFIDData(),
         RFIDData(),
-        RFIDData(uid="10000002"),
+        RFIDData(uid=10000002),
     ]
     expexted_queue = [
-        '{"action": "play", "uid": "10000000"}',
+        '{"action": "play", "uid": 10000000}',
         '{"action": "pause", "uid": null}',
-        '{"action": "play", "uid": "10000001"}',
+        '{"action": "play", "uid": 10000001}',
         '{"action": "pause", "uid": null}',
-        '{"action": "play", "uid": "10000002"}',
+        '{"action": "play", "uid": 10000002}',
     ]
     queue_client = FakeQueueClient()
     rfid_module = FakeRFIDModule()

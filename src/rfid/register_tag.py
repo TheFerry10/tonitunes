@@ -36,9 +36,9 @@ while True:
         overwrite = transform_user_input_to_binary(input("Overwrite? y/n "))
         if overwrite:
             name = input("Enter name: ")
-            mapping.add(uid=uid, name=name, path="/some/random/file.txt")
+            mapping.add(uid=uid, name=name)
     else:
         name = input("Enter name: ")
-        mapping.add(uid=uid, name=name, path="/some/random/file.txt")
+        mapping.add(uid=uid, name=name)
 
     mapping.save()

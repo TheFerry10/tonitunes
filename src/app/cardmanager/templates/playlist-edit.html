@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Playlist{% endblock %}
+
+{% block page_content %}
+
+
+
+
+    <div class="card wtf-form-card">
+        <div class="card-body">
+            <h5 class="card-title">Playlist {{playlist.name}}</h5>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Artist</th>
+            <th>Title</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for song in playlist.songs%}
+        <tr>
+            <td>{{ song.artist }}</td>
+            <td>{{ song.title }}</td>
+            <td>
+                <button type="submit" onclick="removeSongFromPlaylist('{{ playlist.id }}', '{{ song.id }}')" class="btn btn-danger">Delete</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+</div>
+
+
+
+<div class="card wtf-form-card">
+    <div class="card-body">
+    <h5 class="card-title">Add songs</h5>
+        <form action="{{ url_for('main.edit_playlist', playlist_id=playlist.id) }}" method="post" class="wtf-form">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                <label for="artist_select">Artist</label>
+                <select id="artist_select" name="artist_select" class="form-control">
+                    {% for artist in artists %}
+                    <option value="{{ artist }}">{{ artist }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="title_select">Title</label>
+                <select id="title_select" name="title_select" class="form-control">
+                    <!-- Options will be populated dynamically -->
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Song</button>
+        </form>
+    </div>
+</div>
+
+
+<script>
+    document.getElementById('artist_select').addEventListener('change', function() {
+        const artist = this.value;
+        fetch(`/api/songs/artist/${artist}`)
+            .then(response => response.json())
+            .then(data => {
+                const titleSelect = document.getElementById('title_select');
+                titleSelect.innerHTML = '';
+                data.forEach(song => {
+                    const option = document.createElement('option');
+                    option.value = song.id;
+                    option.textContent = song.title;
+                    titleSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching songs:', error));
+    });
+
+    function removeSongFromPlaylist(playlist_id, song_id) {        
+        fetch(`/api/playlists/${playlist_id}/songs/${song_id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+            }
+        });
+    }
+</script>
+            
+
+
+
+
+
+{% endblock %}

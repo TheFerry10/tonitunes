@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Manage Playlists{% endblock %}
+
+
+
+{% block page_content %}
+<div class="container mt-5">
+    <div class="card wtf-form-card">
+        <div class="card-body">
+            <h5 class="card-title">Create a New Playlist</h5>
+            <form action="{{ url_for('main.manage_playlists') }}" method="post" class="wtf-form">
+                {{ wtf.quick_form(form) }}
+            </form>
+        </div>
+    </div>
+
+    <div class="card wtf-form-card">
+        <div class="card-body">
+            <h5 class="card-title">Existing Playlists</h5>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for playlist in playlists %}
+            <tr>
+                <td>{{ playlist.id }}</td>
+                <td>{{ playlist.name }}</td>
+                <td>
+                    <a href="/playlist/edit/{{ playlist.id }}" class="btn btn-primary">Edit</a>
+                    <button type="submit" onclick="deletePlaylist('{{ playlist.id }}')" class="btn btn-danger">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
+</div>
+
+<script>
+    function deletePlaylist(id) {        
+        fetch(`/api/playlists/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+            }
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% from "macros.html" import render_table %}
+
+{% block title %}Create Playlist{% endblock %}
+
+{% block page_content %}
+
+<div class="container mt-5">
+
+{{ render_table(table_header, table_data) }}
+
+<div class="card wtf-form-card">
+    <div class="card-body">
+        <h5 class="card-title">Create a new Playlist</h5>
+<form action="/playlist-create" method="post", class="wtf-form">
+    {{ wtf.quick_form(create_playlist_form) }}
+</form>
+</div>
+</div>
+</div>
+
+
+
+
+
+{% endblock %}

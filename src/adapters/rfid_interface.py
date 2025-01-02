@@ -20,13 +20,8 @@ class BaseDataclassConverter:
 
 @dataclass
 class RFIDData(BaseDataclassConverter):
-    uid: Optional[str] = None
+    uid: Optional[int] = None
     text: Optional[str] = None
-    
-    def __post_init__(self):
-        # Convert uid to a string if it's an integer
-        if isinstance(self.uid, int):
-            self.uid = str(self.uid)
 
 
 class RFIDReadError(Exception):
@@ -119,9 +114,16 @@ class TagRegister:
             if self.response.current.uid:
                 if name is None:
                     name = self.get_name_from_mapping(self.response.current)
-                self.registry.add(uid=self.response.current.uid, name=name)
-                self.registry.save()
-                logger.info(
-                    f"Successfully registered uid {self.response.current.uid} with name {name}"
-                )
+                    print(name)
+                    if self.registry.get_by_uid(self.response.current.uid) is None:
+                        self.registry.add(uid=self.response.current.uid, name=name)
+                        self.registry.save()
+                        logger.info(
+                            "Successfully registered uid %s with name %s",
+                            self.response.current.uid,
+                            name,
+                        )
+                    else:
+                        logging.info("UID %s already registered")
+
         self.response.update()

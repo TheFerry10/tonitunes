@@ -1,0 +1,95 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}Toni Tunes{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+<link rel="icon" href="{{ url_for('static', filename='bagger-icon.png') }}" type="image/png">
+<style>
+    body {
+        background-color:rgb(240, 254, 255);
+        font-family: 'Comic Sans MS', cursive, sans-serif;
+    }
+    .navbar {
+        background-color: #ffcccb;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        height: 150px; /* Increase the height of the navbar */
+    }
+    .navbar-brand, .nav-link {
+        color: #ff69b4 !important;
+        font-weight: bold;
+    }
+    .navbar-brand img {
+        border-radius: 30%;
+        border: 2px solid #ff69b4;
+        height: 120px; /* Ensure the logo fits within the navbar */
+    }
+    .nav-link {
+        transition: color 0.3s ease;
+    }
+    .nav-link:hover {
+        color: #ff1493 !important;
+    }
+    .btn-primary {
+        background-color: #ff69b4;
+        border-color: #ff69b4;
+    }
+    .btn-danger {
+        background-color: #ff6347;
+        border-color: #ff6347;
+    }
+    .alert-success {
+        background-color: #98fb98;
+        border-color: #98fb98;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="{{ url_for('main.index') }}">
+        <img src="{{ url_for('static', filename='toni-tunes-logo-01.webp') }}" alt="Toni Tunes Logo">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('main.index') }}">
+                    <img src="{{ url_for('static', filename='rfid-icon.png') }}" alt="RFID Icon" style="width: 30px; height: auto;">
+                    <br>
+                    <span class="text-center">Cards</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('main.manage_playlists') }}">
+                    <img src="{{ url_for('static', filename='playlist-icon.png') }}" alt="Playlist Icon" style="width: 30px; height: auto;">
+                    <br>
+                    <span class="text-center">Playlists</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-success">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+    </div>
+    {% endfor %}
+
+    {% block page_content %}{% endblock %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock %}

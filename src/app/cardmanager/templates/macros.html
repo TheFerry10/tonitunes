@@ -1,0 +1,21 @@
+<!-- macros.html -->
+{% macro render_table(table_header, table_data) %}
+    <table>
+        <thead>
+            <tr>
+                {% for heading in table_header %}
+                <th>{{ heading }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in table_data %}
+            <tr>
+                {% for cell in row %}
+                <td>{{ cell }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endmacro %}

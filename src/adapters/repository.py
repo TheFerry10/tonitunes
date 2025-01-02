@@ -3,6 +3,10 @@ import os
 from abc import ABC, abstractmethod
 from typing import Optional
 
+from sqlalchemy.orm import Session
+
+from app.cardmanager.models import Card
+
 
 class AbstractUIDMappingRepository(ABC):
     @abstractmethod
@@ -28,6 +32,36 @@ class AbstractUIDMappingRepository(ABC):
     @abstractmethod
     def save(self):
         """Persist the current state to the storage"""
+
+
+class SqlAlchemyUIDMappingRepositoriy(AbstractUIDMappingRepository):
+    def __init__(self, session: Session):
+        self.session = session
+
+    def get_all(self):
+        return self.session.query(Card).all()
+
+    def get_by_uid(self, uid):
+        return self.session.query(Card).filter_by(uid=uid).first()
+
+    def add(self, uid, name):
+        card = Card(uid=uid, name=name)
+        self.session.add(card)
+
+    def update(self, uid, name):
+        card = Card(uid=uid, name=name)
+        self.session.add(card)
+
+    def remove(self, uid):
+        record_to_delete = self.session.query(Card).filter_by(uid=uid).first()
+        if record_to_delete:
+            self.session.delete(record_to_delete)
+
+    def save(self):
+        self.session.commit()
+
+    def rollback(self):
+        self.session.rollback()
 
 
 class JsonUIDMappingRepository(AbstractUIDMappingRepository):
