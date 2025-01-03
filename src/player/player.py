@@ -2,7 +2,6 @@ import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Union, List
-
 import vlc
 
 logger = logging.getLogger(__name__)
@@ -68,10 +67,11 @@ class VlcAudioController(AbstractAudioController):
 
     def __init__(self, vlc_instance: vlc.Instance = DEFAULT_INSTANCE):
         self.instance = vlc_instance
-        self.player = self.instance.media_player_new()
-        self.current_media_path = None
         self.playlist = []
-        self.current_index = 0
+        self.media_list = None
+        self.list_player = self.instance.media_list_player_new()
+        self.player = self.list_player.get_media_player()
+        self.current_media_path = None
         self.player.audio_set_volume(self.VOLUME["default"])
 
     def play(self, file_path: Union[Path, str]):
@@ -89,14 +89,14 @@ class VlcAudioController(AbstractAudioController):
             logging.info("Play the new song %s", file_path)
 
     def pause(self):
-        if self.player.is_playing():
-            self.player.pause()
+        if self.list_player.is_playing():
+            self.list_player.pause()
             logging.info("Song paused")
         else:
             logging.info("No song is currently playing")
 
     def stop(self):
-        self.player.stop()
+        self.list_player.stop()
         logging.info("Playback stopped")
         self.current_media_path = None
 
@@ -117,18 +117,20 @@ class VlcAudioController(AbstractAudioController):
             logging.info("Volume decreased to %d", new_volume)
 
     def load_playlist(self, playlist: List[Union[Path, str]]):
-        self.playlist = playlist
-        self.current_index = 0
-        logging.info("Playlist loaded with %d songs", len(playlist))
+        if playlist == self.playlist:
+            logging.info("Playlist already loaded")
+        else:
+            self.playlist = playlist
+            self.media_list = self.instance.media_list_new(mrls=playlist)
+            self.list_player.set_media_list(self.media_list)
+            logging.info("Playlist loaded with %d songs", len(playlist))
 
-    def play_next(self):
-        if self.playlist:
-            self.current_index = (self.current_index + 1) % len(self.playlist)
-            self.play(self.playlist[self.current_index])
-            logging.info("Playing next song: %s", self.playlist[self.current_index])
+    def play_playlist(self):
+        if self.media_list:
+            self.list_player.play()
 
-    def play_previous(self):
-        if self.playlist:
-            self.current_index = (self.current_index - 1) % len(self.playlist)
-            self.play(self.playlist[self.current_index])
-            logging.info("Playing previous song: %s", self.playlist[self.current_index])
+    def next(self):
+        self.list_player.next()
+
+    def previous(self):
+        self.list_player.previous()

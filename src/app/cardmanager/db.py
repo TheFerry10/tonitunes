@@ -17,7 +17,7 @@ db_session = scoped_session(
 
 def init_db():
     """Initialize the database schema (creates tables)."""
-    from cardmanager.models import Base, Card, Playlist, Song  # noqa: F401
+    from .models import Base, Card, Playlist, Song  # noqa: F401
 
     Base.query = db_session.query_property()
     Base.metadata.create_all(bind=engine)
@@ -25,6 +25,6 @@ def init_db():
 
 def bind_query_property():
     """Bind query property to the database session."""
-    from cardmanager.models import Base
+    from .models import Base
 
     Base.query = db_session.query_property()

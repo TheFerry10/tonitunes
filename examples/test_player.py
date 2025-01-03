@@ -2,29 +2,40 @@ import os
 import time
 from pathlib import Path
 from player.player import VlcAudioController
+from dotenv import load_dotenv
 
+
+load_dotenv(override=True)
 
 AUDIO_DIR = os.getenv("AUDIO_DIR")
 audio_controller = VlcAudioController()
 file_path = Path(AUDIO_DIR, "Kinderlieder-Superstar - Große Uhren machen tick tack.mp3")
-playlist = [
-    Path(AUDIO_DIR, "Kinderlieder-Superstar - Große Uhren machen tick tack.mp3"),
-    Path(AUDIO_DIR, "Kinderlieder-Superstar - Die Räder vom Bus.mp3"),
-    Path(AUDIO_DIR, "Kinderlieder-Superstar - Laterne, Laterne.mp3"),
-    Path(AUDIO_DIR, "Kinderlieder-Superstar - Zehn kleine Zappelmänner.mp3"),
+playlist_1 = [
+    Path(AUDIO_DIR, "Volker Rosin - Die Laternenzeit.mp3"),
+    Path(AUDIO_DIR, "Volker Rosin - Dino Tanz.mp3"),
 ]
-audio_controller.load_playlist(playlist)
-audio_controller.play(playlist[0])
+
+
+playlist_2 = [
+    Path(AUDIO_DIR, "Volker Rosin - Music Man.mp3"),
+    Path(AUDIO_DIR, "Volker Rosin - Oakie Doakie.mp3"),
+]
+
+
+audio_controller.load_playlist(playlist_1)
+audio_controller.play_playlist()
 time.sleep(3)
-audio_controller.play_next()
+audio_controller.pause()
 time.sleep(3)
-audio_controller.play_previous()
+audio_controller.load_playlist(playlist_1)
+audio_controller.play_playlist()
+time.sleep(4)
+audio_controller.pause()
 time.sleep(3)
-audio_controller.play_next()
-time.sleep(3)
-audio_controller.play_next()
-time.sleep(3)
-audio_controller.play_next()
-time.sleep(3)
-audio_controller.play_next()
+audio_controller.load_playlist(playlist_2)
+audio_controller.play_playlist()
+time.sleep(4)
+audio_controller.next()
+time.sleep(4)
+audio_controller.pause()
 time.sleep(3)
