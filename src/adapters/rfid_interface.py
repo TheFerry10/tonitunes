@@ -112,18 +112,16 @@ class TagRegister:
         handled_response = response_handler.handle()
         if handled_response:
             if self.response.current.uid:
-                if name is None:
-                    name = self.get_name_from_mapping(self.response.current)
-                    print(name)
-                    if self.registry.get_by_uid(self.response.current.uid) is None:
-                        self.registry.add(uid=self.response.current.uid, name=name)
-                        self.registry.save()
-                        logger.info(
-                            "Successfully registered uid %s with name %s",
-                            self.response.current.uid,
-                            name,
-                        )
-                    else:
-                        logging.info("UID %s already registered")
+                if self.registry.get_by_uid(self.response.current.uid) is None:
+                    name = input("Enter card name: ")
+                    self.registry.add(uid=self.response.current.uid, name=name)
+                    self.registry.save()
+                    logger.info(
+                        "Successfully registered uid %s with name %s",
+                        self.response.current.uid,
+                        name,
+                    )
+                else:
+                    logging.info("UID %s already registered", self.response.current.uid)
 
         self.response.update()

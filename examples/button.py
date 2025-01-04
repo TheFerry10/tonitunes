@@ -1,6 +1,7 @@
-from gpiozero import Button
-import RPi.GPIO as GPIO
 import time
+
+import RPi.GPIO as GPIO
+from gpiozero import Button
 
 BLUE_BUTTON_PIN = 26
 RED_BUTTON_PIN = 19

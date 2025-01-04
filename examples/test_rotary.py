@@ -1,5 +1,6 @@
-from RPi import GPIO
 from time import sleep
+
+from RPi import GPIO
 
 clk = 21
 dt = 20

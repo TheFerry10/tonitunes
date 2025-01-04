@@ -1,5 +1,6 @@
-from gpiozero import Button
 from signal import pause
+
+from gpiozero import Button
 
 BLUE_BUTTON_PIN = 26
 RED_BUTTON_PIN = 19

@@ -1,6 +1,11 @@
 import os
+from dataclasses import dataclass
+from pathlib import Path
+from signal import pause
 
+import vlc
 from dotenv import load_dotenv
+from gpiozero import RotaryEncoder
 from RPi import GPIO
 
 from adapters.repository import JsonUIDMappingRepository
@@ -9,11 +14,6 @@ from config import config
 from player.player import VlcAudioController
 from rfid.mfrc import MFRCModule
 from utils.mapper import FilePathMapper
-from pathlib import Path
-import vlc
-from gpiozero import RotaryEncoder
-from signal import pause
-from dataclasses import dataclass
 
 file_path = "song.mp3"
 vlc_instance = vlc.Instance("--aout=alsa")

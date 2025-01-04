@@ -1,9 +1,10 @@
 import os
 import time
 from pathlib import Path
-from player.player import VlcAudioController
+
 from dotenv import load_dotenv
 
+from player.player import VlcAudioController
 
 load_dotenv(override=True)
 

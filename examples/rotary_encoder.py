@@ -1,6 +1,6 @@
-from gpiozero import RotaryEncoder
-from gpiozero import Button
 from signal import pause
+
+from gpiozero import Button, RotaryEncoder
 
 # Define GPIO pins for clk and dt
 clk = 20
