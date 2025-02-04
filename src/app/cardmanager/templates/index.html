@@ -30,7 +30,7 @@
             <td>{{ card.playlist.id }}</td>
             <td>{{ card.playlist.name }}</td>
             <td>
-                
+
                 <a href="{{ url_for('main.map_card', card_uid=card.uid) }}" class="btn btn-primary">Edit</a>
                 <button type="submit" onclick="deleteCard('{{ card.uid }}')" class="btn btn-danger">Delete</button>
             </td>
@@ -38,7 +38,7 @@
         {% endfor %}
     </tbody>
 
-</table>    
+</table>
 </div>
 </div>
 

@@ -20,14 +20,13 @@ Config = config.get(CONFIG_NAME)
 
 
 AUDIO_DIR = os.environ.get("AUDIO_DIR")
-MEDIA_MAPPING_PATH = os.environ.get("MEDIA_MAPPING_PATH")
 vlc_instance = vlc.Instance("--aout=alsa --loop")
 VOLUME_STEP = 5
 
-clk = 20
-dt = 21
-button_pin_next = 26
-button_pin_previous = 3
+clk = os.getenv("PIN_CLK")
+dt = os.getenv("PIN_DT")
+button_pin_next = os.getenv("BUTTON_PIN_NEXT")
+button_pin_previous = os.getenv("BUTTON_PIN_PREVIOUS")
 encoder = RotaryEncoder(clk, dt, max_steps=0)
 button_next = Button(pin=button_pin_next, pull_up=True)
 button_previous = Button(pin=button_pin_previous, pull_up=True)
@@ -86,6 +85,7 @@ def execute():
 
                 elif controller_action.action == "pause":
                     audio_controller.pause()
+                    print("Pause")
 
             response.update()
             time.sleep(3.0)

@@ -1,7 +1,8 @@
 import time
 
 import RPi.GPIO as GPIO
-from gpiozero import Button
+
+# from gpiozero import Button
 
 BLUE_BUTTON_PIN = 26
 RED_BUTTON_PIN = 19
@@ -17,7 +18,8 @@ GPIO.setup(BLUE_BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setmode(GPIO.BCM)
 
 # Initialize the pushbutton pin as an input with a pull-up resistor
-# The pull-up input pin will be HIGH when the switch is open and LOW when the switch is closed.
+# The pull-up input pin will be HIGH when the switch is open and LOW
+# when the switch is closed.
 # Variable to keep track of the previous button state
 prev_button_state_blue = GPIO.input(BLUE_BUTTON_PIN)
 prev_button_state_red = GPIO.input(RED_BUTTON_PIN)

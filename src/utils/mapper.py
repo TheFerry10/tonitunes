@@ -1,7 +1,5 @@
 from pathlib import Path
 
-from adapters.repository import JsonUIDMappingRepository
-
 
 class FilePathMapper:
     def __init__(self, uid_mapping, audio_dir):

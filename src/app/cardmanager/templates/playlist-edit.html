@@ -80,7 +80,7 @@
             .catch(error => console.error('Error fetching songs:', error));
     });
 
-    function removeSongFromPlaylist(playlist_id, song_id) {        
+    function removeSongFromPlaylist(playlist_id, song_id) {
         fetch(`/api/playlists/${playlist_id}/songs/${song_id}`, {
             method: 'DELETE',
             headers: {
@@ -94,7 +94,7 @@
         });
     }
 </script>
-            
+
 
 
 

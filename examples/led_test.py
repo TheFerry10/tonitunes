@@ -1,7 +1,7 @@
 # Bibliotheken laden
 from time import sleep
 
-from gpiozero import LED, PWMLED
+from gpiozero import PWMLED
 
 LED_PIN = 17
 

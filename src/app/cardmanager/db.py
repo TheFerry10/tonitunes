@@ -21,6 +21,7 @@ def init_db():
 
     Base.query = db_session.query_property()
     Base.metadata.create_all(bind=engine)
+    print(DATABASE_URI)
 
 
 def bind_query_property():

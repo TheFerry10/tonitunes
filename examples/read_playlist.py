@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 
 from app.cardmanager.db import db_session, init_db
-from app.cardmanager.models import Card, Playlist, Song
+from app.cardmanager.models import Card
 
 load_dotenv(override=True)
 
