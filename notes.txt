@@ -1,0 +1,16 @@
+# static ip address
+192.168.0.59
+
+# python setup
+pip install -r requirements.txt
+pip install -e .
+
+sudo raspi-config
+sudo reboot
+lsmod | grep spi
+
+
+copy database src/app/resources
+copy songs to AUDIO dir
+
+sudo apt-get install mediainfo

@@ -1,6 +1,6 @@
 # This script processes audio files metadata and exports it to a specified output file.
 #!/usr/bin/bash
-AUDIO_DIR="$1"
+AUDIO_DIR="/home/malte/Music/Audials/Music"
 OUTPUT="resources/songs.csv"
 sep=","
 q=\"\"

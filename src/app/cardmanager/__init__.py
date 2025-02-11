@@ -21,6 +21,7 @@ def create_app(config_name=None):
     app = Flask(__name__, instance_relative_config=True)
     if config_name is None:
         config_name = os.getenv("FLASK_CONFIG", "default")
+    print("Config: ", config_name)
     app.config.from_object(config[config_name])
     bootstrap.init_app(app)
     moment.init_app(app)
