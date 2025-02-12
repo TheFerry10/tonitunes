@@ -1,11 +1,14 @@
 from dotenv import load_dotenv
-
-from app.cardmanager.db import db_session, init_db
+import os
+from app.cardmanager.db import init_db, db_session
 from app.cardmanager.models import Card
 
 load_dotenv(override=True)
 
-init_db()
+user = os.getenv("USER")
+database_path = os.path.abspath(f"/home/{user}/tmp/default.db")
+DATABASE_URI = os.getenv("DATABASE_URI", f"sqlite:///{database_path}")
+init_db(database_uri=DATABASE_URI)
 cards = db_session.query(Card).all()
 for card in cards:
     playlist = card.playlist

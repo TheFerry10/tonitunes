@@ -1,0 +1,6 @@
+{
+  "player": {
+    "vlc_instance_params": "--aout=alsa --loop",
+    "volume_step": 5
+  }
+}

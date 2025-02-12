@@ -8,6 +8,9 @@ from adapters.rfid_interface import (
     RFIDWriteError,
 )
 
+# TODO
+# dependency injection for the reader
+
 
 class MFRCModule(AbstractRFIDModule):
     MAX_RESPONSE_COUNT = 2

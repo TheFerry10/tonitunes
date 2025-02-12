@@ -2,31 +2,37 @@ import os
 import time
 from pathlib import Path
 
+import json
 import vlc
 from dotenv import load_dotenv
+
 from gpiozero import Button, RotaryEncoder
 from RPi import GPIO
-
 from adapters.rfid_interface import ResponseHandler, RFIDResponse, get_action
+from rfid.mfrc import MFRCModule
+from player.player import VlcAudioController
+
+# should be moved to a separate module
 from app.cardmanager.db import init_db
 from app.cardmanager.models import Card
-from config import config
-from player.player import VlcAudioController
-from rfid.mfrc import MFRCModule
 
+# loading environment variables from .env file not optimal
 load_dotenv(override=True)
-CONFIG_NAME = os.getenv("CONFIG_NAME", "default")
-Config = config.get(CONFIG_NAME)
-
-
-AUDIO_DIR = os.environ.get("AUDIO_DIR")
-vlc_instance = vlc.Instance("--aout=alsa --loop")
-VOLUME_STEP = 5
-
 clk = os.getenv("PIN_CLK")
 dt = os.getenv("PIN_DT")
 button_pin_next = os.getenv("BUTTON_PIN_NEXT")
 button_pin_previous = os.getenv("BUTTON_PIN_PREVIOUS")
+audio_dir = os.environ.get("AUDIO_DIR")
+
+
+with open("settings.json") as f:
+    settings = json.load(f)
+player_config = settings["player"]
+vlc_instance_params = player_config.get("vlc_instance_params", "")
+volume_step = player_config.get("volume_step", 5)
+
+
+vlc_instance = vlc.Instance(vlc_instance_params)
 encoder = RotaryEncoder(clk, dt, max_steps=0)
 button_next = Button(pin=button_pin_next, pull_up=True)
 button_previous = Button(pin=button_pin_previous, pull_up=True)
@@ -35,12 +41,12 @@ init_db()
 
 
 def on_clockwise_rotate():
-    audio_controller.increase_volume(VOLUME_STEP)
+    audio_controller.increase_volume(volume_step)
     print("Current volume ", audio_controller.player.audio_get_volume())
 
 
 def on_counter_clockwise_rotate():
-    audio_controller.decrease_volume(VOLUME_STEP)
+    audio_controller.decrease_volume(volume_step)
     print("Current volume ", audio_controller.player.audio_get_volume())
 
 
@@ -54,8 +60,23 @@ def on_button_previous_pressed():
     print("Play previous song")
 
 
-def execute():
+def handle_play_action(controller_action, audio_controller, audio_dir):
+    print(controller_action.to_dict())
+    card = Card.query.get(controller_action.uid)
+    if card and card.playlist:
+        playlist = [Path(audio_dir, song.filename) for song in card.playlist.songs]
+        audio_controller.load_playlist(playlist)
+        audio_controller.play_playlist()
+    else:
+        print("No playlist defined for card")
 
+
+def handle_pause_action(audio_controller):
+    audio_controller.pause()
+    print("Pause")
+
+
+def execute():
     rfid_module = MFRCModule()
     response = RFIDResponse()
     encoder.when_rotated_clockwise = on_clockwise_rotate
@@ -71,21 +92,9 @@ def execute():
             if handled_response:
                 controller_action = get_action(handled_response)
                 if controller_action.action == "play":
-                    print(controller_action.to_dict())
-                    card = Card.query.get(controller_action.uid)
-                    if card and card.playlist:
-                        playlist = [
-                            Path(AUDIO_DIR, song.filename)
-                            for song in card.playlist.songs
-                        ]
-                        audio_controller.load_playlist(playlist)
-                        audio_controller.play_playlist()
-                    else:
-                        print("No playlist defined for card")
-
+                    handle_play_action(controller_action, audio_controller, audio_dir)
                 elif controller_action.action == "pause":
-                    audio_controller.pause()
-                    print("Pause")
+                    handle_pause_action(audio_controller)
 
             response.update()
             time.sleep(3.0)
