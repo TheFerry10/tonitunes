@@ -1,9 +1,9 @@
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import List, Union
-
+from typing import List, Optional
 import vlc
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +14,7 @@ class AbstractAudioController(ABC):
     """
 
     @abstractmethod
-    def play(self, file_path):
+    def play(self):
         """Play mp3"""
 
     @abstractmethod
@@ -72,22 +72,27 @@ class VlcAudioController(AbstractAudioController):
         self.media_list = None
         self.list_player = self.instance.media_list_player_new()
         self.player = self.list_player.get_media_player()
-        self.current_media_path = None
         self.player.audio_set_volume(self.VOLUME["default"])
 
-    def play(self, file_path: Union[Path, str]):
-        if file_path == self.current_media_path:
-            if not self.player.is_playing():
-                self.player.play()
-                logging.info("Resume with filepath %s", file_path)
-            else:
-                logging.info("Already playing %s", file_path)
+    def load_playlist(self, playlist: List[Path]):
+        if playlist == self.playlist:
+            logging.info("Playlist already loaded")
         else:
-            self.current_media_path = file_path
-            media = vlc.Media(file_path)
-            self.player.set_media(media)
-            self.player.play()
-            logging.info("Play the new song %s", file_path)
+            self.list_player.stop()
+            self.playlist = playlist
+            self.media_list = self.instance.media_list_new(mrls=playlist)
+            self.list_player.set_media_list(self.media_list)
+            logging.info("Playlist loaded with %d songs", len(playlist))
+
+    def play(self):
+        if self.media_list:
+            self.list_player.play()
+            logging.info("Playback started")
+            self.log_current_media()
+        else:
+            logging.warning(
+                "No playlist loaded. Use load_playlist() to load a playlist"
+            )
 
     def pause(self):
         if self.list_player.is_playing():
@@ -97,9 +102,21 @@ class VlcAudioController(AbstractAudioController):
             logging.info("No song is currently playing")
 
     def stop(self):
-        self.list_player.stop()
-        logging.info("Playback stopped")
-        self.current_media_path = None
+        if self.list_player.is_playing():
+            self.list_player.stop()
+            logging.info("Playback stopped")
+        else:
+            logging.info("No song is currently playing")
+
+    def next(self):
+        self.list_player.next()
+        logging.info("Next song")
+        self.log_current_media()
+
+    def previous(self):
+        self.list_player.previous()
+        logging.info("Previous song")
+        self.log_current_media()
 
     def increase_volume(self, step: int):
         step = abs(step)
@@ -117,21 +134,22 @@ class VlcAudioController(AbstractAudioController):
             self.player.audio_set_volume(new_volume)
             logging.info("Volume decreased to %d", new_volume)
 
-    def load_playlist(self, playlist: List[Union[Path, str]]):
-        if playlist == self.playlist:
-            logging.info("Playlist already loaded")
+    def log_current_media(self):
+        media = self.player.get_media()
+        if media:
+            media.parse()
+            media_path = media.get_mrl()
+            if media_path.startswith("file://"):
+                media_path = os.path.basename(media_path)
+            logging.info("Currently playing: %s", media_path)
         else:
-            self.playlist = playlist
-            self.media_list = self.instance.media_list_new(mrls=playlist)
-            self.list_player.set_media_list(self.media_list)
-            logging.info("Playlist loaded with %d songs", len(playlist))
+            logging.info("No media is currently playing")
 
-    def play_playlist(self):
-        if self.media_list:
-            self.list_player.play()
 
-    def next(self):
-        self.list_player.next()
-
-    def previous(self):
-        self.list_player.previous()
+def is_media_file_valid(file_path: Path) -> bool:
+    """Check if the file is a valid media file"""
+    valid_file_extensions = (".mp3", ".wav", ".ogg", ".flac")
+    if file_path.is_file() and file_path.suffix in valid_file_extensions:
+        return True
+    else:
+        return False
