@@ -1,7 +1,7 @@
 import os
 import time
 from pathlib import Path
-
+from mfrc522 import SimpleMFRC522
 import json
 import vlc
 from dotenv import load_dotenv
@@ -77,7 +77,8 @@ def handle_pause_action(audio_controller):
 
 
 def execute():
-    rfid_module = MFRCModule()
+    rfid_reader = SimpleMFRC522()
+    rfid_module = MFRCModule(reader=rfid_reader)
     response = RFIDResponse()
     encoder.when_rotated_clockwise = on_clockwise_rotate
     encoder.when_rotated_counter_clockwise = on_counter_clockwise_rotate

@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 from mfrc522 import SimpleMFRC522
 
-from adapters.repository import JsonUIDMappingRepository
+from adapters.repository import JsonCardRepository
 
 
 def transform_user_input_to_binary(user_input: str) -> bool:
@@ -15,7 +15,7 @@ def transform_user_input_to_binary(user_input: str) -> bool:
 
 
 file_name = "output.json"
-mapping = JsonUIDMappingRepository(file_name)
+mapping = JsonCardRepository(file_name)
 rfid_read = SimpleMFRC522()
 
 while True:

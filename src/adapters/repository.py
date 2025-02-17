@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.cardmanager.models import Card
 
 
-class AbstractUIDMappingRepository(ABC):
+class AbstractCardRepository(ABC):
     @abstractmethod
     def get_all(self):
         """Retrieve all UID mappings"""
@@ -34,7 +34,7 @@ class AbstractUIDMappingRepository(ABC):
         """Persist the current state to the storage"""
 
 
-class SqlAlchemyUIDMappingRepositoriy(AbstractUIDMappingRepository):
+class SqlAlchemyCardRepositoriy(AbstractCardRepository):
     def __init__(self, session: Session):
         self.session = session
 
@@ -49,8 +49,11 @@ class SqlAlchemyUIDMappingRepositoriy(AbstractUIDMappingRepository):
         self.session.add(card)
 
     def update(self, uid, name):
-        card = Card(uid=uid, name=name)
-        self.session.add(card)
+        card = self.session.query(Card).filter_by(uid=uid).first()
+        if card:
+            card.name = name
+        else:
+            raise ValueError(f"Card with uid {uid} not found")
 
     def remove(self, uid):
         record_to_delete = self.session.query(Card).filter_by(uid=uid).first()
@@ -64,7 +67,7 @@ class SqlAlchemyUIDMappingRepositoriy(AbstractUIDMappingRepository):
         self.session.rollback()
 
 
-class JsonUIDMappingRepository(AbstractUIDMappingRepository):
+class JsonCardRepository(AbstractCardRepository):
     def __init__(self, file_path: str):
         self.file_path = file_path
         self._mapping = self._load()

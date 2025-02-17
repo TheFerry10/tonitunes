@@ -1,22 +1,22 @@
-from mfrc522 import SimpleMFRC522
-from RPi import GPIO
-
 from adapters.rfid_interface import (
     AbstractRFIDModule,
     RFIDData,
     RFIDReadError,
-    RFIDWriteError,
 )
+from abc import ABC, abstractmethod
 
-# TODO
-# dependency injection for the reader
+
+class AbstractMFRC522(ABC):
+    @abstractmethod
+    def read_no_block(self) -> RFIDData:
+        """Read uid and text information"""
 
 
 class MFRCModule(AbstractRFIDModule):
     MAX_RESPONSE_COUNT = 2
 
-    def __init__(self):
-        self.reader = SimpleMFRC522()
+    def __init__(self, reader: AbstractMFRC522):
+        self.reader = reader
         self.event = RFIDData()
 
     def read(self) -> RFIDData:
@@ -31,13 +31,4 @@ class MFRCModule(AbstractRFIDModule):
                 response_count += 1
             return self.event
         except Exception as e:
-            raise RFIDReadError("Failed to read from RFID module") from e
-
-    def write(self, text: str):
-        try:
-            self.reader.write(text)
-        except Exception as e:
-            raise RFIDWriteError("Failed to write to RFID module") from e
-
-    def cleanup(self):
-        GPIO.cleanup()
+            raise RFIDReadError(f"Failed to read from RFID module: {e}") from e
