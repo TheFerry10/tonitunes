@@ -1,6 +1,8 @@
 from itertools import cycle
 from typing import Iterable
 from rfid.mfrc import MFRCModule, AbstractMFRC522
+from player.controller import rfid_to_player_action, PlayerAction
+import pytest
 from adapters.rfid_interface import (
     RFIDData,
     ResponseHandler,
@@ -102,6 +104,34 @@ def test_response_handler_in_sequence():
         if handled_response:
             unique_responses.append(handled_response)
     assert unique_responses == expected_unique_responses
+
+
+def test_player_action_handler_in_sequence():
+    expected_actions = [
+        PlayerAction("play", "12345678"),
+        PlayerAction("play", "87654321"),
+        PlayerAction("pause"),
+        PlayerAction("play", "12345678"),
+    ]
+
+    responses = [
+        RFIDData(None, None),
+        RFIDData(None, None),
+        RFIDData("12345678", "sample text"),
+        RFIDData("12345678", "sample text"),
+        RFIDData("87654321", "sample text 2"),
+        RFIDData(None, None),
+        RFIDData("12345678", "sample text"),
+    ]
+    initial_response = RFIDData()
+    handler = ResponseHandler(initial_response)
+    actions = []
+    for response in responses:
+        handled_response = handler.handle(response)
+        if handled_response:
+            action = rfid_to_player_action(handled_response)
+            actions.append(action)
+    assert actions == expected_actions
 
 
 def test_mfrc_scenario():

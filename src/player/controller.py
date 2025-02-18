@@ -2,11 +2,16 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from dataclasses_json import dataclass_json
-from typing import Dict, Literal, Optional
+from typing import Dict, Literal, Optional, List
+from datetime import datetime
 
-from utils import BaseDataclassConverter
-from adapters.repository import AbstractCardRepository
+
+from adapters.repository import AbstractCardRepository, SqlAlchemyCardRepositoriy
 from adapters.rfid_interface import RFIDData, ResponseHandler, AbstractRFIDModule
+from player.player import VlcAudioController, create_playlist
+from pathlib import Path
+from app.cardmanager import models
+
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +54,81 @@ class RFIDCardManager:
 
     def is_card_registered(self, rfid_data: RFIDData) -> bool:
         return self.registry.get_by_uid(rfid_data.uid) is not None
+
+
+class AudioControllerCommand(ABC):
+    def __init__(self, action: str):
+        self.action = action
+        self.timestamp = datetime.now()
+
+    @abstractmethod
+    def execute(self, audio_controller: VlcAudioController):
+        """Execute the command"""
+
+
+class PlayCommand(AudioControllerCommand):
+    def __init__(self, playlist):
+        super().__init__("play")
+        self.playlist = playlist
+
+    def execute(self, audio_controller: VlcAudioController):
+        audio_controller.load_playlist(self.playlist)
+        audio_controller.play_playlist()
+
+
+class PauseCommand(AudioControllerCommand):
+    def __init__(self):
+        super().__init__("pause")
+
+    def execute(self, audio_controller: VlcAudioController):
+        audio_controller.pause()
+
+
+class PlayerActionHandler:
+    def __init__(self, repository: SqlAlchemyCardRepositoriy):
+        # TODO would be better if repository can be AbstractCardRepository but that
+        # would require the manual creation of sql alchemy agnostic models
+        self.action_mapping = {
+            "play": self.handle_play_action,
+            "pause": self.handle_pause_action,
+        }
+        self.repository = repository
+
+    def handle_play_action(self, player_action: PlayerAction) -> PlayCommand:
+        card: models.Card = self.repository.get_by_uid(player_action.uid)
+        if card:
+            playlist_as_file_paths = card.get_playlist_as_file_paths()
+            playlist = create_playlist(playlist_as_file_paths)
+            # TODO send this to command queue
+            return PlayCommand(playlist=playlist)
+        else:
+            print("No playlist defined for card")
+
+    def handle_pause_action(self) -> PauseCommand:
+        # TODO send this to command queue
+        return PauseCommand()
+
+    def handle(self, player_action: PlayerAction) -> AudioControllerCommand:
+        if player_action.action == "play":
+            return self.handle_play_action(player_action)
+        elif player_action.action == "pause":
+            return self.handle_pause_action()
+        else:
+            logging.warning("No handler for action %s", player_action.action)
+
+
+class CommandQueue:
+    def __init__(self):
+        # TODO needs to be refined
+        self.queue = []
+
+    def add(self, command: AudioControllerCommand):
+        self.queue.append(command)
+
+    def execute(self, audio_controller: VlcAudioController):
+        for command in self.queue:
+            command.execute(audio_controller)
+        self.queue = []
 
 
 # class TagRegister:

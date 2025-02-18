@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import List, Union
 from dotenv import load_dotenv
 import logging
-from player.player import VlcAudioController, is_media_file_valid
+from player.player import VlcAudioController, create_playlist
 
 # Configure logging
 logging.basicConfig(
@@ -20,16 +20,6 @@ file_path_song_1 = os.environ["VALID_FILE_PATH_SONG_1"]
 file_path_song_2 = os.environ["VALID_FILE_PATH_SONG_2"]
 file_path_song_3 = os.environ["VALID_FILE_PATH_SONG_3"]
 invalid_file_path_song = os.environ["INVALID_FILE_PATH_SONG"]
-
-
-def create_playlist(file_paths: List[Union[Path, str]]) -> List[Path]:
-    playlist = []
-    for file_path in file_paths:
-        if is_media_file_valid(Path(file_path)):
-            playlist.append(Path(file_path))
-        else:
-            raise ValueError(f"Invalid file path: {file_path}")
-    return playlist
 
 
 # playlist_1 = create_playlist([file_path_song_1, file_path_song_2])

@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from dataclasses_json import dataclass_json
 from typing import Optional
-from utils import BaseDataclassConverter
 
 
 logger = logging.getLogger(__name__)

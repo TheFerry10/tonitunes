@@ -1,7 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Union
 import vlc
 import os
 
@@ -153,3 +153,13 @@ def is_media_file_valid(file_path: Path) -> bool:
         return True
     else:
         return False
+
+
+def create_playlist(file_paths: List[Union[Path, str]]) -> List[Path]:
+    playlist = []
+    for file_path in file_paths:
+        if is_media_file_valid(Path(file_path)):
+            playlist.append(Path(file_path))
+        else:
+            raise ValueError(f"Invalid file path: {file_path}")
+    return playlist

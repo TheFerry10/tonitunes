@@ -6,8 +6,8 @@ from adapters.rfid_interface import RFIDData
 from player.controller import RFIDCardManager
 
 
-@pytest.fixture
-def test_class():
+@pytest.fixture(name="test_class")
+def test_class_fixture():
     @dataclass_json
     @dataclass
     class TestClass:

@@ -1,30 +1,20 @@
 import pytest
 from unittest.mock import patch
 from pathlib import Path
-from player.player import VlcAudioController, is_media_file_valid
+from player.player import VlcAudioController, is_media_file_valid, create_playlist
 import time
 import logging
 from typing import List, Union
 
 
-def create_playlist(file_paths: List[Union[Path, str]]) -> List[Path]:
-    playlist = []
-    for file_path in file_paths:
-        if is_media_file_valid(Path(file_path)):
-            playlist.append(Path(file_path))
-        else:
-            raise ValueError(f"Invalid file path: {file_path}")
-    return playlist
-
-
-@pytest.fixture
-def mock_vlc_instance():
+@pytest.fixture(name="mock_vlc_instance")
+def mock_vlc_instance_fixture():
     with patch("player.player.vlc.Instance") as mock_instance:
         yield mock_instance.return_value
 
 
-@pytest.fixture
-def audio_controller(mock_vlc_instance):
+@pytest.fixture(name="audio_controller")
+def audio_controller_fixture(mock_vlc_instance):
     return VlcAudioController(vlc_instance=mock_vlc_instance)
 
 
@@ -173,6 +163,20 @@ def test_is_media_file_valid(tmp_path, file_name, expected):
     temp_file = tmp_path / file_name
     temp_file.touch()
     assert is_media_file_valid(temp_file) == expected
+
+
+def test_create_playlist(tmp_path):
+    expected_playlist = [
+        Path(tmp_path, "temp_song_1.mp3"),
+        Path(tmp_path, "temp_song_2.mp3"),
+    ]
+
+    song_1 = "temp_song_1.mp3"
+    song_2 = "temp_song_2.mp3"
+    temp_files = [tmp_path / file_name for file_name in [song_1, song_2]]
+    for temp_file in temp_files:
+        temp_file.touch()
+    assert create_playlist(temp_files) == expected_playlist
 
 
 def test_audio_controller_full_sequence(caplog):

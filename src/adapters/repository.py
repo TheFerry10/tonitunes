@@ -1,7 +1,7 @@
 import json
 import os
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, List
 
 from sqlalchemy.orm import Session
 
@@ -38,10 +38,10 @@ class SqlAlchemyCardRepositoriy(AbstractCardRepository):
     def __init__(self, session: Session):
         self.session = session
 
-    def get_all(self):
+    def get_all(self) -> List[Card]:
         return self.session.query(Card).all()
 
-    def get_by_uid(self, uid):
+    def get_by_uid(self, uid) -> Card:
         return self.session.query(Card).filter_by(uid=uid).first()
 
     def add(self, uid, name):
