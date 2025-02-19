@@ -73,7 +73,7 @@ class PlayCommand(AudioControllerCommand):
 
     def execute(self, audio_controller: VlcAudioController):
         audio_controller.load_playlist(self.playlist)
-        audio_controller.play_playlist()
+        audio_controller.play()
 
 
 class PauseCommand(AudioControllerCommand):
@@ -86,33 +86,30 @@ class PauseCommand(AudioControllerCommand):
 
 class PlayerActionHandler:
     def __init__(self, repository: SqlAlchemyCardRepositoriy):
+        # TODO this is an event handler which will produce a command
         # TODO would be better if repository can be AbstractCardRepository but that
         # would require the manual creation of sql alchemy agnostic models
-        self.action_mapping = {
-            "play": self.handle_play_action,
-            "pause": self.handle_pause_action,
-        }
         self.repository = repository
 
-    def handle_play_action(self, player_action: PlayerAction) -> PlayCommand:
+    def _handle_play_action(self, player_action: PlayerAction) -> PlayCommand:
         card: models.Card = self.repository.get_by_uid(player_action.uid)
         if card:
             playlist_as_file_paths = card.get_playlist_as_file_paths()
             playlist = create_playlist(playlist_as_file_paths)
-            # TODO send this to command queue
+
             return PlayCommand(playlist=playlist)
         else:
             print("No playlist defined for card")
 
-    def handle_pause_action(self) -> PauseCommand:
-        # TODO send this to command queue
+    def _handle_pause_action(self) -> PauseCommand:
+
         return PauseCommand()
 
     def handle(self, player_action: PlayerAction) -> AudioControllerCommand:
         if player_action.action == "play":
-            return self.handle_play_action(player_action)
+            return self._handle_play_action(player_action)
         elif player_action.action == "pause":
-            return self.handle_pause_action()
+            return self._handle_pause_action()
         else:
             logging.warning("No handler for action %s", player_action.action)
 

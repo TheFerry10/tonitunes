@@ -1,55 +1,55 @@
 import os
+from dotenv import load_dotenv
+from dataclasses import dataclass
+from dataclasses_json import dataclass_json
+import json
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+load_dotenv()
+with open("settings.json", "r", encoding="utf8") as f:
+    settings = json.load(f)
+
+DEFAULT_DATABASE_PATH = os.path.abspath(f"/home/{os.getenv('USER')}/tmp/default.db")
+DEFAULT_DATABASE_URI = f"sqlite:///{DEFAULT_DATABASE_PATH}"
+
+
+@dataclass_json
+@dataclass
+class GPIOConfig:
+    pin_clk: int
+    pin_dt: int
+    button_pin_next: int
+    button_pin_previous: int
+
+
+@dataclass_json
+@dataclass
+class PlayerConfig:
+    vlc_instance_params: str = ""
+    volume_step: int = 5
 
 
 class Config:
-    SLEEP_TIME_BETWEEN_READS_IN_SECONDS = 1
+    AUDIO_DIR = os.getenv("AUDIO_DIR")
+    FLASK_APP = "cardmanager.py"
+    DATABASE_URI = os.getenv("DATABASE_URI", DEFAULT_DATABASE_URI)
+    gpio_config = GPIOConfig.from_dict(settings["gpio"])
+    player_config = PlayerConfig.from_dict(settings["player"])
 
 
 class DevelopmentConfig(Config):
-    def init_queue_client(self):
-        pass
-
-    def init_rfid_module(self):
-        pass
+    FLASK_CONFIG = "development"
+    DEBUG = True
 
 
 class TestingConfig(Config):
-    pass
+    FLASK_CONFIG = "testing"
+    TESTING = True
 
 
 class ProductionConfig(Config):
-    QUEUE_NAME = os.getenv("QUEUE_NAME")
-
-
-class AzureConfig(ProductionConfig):
-
-    CONNECTION_STRING = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
-
-    @classmethod
-    def init_queue_client(cls):
-        import logging
-
-        from azure.core.exceptions import ResourceExistsError
-        from azure.storage.queue import QueueServiceClient
-
-        logging.basicConfig(
-            level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
-        )
-
-        queue_service_client = QueueServiceClient.from_connection_string(
-            cls.CONNECTION_STRING
-        )
-        queue_client = queue_service_client.get_queue_client(queue=cls.QUEUE_NAME)
-
-        try:
-            queue_client.create_queue()
-            logging.info("Queue %s created successfully.", cls.QUEUE_NAME)
-
-        except ResourceExistsError:
-            logging.info("Queue %s already exists.", cls.QUEUE_NAME)
-        return queue_client
+    FLASK_CONFIG = "production"
+    DEBUG = False
 
 
 config = {
@@ -57,5 +57,4 @@ config = {
     "development": DevelopmentConfig,
     "testing": TestingConfig,
     "production": ProductionConfig,
-    "azure": AzureConfig,
 }
