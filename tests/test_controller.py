@@ -1,16 +1,20 @@
+import os
 from pathlib import Path
-from player.controller import (
-    rfid_to_player_action,
-    PlayerAction,
-    PlayCommand,
-    PauseCommand,
-    PlayerActionHandler,
-)
-from adapters.repository import SqlAlchemyCardRepositoriy
-from app.cardmanager.models import Card, Song, Playlist
-from adapters.rfid_interface import RFIDData
+from typing import Iterable
 
 import pytest
+
+from adapters.repository import SqlAlchemyCardRepositoriy
+from adapters.rfid_interface import ResponseHandler, RFIDData, RFIDReadError
+from app.cardmanager.models import Card, Playlist, Song
+from player.controller import (
+    PauseCommand,
+    PlayCommand,
+    PlayerAction,
+    PlayerActionHandler,
+    rfid_to_player_action,
+)
+from rfid.mfrc import AbstractMFRC522, MFRCModule
 
 
 @pytest.fixture(name="temp_files")
@@ -39,6 +43,30 @@ def session_playlist_fixture(session, temp_files):
     playlist_ = Playlist(name="test_playlist", songs=[song_1, song_2])
     card_ = Card(name="card", uid="10000000", playlist=playlist_)
     session.add(card_)
+    session.commit()
+    return session
+
+
+@pytest.fixture(name="session_real")
+def session_real_fixture(session):
+    songs = {
+        f"song_{idx}": Song(
+            title=f"title_{idx}",
+            artist=f"artist_{idx}",
+            album=f"album_{idx}",
+            filename=os.path.abspath(f"tests/resources/music_sample_{idx}.mp3"),
+        )
+        for idx in [1, 2, 3, 4]
+    }
+    playlist_1 = Playlist(
+        name="test_playlist_1", songs=[songs["song_1"], songs["song_2"]]
+    )
+    playlist_2 = Playlist(
+        name="test_playlist_2", songs=[songs["song_3"], songs["song_4"]]
+    )
+    card_1 = Card(name="card", uid="10000000", playlist=playlist_1)
+    card_2 = Card(name="card", uid="20000000", playlist=playlist_2)
+    session.add_all([card_1, card_2])
     session.commit()
     return session
 
@@ -89,3 +117,70 @@ def test_handle_pause_action(session_playlist):
     command = player_action_handler.handle(player_action)
 
     assert command.action == expected_pause_command.action
+
+
+def test_rfid_player_script(session_real):
+
+    class NoMoreSamples(Exception):
+        """No more samples to read"""
+
+    class FakeMFRC522(AbstractMFRC522):
+        def __init__(self, samples: Iterable):
+            self._count = 0
+            self._samples = samples
+
+        def read_no_block(self):
+            try:
+                return next(self._samples)
+            except StopIteration:
+                raise NoMoreSamples("No more samples to read")
+
+    read_sequence = [
+        ("10000000", "sample text"),
+        ("10000000", "sample text"),
+        ("20000000", "sample text 2"),
+        (None, None),
+        (None, None),
+        (None, None),
+        (None, None),
+        (None, None),
+        (None, None),
+        ("20000000", "sample text"),
+    ]
+    repository = SqlAlchemyCardRepositoriy(session_real)
+    player_action_handler = PlayerActionHandler(repository)
+    handler = ResponseHandler(RFIDData())
+    reader = FakeMFRC522(iter(read_sequence))
+    rfid_module = MFRCModule(reader)
+    playlist_1 = [
+        Path(os.path.abspath(f"tests/resources/music_sample_{idx}.mp3"))
+        for idx in [1, 2]
+    ]
+    playlist_2 = [
+        Path(os.path.abspath(f"tests/resources/music_sample_{idx}.mp3"))
+        for idx in [3, 4]
+    ]
+    expected_commands = [
+        PlayCommand(playlist_1),
+        PlayCommand(playlist_2),
+        PauseCommand(),
+        PlayCommand(playlist_2),
+    ]
+    commands = []
+    while True:
+        try:
+            response = rfid_module.read()
+        except RFIDReadError as e:
+            assert (
+                "Failed to read from RFID module: No more samples to read" == e.message
+            )
+            break
+        handled_response = handler.handle(response)
+        if handled_response:
+            player_action = rfid_to_player_action(handled_response)
+            audio_controller_command = player_action_handler.handle(player_action)
+            commands.append(audio_controller_command)
+    for c, expected_c in zip(commands, expected_commands):
+        assert c.action == expected_c.action
+        if isinstance(c, PlayCommand):
+            assert c.playlist == expected_c.playlist

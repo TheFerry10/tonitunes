@@ -1,20 +1,21 @@
+import json
 import os
 import time
 from pathlib import Path
-from mfrc522 import SimpleMFRC522
-import json
+
 import vlc
 from dotenv import load_dotenv
-
 from gpiozero import Button, RotaryEncoder
+from mfrc522 import SimpleMFRC522
 from RPi import GPIO
+
 from adapters.rfid_interface import ResponseHandler, RFIDResponse, get_action
-from rfid.mfrc import MFRCModule
-from player.player import VlcAudioController
 
 # should be moved to a separate module
 from app.cardmanager.db import init_db
 from app.cardmanager.models import Card
+from player.player import VlcAudioController
+from rfid.mfrc import MFRCModule
 
 # loading environment variables from .env file not optimal
 load_dotenv(override=True)
@@ -33,10 +34,11 @@ volume_step = player_config.get("volume_step", 5)
 
 
 vlc_instance = vlc.Instance(vlc_instance_params)
-encoder = RotaryEncoder(clk, dt, max_steps=0)
+audio_controller = VlcAudioController(vlc_instance)
+
+rotary_encoder = RotaryEncoder(clk, dt, max_steps=0)
 button_next = Button(pin=button_pin_next, pull_up=True)
 button_previous = Button(pin=button_pin_previous, pull_up=True)
-audio_controller = VlcAudioController(vlc_instance)
 init_db()
 
 
@@ -80,8 +82,8 @@ def execute():
     rfid_reader = SimpleMFRC522()
     rfid_module = MFRCModule(reader=rfid_reader)
     response = RFIDResponse()
-    encoder.when_rotated_clockwise = on_clockwise_rotate
-    encoder.when_rotated_counter_clockwise = on_counter_clockwise_rotate
+    rotary_encoder.when_rotated_clockwise = on_clockwise_rotate
+    rotary_encoder.when_rotated_counter_clockwise = on_counter_clockwise_rotate
     button_next.when_pressed = on_button_next_pressed
     button_previous.when_pressed = on_button_previous_pressed
 
