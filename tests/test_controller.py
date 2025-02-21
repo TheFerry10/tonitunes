@@ -119,22 +119,24 @@ def test_handle_pause_action(session_playlist):
     assert command.action == expected_pause_command.action
 
 
-def test_rfid_player_script(session_real):
+class NoMoreSamples(Exception):
+    """No more samples to read"""
 
-    class NoMoreSamples(Exception):
-        """No more samples to read"""
 
-    class FakeMFRC522(AbstractMFRC522):
-        def __init__(self, samples: Iterable):
-            self._count = 0
-            self._samples = samples
+class FakeMFRC522(AbstractMFRC522):
+    def __init__(self, samples: Iterable):
+        self._count = 0
+        self._samples = samples
 
-        def read_no_block(self):
-            try:
-                return next(self._samples)
-            except StopIteration:
-                raise NoMoreSamples("No more samples to read")
+    def read_no_block(self):
+        try:
+            return next(self._samples)
+        except StopIteration:
+            raise NoMoreSamples("No more samples to read")
 
+
+@pytest.fixture(name="reader")
+def reader_fixture():
     read_sequence = [
         ("10000000", "sample text"),
         ("10000000", "sample text"),
@@ -147,11 +149,25 @@ def test_rfid_player_script(session_real):
         (None, None),
         ("20000000", "sample text"),
     ]
-    repository = SqlAlchemyCardRepositoriy(session_real)
-    player_action_handler = PlayerActionHandler(repository)
-    handler = ResponseHandler(RFIDData())
-    reader = FakeMFRC522(iter(read_sequence))
-    rfid_module = MFRCModule(reader)
+    return FakeMFRC522(iter(read_sequence))
+
+
+@pytest.fixture(name="rfid_module")
+def rfid_module_fixture(reader):
+    return MFRCModule(reader)
+
+
+@pytest.fixture(name="repository")
+def repository_fixture(session_real):
+    return SqlAlchemyCardRepositoriy(session_real)
+
+
+@pytest.fixture(name="player_action_handler")
+def player_action_handler_fixture(repository):
+    return PlayerActionHandler(repository)
+
+
+def test_rfid_player_script(player_action_handler, rfid_module):
     playlist_1 = [
         Path(os.path.abspath(f"tests/resources/music_sample_{idx}.mp3"))
         for idx in [1, 2]
@@ -167,6 +183,7 @@ def test_rfid_player_script(session_real):
         PlayCommand(playlist_2),
     ]
     commands = []
+    handler = ResponseHandler()
     while True:
         try:
             response = rfid_module.read()

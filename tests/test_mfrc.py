@@ -1,13 +1,9 @@
 from itertools import cycle
 from typing import Iterable
-from rfid.mfrc import MFRCModule, AbstractMFRC522
-from player.controller import rfid_to_player_action, PlayerAction
-import pytest
-from adapters.rfid_interface import (
-    RFIDData,
-    ResponseHandler,
-    RFIDReadError,
-)
+
+from adapters.rfid_interface import ResponseHandler, RFIDData, RFIDReadError
+from player.controller import PlayerAction, rfid_to_player_action
+from rfid.mfrc import AbstractMFRC522, MFRCModule
 
 
 class NoMoreSamples(Exception):

@@ -1,9 +1,6 @@
-from adapters.rfid_interface import (
-    AbstractRFIDModule,
-    RFIDData,
-    RFIDReadError,
-)
 from abc import ABC, abstractmethod
+
+from adapters.rfid_interface import AbstractRFIDModule, RFIDData, RFIDReadError
 
 
 class AbstractMFRC522(ABC):

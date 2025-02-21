@@ -1,45 +1,32 @@
-import json
-import os
 import time
-from pathlib import Path
 
 import vlc
-from dotenv import load_dotenv
 from gpiozero import Button, RotaryEncoder
 from mfrc522 import SimpleMFRC522
 from RPi import GPIO
 
-from adapters.rfid_interface import ResponseHandler, RFIDResponse, get_action
+from adapters.repository import SqlAlchemyCardRepositoriy
+from adapters.rfid_interface import ResponseHandler
 
 # should be moved to a separate module
-from app.cardmanager.db import init_db
-from app.cardmanager.models import Card
+from app.cardmanager.db import db_session, init_db
+from config import DevelopmentConfig, config
+from player.controller import PlayerActionHandler, rfid_to_player_action
 from player.player import VlcAudioController
 from rfid.mfrc import MFRCModule
 
-# loading environment variables from .env file not optimal
-load_dotenv(override=True)
-clk = os.getenv("PIN_CLK")
-dt = os.getenv("PIN_DT")
-button_pin_next = os.getenv("BUTTON_PIN_NEXT")
-button_pin_previous = os.getenv("BUTTON_PIN_PREVIOUS")
-audio_dir = os.environ.get("AUDIO_DIR")
-
-
-with open("settings.json") as f:
-    settings = json.load(f)
-player_config = settings["player"]
-vlc_instance_params = player_config.get("vlc_instance_params", "")
-volume_step = player_config.get("volume_step", 5)
-
-
+application_config: DevelopmentConfig = config["default"]
+volume_step = application_config.player_config.volume_step
+vlc_instance_params = application_config.player_config.vlc_instance_params
+gpio_config = application_config.gpio_config
 vlc_instance = vlc.Instance(vlc_instance_params)
 audio_controller = VlcAudioController(vlc_instance)
 
-rotary_encoder = RotaryEncoder(clk, dt, max_steps=0)
-button_next = Button(pin=button_pin_next, pull_up=True)
-button_previous = Button(pin=button_pin_previous, pull_up=True)
-init_db()
+rotary_encoder = RotaryEncoder(gpio_config.pin_clk, gpio_config.pin_dt, max_steps=0)
+button_next = Button(pin=gpio_config.button_pin_next, pull_up=True)
+button_previous = Button(pin=gpio_config.button_pin_previous, pull_up=True)
+
+init_db(application_config.DATABASE_URI)
 
 
 def on_clockwise_rotate():
@@ -62,26 +49,13 @@ def on_button_previous_pressed():
     print("Play previous song")
 
 
-def handle_play_action(controller_action, audio_controller, audio_dir):
-    print(controller_action.to_dict())
-    card = Card.query.get(controller_action.uid)
-    if card and card.playlist:
-        playlist = [Path(audio_dir, song.filename) for song in card.playlist.songs]
-        audio_controller.load_playlist(playlist)
-        audio_controller.play_playlist()
-    else:
-        print("No playlist defined for card")
-
-
-def handle_pause_action(audio_controller):
-    audio_controller.pause()
-    print("Pause")
-
-
-def execute():
+def start_rfid_player():
     rfid_reader = SimpleMFRC522()
     rfid_module = MFRCModule(reader=rfid_reader)
-    response = RFIDResponse()
+    repository = SqlAlchemyCardRepositoriy(session=db_session)
+    player_action_handler = PlayerActionHandler(repository)
+    handler = ResponseHandler()
+
     rotary_encoder.when_rotated_clockwise = on_clockwise_rotate
     rotary_encoder.when_rotated_counter_clockwise = on_counter_clockwise_rotate
     button_next.when_pressed = on_button_next_pressed
@@ -89,18 +63,13 @@ def execute():
 
     try:
         while True:
-            response.current = rfid_module.read()
-            response_handler = ResponseHandler(response)
-            handled_response = response_handler.handle()
+            response = rfid_module.read()
+            handled_response = handler.handle(response)
             if handled_response:
-                controller_action = get_action(handled_response)
-                if controller_action.action == "play":
-                    handle_play_action(controller_action, audio_controller, audio_dir)
-                elif controller_action.action == "pause":
-                    handle_pause_action(audio_controller)
-
-            response.update()
-            time.sleep(3.0)
+                player_action = rfid_to_player_action(handled_response)
+                audio_controller_command = player_action_handler.handle(player_action)
+                audio_controller_command.execute(audio_controller)
+                time.sleep(3.0)
 
     except KeyboardInterrupt:
         print("KeyboardInterrupt detected. Cleaning up...")
@@ -110,7 +79,4 @@ def execute():
 
 
 if __name__ == "__main__":
-    try:
-        execute()
-    except KeyboardInterrupt:
-        print("Stopping queue listener.")
+    start_rfid_player()

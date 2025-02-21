@@ -1,17 +1,15 @@
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from dataclasses_json import dataclass_json
-from typing import Dict, Literal, Optional, List
 from datetime import datetime
+from typing import Literal, Optional
 
+from dataclasses_json import dataclass_json
 
 from adapters.repository import AbstractCardRepository, SqlAlchemyCardRepositoriy
-from adapters.rfid_interface import RFIDData, ResponseHandler, AbstractRFIDModule
-from player.player import VlcAudioController, create_playlist
-from pathlib import Path
+from adapters.rfid_interface import RFIDData
 from app.cardmanager import models
-
+from player.player import VlcAudioController, create_playlist
 
 logger = logging.getLogger(__name__)
 
@@ -126,40 +124,3 @@ class CommandQueue:
         for command in self.queue:
             command.execute(audio_controller)
         self.queue = []
-
-
-# class TagRegister:
-#     def __init__(
-#         self,
-#         registry: AbstractUIDMappingRepository,
-#         rfid_module: AbstractRFIDModule,
-#         mapping: Optional[Dict[str, str]] = None,
-#     ):
-#         self.registry = registry
-#         self.rfid_module = rfid_module
-#         self.mapping = mapping
-#         self.response = RFIDResponse()
-
-#     def get_name_from_mapping(self, rfid_response: RFIDData) -> Optional[str]:
-#         if self.mapping:
-#             return self.mapping.get(rfid_response.uid)
-
-#     def register(self, name: Optional[str] = None):
-#         self.response.current = self.rfid_module.read()
-#         response_handler = ResponseHandler(self.response)
-#         handled_response = response_handler.handle()
-#         if handled_response:
-#             if self.response.current.uid:
-#                 if self.registry.get_by_uid(self.response.current.uid) is None:
-#                     name = input("Enter card name: ")
-#                     self.registry.add(uid=self.response.current.uid, name=name)
-#                     self.registry.save()
-#                     logger.info(
-#                         "Successfully registered uid %s with name %s",
-#                         self.response.current.uid,
-#                         name,
-#                     )
-#                 else:
-#                     logging.info("UID %s already registered", self.response.current.uid)
-
-#         self.response.update()

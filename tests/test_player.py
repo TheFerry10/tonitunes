@@ -1,10 +1,11 @@
-import pytest
-from unittest.mock import patch
-from pathlib import Path
-from player.player import VlcAudioController, is_media_file_valid, create_playlist
-import time
 import logging
-from typing import List, Union
+import time
+from pathlib import Path
+from unittest.mock import patch
+
+import pytest
+
+from player.player import VlcAudioController, create_playlist, is_media_file_valid
 
 
 @pytest.fixture(name="mock_vlc_instance")
@@ -115,7 +116,7 @@ def test_get_current_media(audio_controller, caplog):
     expected_logs = ["Currently playing: sample1.mp3"]
 
     with caplog.at_level(logging.INFO):
-        audio_controller.list_player.get_media_player().get_media().get_mrl.return_value = (
+        audio_controller.list_player.get_media_player().get_media().get_mrl.return_value = (  # noqa
             "file:///file/path/to/media/sample1.mp3"
         )
         audio_controller.log_current_media()

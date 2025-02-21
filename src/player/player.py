@@ -1,9 +1,10 @@
 import logging
+import os
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Union
+
 import vlc
-import os
 
 logger = logging.getLogger(__name__)
 

@@ -1,9 +1,9 @@
+import logging
 import os
 import time
-from pathlib import Path
-from typing import List, Union
+
 from dotenv import load_dotenv
-import logging
+
 from player.player import VlcAudioController, create_playlist
 
 # Configure logging

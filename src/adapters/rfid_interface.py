@@ -1,9 +1,9 @@
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from dataclasses_json import dataclass_json
 from typing import Optional
 
+from dataclasses_json import dataclass_json
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ class ResponseHandler:
         current_response (RFIDData): The current RFID response.
     """
 
-    def __init__(self, response: RFIDData):
+    def __init__(self, response: RFIDData = RFIDData()):
         """
         Initializes the ResponseHandler with an initial RFID response.
 

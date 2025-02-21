@@ -1,6 +1,8 @@
 from dataclasses import dataclass
-from dataclasses_json import dataclass_json
+
 import pytest
+from dataclasses_json import dataclass_json
+
 from adapters.repository import SqlAlchemyCardRepositoriy
 from adapters.rfid_interface import RFIDData
 from player.controller import RFIDCardManager

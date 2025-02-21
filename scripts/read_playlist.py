@@ -1,6 +1,8 @@
-from dotenv import load_dotenv
 import os
-from app.cardmanager.db import init_db, db_session
+
+from dotenv import load_dotenv
+
+from app.cardmanager.db import db_session, init_db
 from app.cardmanager.models import Card
 
 load_dotenv(override=True)
