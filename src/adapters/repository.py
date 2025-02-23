@@ -1,3 +1,4 @@
+import csv
 import json
 import os
 from abc import ABC, abstractmethod
@@ -98,3 +99,42 @@ class JsonCardRepository(AbstractCardRepository):
         """Persist the current state to the storage (e.g., JSON file)."""
         with open(self.file_path, "w", encoding="utf-8") as f:
             json.dump(self._mapping, f, ensure_ascii=False, indent=4)
+
+
+class CsvCardRepository(AbstractCardRepository):
+    def __init__(self, file_path: str):
+        self.file_path = file_path
+        self._mapping = self._load()
+
+    def _load(self):
+        mapping = {}
+        if os.path.exists(self.file_path):
+            with open(self.file_path, "r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    mapping[row["uid"]] = {"name": row["name"]}
+        return mapping
+
+    def get_all(self):
+        return self._mapping
+
+    def get_by_uid(self, uid: str):
+        return self._mapping.get(uid)
+
+    def add(self, uid: str, name: Optional[str]):
+        self._mapping[uid] = {"name": name}
+
+    def update(self, uid: str, name: Optional[str]):
+        self._mapping[uid] = {"name": name}
+
+    def remove(self, uid: str):
+        if uid in self._mapping:
+            del self._mapping[uid]
+
+    def save(self):
+        with open(self.file_path, "w", encoding="utf-8", newline="") as f:
+            fieldnames = ["uid", "name"]
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            for uid, data in self._mapping.items():
+                writer.writerow({"uid": uid, "name": data["name"]})
