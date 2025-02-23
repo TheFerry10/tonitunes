@@ -11,7 +11,7 @@ from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 
 from . import db, models
-from .config import config
+from config import config, ENVIRONMENT, Config
 
 bootstrap = Bootstrap()
 moment = Moment()
@@ -19,13 +19,13 @@ moment = Moment()
 
 def create_app(config_name=None):
     app = Flask(__name__, instance_relative_config=True)
-    if config_name is None:
-        config_name = os.getenv("FLASK_CONFIG", "default")
-    print("Config: ", config_name)
-    app.config.from_object(config[config_name])
+     = "default"
+    print("ENVIRONMENT: ", ENVIRONMENT)
+    application_config: Config = config[config_name]
+    app.config.from_object(application_config)
     bootstrap.init_app(app)
     moment.init_app(app)
-    db.init_db()
+    db.init_db(application_config.DATABASE_URI)
 
     @app.teardown_appcontext
     def shutdown_session(exception=None):

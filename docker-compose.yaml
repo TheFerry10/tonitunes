@@ -11,5 +11,6 @@ services:
       FLASK_APP: cardmanager.py
       FLASK_RUN_HOST: 0.0.0.0
       FLASK_CONFIG: production
+      TONITUNES_HOME: root/.tonitunes
     volumes:
-      - ./src/app/resources:/app/resources
+      - ${HOME}/.tonitunes:/root/.tonitunes

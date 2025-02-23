@@ -6,7 +6,7 @@ db_session = scoped_session(sessionmaker())
 
 def init_db(database_uri):
     """Initialize the database schema (creates tables)."""
-    engine = create_engine(database_uri, echo=True)
+    engine = create_engine(database_uri, echo=False)
     db_session.configure(bind=engine)
     from .models import Base, Card, Playlist, Song  # noqa: F401
 

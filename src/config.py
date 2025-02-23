@@ -4,13 +4,19 @@ import os
 from dotenv import load_dotenv
 from pydantic import BaseModel, PositiveInt
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-load_dotenv(override=True)
-with open("settings.json", "r", encoding="utf8") as f:
+
+ROOTDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SETTINGS_FILE_PATH = os.path.join(ROOTDIR, "settings.json")
+ENV_FILE_PATH = os.path.join(ROOTDIR, ".env")
+ENVIRONMENT = os.environ.get("ENVIRONMENT", "default")
+
+load_dotenv(ENV_FILE_PATH, override=True)
+
+
+with open(SETTINGS_FILE_PATH, "r", encoding="utf8") as f:
     settings = json.load(f)
 
-DEFAULT_DATABASE_PATH = os.path.abspath(f"/home/{os.getenv('USER')}/tmp/default.db")
-DEFAULT_DATABASE_URI = f"sqlite:///{DEFAULT_DATABASE_PATH}"
+
 
 
 class GPIOSettings(BaseModel):
@@ -31,9 +37,14 @@ class Settings(BaseModel):
 
 
 class Config:
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SECRET_KEY = os.environ.get("SECRET_KEY") or "hard to guess string"
     AUDIO_DIR = os.getenv("AUDIO_DIR")
     FLASK_APP = "cardmanager.py"
-    DATABASE_URI = os.getenv("DATABASE_URI", DEFAULT_DATABASE_URI)
+    TONITUNES_HOME = os.getenv("TONITUNES_HOME")
+    TONITUNES_SONGS_DIR = os.path.join(TONITUNES_HOME, "songs")
+    TONITUNES_CARDS_DIR = os.path.join(TONITUNES_HOME, "cards")
+    DATABASE_URI = f"sqlite:///{TONITUNES_HOME}/sqlite/data.sqlite"
     gpio_config = GPIOSettings(**settings.get("gpio"))
     player_config = PlayerSettings(**settings.get("player"))
 
