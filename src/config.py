@@ -4,7 +4,6 @@ import os
 from dotenv import load_dotenv
 from pydantic import BaseModel, PositiveInt
 
-
 ROOTDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SETTINGS_FILE_PATH = os.path.join(ROOTDIR, "settings.json")
 ENV_FILE_PATH = os.path.join(ROOTDIR, ".env")
@@ -15,8 +14,6 @@ load_dotenv(ENV_FILE_PATH, override=True)
 
 with open(SETTINGS_FILE_PATH, "r", encoding="utf8") as f:
     settings = json.load(f)
-
-
 
 
 class GPIOSettings(BaseModel):
@@ -41,7 +38,7 @@ class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY") or "hard to guess string"
     AUDIO_DIR = os.getenv("AUDIO_DIR")
     FLASK_APP = "cardmanager.py"
-    TONITUNES_HOME = os.getenv("TONITUNES_HOME")
+    TONITUNES_HOME = os.getenv("TONITUNES_HOME", "/home")
     TONITUNES_SONGS_DIR = os.path.join(TONITUNES_HOME, "songs")
     TONITUNES_CARDS_DIR = os.path.join(TONITUNES_HOME, "cards")
     DATABASE_URI = f"sqlite:///{TONITUNES_HOME}/sqlite/data.sqlite"

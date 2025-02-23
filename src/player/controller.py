@@ -2,7 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
 from dataclasses_json import dataclass_json
 
@@ -81,26 +81,32 @@ class PauseCommand(AudioControllerCommand):
     def execute(self, audio_controller: VlcAudioController):
         audio_controller.pause()
 
+
 class SkipCommand(AudioControllerCommand):
     def __init__(self):
         super().__init__("skip")
-        
+
     def execute(self, audio_controller):
         pass
+
 
 class PlayerActionHandler:
     def __init__(self, repository: SqlAlchemyCardRepositoriy):
         # TODO this is an event handler which will produce a command
         self.repository = repository
 
-    def _handle_play_action(self, player_action: PlayerAction) -> Union[PlayCommand, SkipCommand]:
+    def _handle_play_action(
+        self, player_action: PlayerAction
+    ) -> Union[PlayCommand, SkipCommand]:
         card: models.Card = self.repository.get_by_uid(player_action.uid)
         if card:
             playlist_as_file_paths = card.get_playlist_as_file_paths()
             playlist = create_playlist(playlist_as_file_paths)
             return PlayCommand(playlist=playlist)
         else:
-            logging.warning(f"No playlist defined for card {card}, action uid {player_action.uid}")
+            logging.warning(
+                f"No playlist defined for card {card}, action uid {player_action.uid}"
+            )
             return SkipCommand()
 
     def _handle_pause_action(self) -> PauseCommand:
