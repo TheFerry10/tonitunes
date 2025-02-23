@@ -9,6 +9,10 @@ from sqlalchemy.orm import Session
 from app.cardmanager.models import Card
 
 
+class UIDAlreadyExistsError(Exception):
+    pass
+
+
 class AbstractCardRepository(ABC):
     @abstractmethod
     def get_all(self):
@@ -122,6 +126,8 @@ class CsvCardRepository(AbstractCardRepository):
         return self._mapping.get(uid)
 
     def add(self, uid: str, name: Optional[str]):
+        if uid in self._mapping:
+            raise UIDAlreadyExistsError(f"UID {uid} already exists")
         self._mapping[uid] = {"name": name}
 
     def update(self, uid: str, name: Optional[str]):

@@ -2,7 +2,7 @@ import csv
 
 import pytest
 
-from adapters.repository import CsvCardRepository
+from adapters.repository import CsvCardRepository, UIDAlreadyExistsError
 
 
 @pytest.fixture(name="csv_file")
@@ -56,3 +56,8 @@ def test_save(repository, csv_file):
         rows = list(reader)
         assert len(rows) == 3
         assert any(row["uid"] == "789" and row["name"] == "Card 3" for row in rows)
+
+
+def test_add_existing_uid(repository):
+    with pytest.raises(UIDAlreadyExistsError):
+        repository.add("123", "Duplicate Card")
