@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   flask-app:
     build:
@@ -11,6 +9,6 @@ services:
       FLASK_APP: cardmanager.py
       FLASK_RUN_HOST: 0.0.0.0
       FLASK_CONFIG: production
-      TONITUNES_HOME: root/.tonitunes
+      TONITUNES_HOME: /root/.tonitunes
     volumes:
       - ${HOME}/.tonitunes:/root/.tonitunes

@@ -7,19 +7,16 @@ import click
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
-
-from config import ENVIRONMENT, Config, config
-
 from . import db, models
+from config import config, Config
 
 bootstrap = Bootstrap()
 moment = Moment()
 
 
-def create_app(config_name=None):
+def create_app(config_name="default"):
     app = Flask(__name__, instance_relative_config=True)
-    print("ENVIRONMENT: ", ENVIRONMENT)
-    application_config: Config = config[config_name]
+    application_config: Config = config.get(config_name)
     app.config.from_object(application_config)
     bootstrap.init_app(app)
     moment.init_app(app)
