@@ -1,19 +1,17 @@
 import logging
 import os
 import time
-
-from dotenv import load_dotenv
-
+from config import config
 from player.player import VlcAudioController, create_playlist
 
-# Configure logging
+
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
 logger = logging.getLogger(__name__)
-
-load_dotenv("/home/malte/Dokumente/projects/tonibox-rfid/.env", override=True)
+config_name = os.getenv("TONITUNES_CONFIG_NAME", "default")
+application_config = config.get(config_name)
 
 
 file_path_song_1 = os.environ["VALID_FILE_PATH_SONG_1"]
@@ -21,9 +19,6 @@ file_path_song_2 = os.environ["VALID_FILE_PATH_SONG_2"]
 file_path_song_3 = os.environ["VALID_FILE_PATH_SONG_3"]
 invalid_file_path_song = os.environ["INVALID_FILE_PATH_SONG"]
 
-
-# playlist_1 = create_playlist([file_path_song_1, file_path_song_2])
-# playlist_2 = create_playlist([file_path_song_3])
 
 playlist_1 = create_playlist(
     [

@@ -7,8 +7,10 @@ import click
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
+
+from config import Config, config
+
 from . import db, models
-from config import config, Config
 
 bootstrap = Bootstrap()
 moment = Moment()

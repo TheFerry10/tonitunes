@@ -1,19 +1,24 @@
-import json
+import configparser
+import logging
 import os
 
 from dotenv import load_dotenv
-from pydantic import BaseModel, PositiveInt
+from pydantic import BaseModel, PositiveFloat, PositiveInt
+
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+
+logger = logging.getLogger(__name__)
 
 ROOTDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SETTINGS_FILE_PATH = os.path.join(ROOTDIR, "settings.json")
+SETTINGS_FILE_PATH = os.path.join(ROOTDIR, "settings.ini")
 ENV_FILE_PATH = os.path.join(ROOTDIR, ".env")
-ENVIRONMENT = os.environ.get("ENVIRONMENT", "default")
-
 load_dotenv(ENV_FILE_PATH, override=True)
 
 
-with open(SETTINGS_FILE_PATH, "r", encoding="utf8") as f:
-    settings = json.load(f)
+settings = configparser.ConfigParser()
+settings.read(SETTINGS_FILE_PATH)
 
 
 class GPIOSettings(BaseModel):
@@ -28,13 +33,19 @@ class PlayerSettings(BaseModel):
     volume_step: PositiveInt = 5
 
 
+class RfidReaderSettings(BaseModel):
+    timeout_between_reads_in_seconds: PositiveFloat = 3.0
+
+
 class Settings(BaseModel):
     gpio_settings: GPIOSettings
     player_settings: PlayerSettings
+    rfid_reader_settings: RfidReaderSettings
 
 
 class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    FLASK_CONFIG = "development"
     SECRET_KEY = os.environ.get("SECRET_KEY") or "hard to guess string"
     AUDIO_DIR = os.getenv("AUDIO_DIR")
     FLASK_APP = "cardmanager.py"
@@ -42,8 +53,7 @@ class Config:
     TONITUNES_SONGS_DIR = os.path.join(TONITUNES_HOME, "songs")
     TONITUNES_CARDS_DIR = os.path.join(TONITUNES_HOME, "cards")
     DATABASE_URI = f"sqlite:///{TONITUNES_HOME}/sqlite/data.sqlite"
-    gpio_config = GPIOSettings(**settings.get("gpio"))
-    player_config = PlayerSettings(**settings.get("player"))
+    SETTINGS = settings
 
 
 class DevelopmentConfig(Config):

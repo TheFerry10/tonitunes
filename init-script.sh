@@ -23,7 +23,3 @@ if ! grep -Fxq "${ENV_VAR_EXPORT}" "${BASHRC_FILE}"; then
 else
     echo "${ENV_VAR_EXPORT} is already present in ${BASHRC_FILE}"
 fi
-
-
-    
-

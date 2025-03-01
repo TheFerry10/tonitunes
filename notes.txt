@@ -44,7 +44,7 @@ newgrp docker
 docker run hello-world
 
 
-# bug 
+# bug
 
 No playlist defined for card
 Cleaning done

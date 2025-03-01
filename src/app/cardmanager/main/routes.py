@@ -1,6 +1,7 @@
 import csv
-from pathlib import Path
 import os
+from pathlib import Path
+
 from flask import flash, redirect, render_template, url_for
 
 from ..db import db_session
@@ -80,7 +81,9 @@ def load_songs():
     if home_dir:
         file_path_songs = Path(home_dir, "songs/songs.csv")
     else:
-        raise ValueError("Environment variable TONITUNES_HOME not defined. Run init script.")
+        raise ValueError(
+            "Environment variable TONITUNES_HOME not defined. Run init script."
+        )
     if file_path_songs.is_file():
         with open(file_path_songs, "r", encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile)
@@ -107,7 +110,9 @@ def load_cards():
     if home_dir:
         file_path_cards = Path(home_dir, "cards/cards.csv")
     else:
-        raise ValueError("Environment variable TONITUNES_HOME not defined. Run init script.")
+        raise ValueError(
+            "Environment variable TONITUNES_HOME not defined. Run init script."
+        )
     if file_path_cards.is_file():
         with open(file_path_cards, "r", encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile)
