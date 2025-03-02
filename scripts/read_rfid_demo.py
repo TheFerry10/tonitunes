@@ -3,6 +3,11 @@ from time import sleep
 
 from mfrc522 import SimpleMFRC522
 from RPi import GPIO
+import os
+from config import config, Config
+
+config_name = os.getenv("TONITUNES_CONFIG_NAME", "default")
+application_config: Config = config.get(config_name)
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -22,7 +27,11 @@ try:
                 break
             response_count += 1
         logging.info("ID: %s" % (id))
-        sleep(1)
+        sleep(
+            application_config.SETTINGS.getint(
+                "rfid-reader", "timeout_between_reads_in_seconds"
+            )
+        )
 except KeyboardInterrupt:
     GPIO.cleanup()
     raise

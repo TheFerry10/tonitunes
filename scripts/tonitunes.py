@@ -46,12 +46,12 @@ session = db_session()
 
 def on_clockwise_rotate():
     audio_controller.increase_volume(volume_step)
-    logging.info("Current volume ", audio_controller.player.audio_get_volume())
+    logging.info(f"Current volume {audio_controller.player.audio_get_volume()}")
 
 
 def on_counter_clockwise_rotate():
     audio_controller.decrease_volume(volume_step)
-    logging.info("Current volume ", audio_controller.player.audio_get_volume())
+    logging.info(f"Current volume {audio_controller.player.audio_get_volume()}")
 
 
 def on_button_next_pressed():
@@ -75,7 +75,8 @@ def start_rfid_player():
     rotary_encoder.when_rotated_counter_clockwise = on_counter_clockwise_rotate
     button_next.when_pressed = on_button_next_pressed
     button_previous.when_pressed = on_button_previous_pressed
-
+    
+    logging.info("TONITUNES running. Hold your RFID card near the reader.")
     try:
         while True:
             response = rfid_module.read()
