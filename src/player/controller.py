@@ -101,13 +101,13 @@ class PlayerActionHandler:
         card: models.Card = self.repository.get_by_uid(player_action.uid)
         if card:
             playlist_as_file_paths = card.get_playlist_as_file_paths()
-            playlist = create_playlist(playlist_as_file_paths)
-            return PlayCommand(playlist=playlist)
-        else:
-            logging.warning(
-                f"No playlist defined for card {card}, action uid {player_action.uid}"
-            )
-            return SkipCommand()
+            if playlist_as_file_paths:
+                playlist = create_playlist(playlist_as_file_paths)
+                return PlayCommand(playlist=playlist)
+        logging.warning(
+            f"No playlist defined for card {card}, action uid {player_action.uid}"
+        )
+        return SkipCommand()
 
     def _handle_pause_action(self) -> PauseCommand:
 
