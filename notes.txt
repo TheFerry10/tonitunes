@@ -1,18 +1,5 @@
 # static ip address
-192.168.0.59
 
-# update package system
-
-# python setup
-pip install -r requirements.txt
-pip install -e .
-
-
-
-copy database src/app/resources
-copy songs to AUDIO dir
-
-sudo apt-get install mediainfo
 
 https://docs.docker.com/engine/install/raspberry-pi-os/
 install docker
@@ -41,28 +28,7 @@ newgrp docker
 docker run hello-world
 
 
-# bug
 
-No playlist defined for card
-Cleaning done
-Traceback (most recent call last):
-  File "/home/malte/Documents/tonibox-rfid/scripts/rfid2player.py", line 82, in <module>
-    start_rfid_player()
-  File "/home/malte/Documents/tonibox-rfid/scripts/rfid2player.py", line 71, in start_rfid_player
-    audio_controller_command.execute(audio_controller)
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'NoneType' object has no attribute 'execute'
-
-these things can happen:
-AUTH ERROR!!
-ERROR:mfrc522Logger:AUTH ERROR!!
-AUTH ERROR(status2reg & 0x08) != 0
-ERROR:mfrc522Logger:AUTH ERROR(status2reg & 0x08) != 0
-
---> will produce a number: No playlist defined for card None, action uid 1095233372160
-
-
-echo "${HOME}/.tonitunes"
 
 
 shutdown button
@@ -70,7 +36,7 @@ dtoverlay=gpio-shutdown,gpio_pin=3
  /boot/firmware/config.txt
 
 
-
+1.
 sudo raspi-config
 --> enable SPI
 sudo reboot
@@ -78,3 +44,18 @@ lsmod | grep spi
 --> response:
 spidev                 16384  2
 spi_bcm2835            16384  0
+
+2.
+install dependencies
+vlc libs
+sudo apt update
+sudo apt install vlc
+sudo apt install libvlc-dev libvlccore-dev
+
+media-info
+sudo apt install mediainfo
+
+
+
+
+3.
