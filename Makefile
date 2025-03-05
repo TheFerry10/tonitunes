@@ -18,6 +18,7 @@ install:
 	python -m venv $(virtual_env) && \
 	source ./venv/bin/activate && \
 	pip install -r requirements.txt
+	pip install -e .
 
 .PHONY: format
 format:

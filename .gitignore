@@ -171,3 +171,6 @@ out.json
 */*.sqlite
 
 .vscode/
+
+# tonitunes
+tonitunes.service

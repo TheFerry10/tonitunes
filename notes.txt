@@ -7,9 +7,6 @@
 pip install -r requirements.txt
 pip install -e .
 
-sudo raspi-config
-sudo reboot
-lsmod | grep spi
 
 
 copy database src/app/resources
@@ -66,3 +63,18 @@ ERROR:mfrc522Logger:AUTH ERROR(status2reg & 0x08) != 0
 
 
 echo "${HOME}/.tonitunes"
+
+
+shutdown button
+dtoverlay=gpio-shutdown,gpio_pin=3
+ /boot/firmware/config.txt
+
+
+
+sudo raspi-config
+--> enable SPI
+sudo reboot
+lsmod | grep spi
+--> response:
+spidev                 16384  2
+spi_bcm2835            16384  0
