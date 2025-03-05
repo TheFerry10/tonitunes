@@ -8,3 +8,5 @@ python-dotenv==1.0.1
 SQLAlchemy==2.0.36
 WTForms==3.2.1
 gunicorn==23.0.0
+dataclasses_json==0.6.7
+pydantic==2.10.6

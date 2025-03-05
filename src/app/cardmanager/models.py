@@ -20,11 +20,11 @@ class Song(Base):
     __tablename__ = "songs"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    title: Mapped[str]
-    artist: Mapped[str]
-    album: Mapped[str]
+    title: Mapped[str] = mapped_column(nullable=False)
+    artist: Mapped[str] = mapped_column(nullable=False)
+    album: Mapped[str] = mapped_column(nullable=True)
     filename: Mapped[str] = mapped_column(nullable=False, unique=True)
-    duration: Mapped[int]
+    duration: Mapped[int] = mapped_column(nullable=True)
     cards: Mapped[list["Card"]] = relationship("Card", back_populates="song")
 
     def __repr__(self):
@@ -46,7 +46,7 @@ class Card(Base):
     __tablename__ = "cards"
 
     uid: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str]
+    name: Mapped[str] = mapped_column(nullable=False)
     song_id: Mapped[int] = mapped_column(ForeignKey("songs.id"), nullable=True)
     song: Mapped[Song] = relationship("Song", back_populates="cards")
     playlist_id: Mapped[int] = mapped_column(ForeignKey("playlists.id"), nullable=True)
@@ -68,6 +68,10 @@ class Card(Base):
     def to_json(self):
         card_json = {"uid": self.uid, "name": self.name}
         return card_json
+
+    def get_playlist_as_file_paths(self) -> List[str]:
+        if self.playlist:
+            return [song.filename for song in self.playlist.songs]
 
 
 class Playlist(Base):

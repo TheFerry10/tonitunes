@@ -3,29 +3,26 @@ This module initializes the Flask application and sets up the database, CLI comm
 and shell context.
 """
 
-import os
-
 import click
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 
+from config import Config, config
+
 from . import db, models
-from .config import config
 
 bootstrap = Bootstrap()
 moment = Moment()
 
 
-def create_app(config_name=None):
+def create_app(config_name="default"):
     app = Flask(__name__, instance_relative_config=True)
-    if config_name is None:
-        config_name = os.getenv("FLASK_CONFIG", "default")
-    print("Config: ", config_name)
-    app.config.from_object(config[config_name])
+    application_config: Config = config.get(config_name)
+    app.config.from_object(application_config)
     bootstrap.init_app(app)
     moment.init_app(app)
-    db.init_db()
+    db.init_db(application_config.DATABASE_URI)
 
     @app.teardown_appcontext
     def shutdown_session(exception=None):
@@ -35,7 +32,7 @@ def create_app(config_name=None):
     @app.cli.command("init-db")
     def initialize_database():
         """Initialize the database."""
-        db.init_db()
+        db.init_db(application_config.DATABASE_URI)
         click.echo("Database initialized.")
 
     @app.shell_context_processor

@@ -1,4 +1,5 @@
 import csv
+import os
 from pathlib import Path
 
 from flask import flash, redirect, render_template, url_for
@@ -76,7 +77,13 @@ def manage_playlists():
 
 @main.route("/songs/load", methods=["GET"])
 def load_songs():
-    file_path_songs = Path("resources/songs.csv")
+    home_dir = os.environ.get("TONITUNES_HOME")
+    if home_dir:
+        file_path_songs = Path(home_dir, "songs/songs.csv")
+    else:
+        raise ValueError(
+            "Environment variable TONITUNES_HOME not defined. Run init script."
+        )
     if file_path_songs.is_file():
         with open(file_path_songs, "r", encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile)
@@ -99,7 +106,13 @@ def load_songs():
 
 @main.route("/cards/load", methods=["GET"])
 def load_cards():
-    file_path_cards = Path("resources/cards.csv")
+    home_dir = os.environ.get("TONITUNES_HOME")
+    if home_dir:
+        file_path_cards = Path(home_dir, "cards/cards.csv")
+    else:
+        raise ValueError(
+            "Environment variable TONITUNES_HOME not defined. Run init script."
+        )
     if file_path_cards.is_file():
         with open(file_path_cards, "r", encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile)

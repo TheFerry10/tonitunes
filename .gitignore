@@ -169,3 +169,8 @@ __queuestorage__
 out.json
 */data.sqlite
 */*.sqlite
+
+.vscode/
+
+# tonitunes
+tonitunes.service

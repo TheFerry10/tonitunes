@@ -1,25 +1,16 @@
-import json
 import logging
 from abc import ABC, abstractmethod
-from dataclasses import asdict, dataclass
-from typing import Dict, Literal, Optional
+from dataclasses import dataclass
+from typing import Optional
 
-from adapters.repository import AbstractUIDMappingRepository
+from dataclasses_json import dataclass_json
 
 logger = logging.getLogger(__name__)
 
 
+@dataclass_json
 @dataclass
-class BaseDataclassConverter:
-    def to_dict(self) -> dict:
-        return asdict(self)
-
-    def to_json(self) -> str:
-        return json.dumps(asdict(self))
-
-
-@dataclass
-class RFIDData(BaseDataclassConverter):
+class RFIDData:
     uid: Optional[int] = None
     text: Optional[str] = None
 
@@ -32,96 +23,56 @@ class RFIDReadError(Exception):
         super().__init__(self.message)
 
 
-class RFIDWriteError(Exception):
-    """Raised when an error occurs while writing to the RFID module."""
-
-    def __init__(self, message="Error writing to RFID module"):
-        self.message = message
-        super().__init__(self.message)
-
-
 class AbstractRFIDModule(ABC):
     @abstractmethod
     def read(self):
         """Read uid and text information"""
 
-    @abstractmethod
-    def write(self, text: str):
-        """Write text to uid"""
-
-    @abstractmethod
-    def cleanup(self):
-        """Cleanup reader module"""
-
-
-class RFIDResponse:
-    def __init__(
-        self, current: Optional[RFIDData] = None, previous: Optional[RFIDData] = None
-    ):
-        self.previous = previous
-        self.current = current
-
-    def update(self):
-        self.previous = self.current
-
-    def is_current_eq_previous(self) -> bool:
-        return self.previous == self.current
-
 
 class ResponseHandler:
-    def __init__(self, response: RFIDResponse, response_map=None):
-        self.response = response
-        self.response_map = response_map
+    """
+    A class to handle and compare RFID responses.
 
-    def handle(self) -> RFIDData:
-        if not self.response.is_current_eq_previous():
-            return self.response.current
+    Attributes:
+        previous_response (RFIDData): The previous RFID response.
+        current_response (RFIDData): The current RFID response.
+    """
 
+    def __init__(self, response: RFIDData = RFIDData()):
+        """
+        Initializes the ResponseHandler with an initial RFID response.
 
-@dataclass
-class Action(BaseDataclassConverter):
-    action: Literal["play", "pause"]
-    uid: Optional[str] = None
+        Args:
+            response (RFIDData): The initial RFID response.
+        """
+        self.previous_response = response
+        self.current_response = response
 
+    def _is_current_eq_previous(self) -> bool:
+        """
+        Checks if the current RFID response is equal to the previous response.
 
-def get_action(rfid: RFIDData) -> Action:
-    if rfid.uid:
-        return Action("play", rfid.uid)
-    return Action("pause")
+        Returns:
+            bool: True if the current response is equal to the previous response, False
+            otherwise.
+        """
+        return self.current_response == self.previous_response
 
+    def handle(self, response: RFIDData) -> Optional[RFIDData]:
+        """
+        Handles a new RFID response. Updates the current response and compares it with
+        the previous response.
 
-class TagRegister:
-    def __init__(
-        self,
-        registry: AbstractUIDMappingRepository,
-        rfid_module: AbstractRFIDModule,
-        mapping: Optional[Dict[str, str]] = None,
-    ):
-        self.registry = registry
-        self.rfid_module = rfid_module
-        self.mapping = mapping
-        self.response = RFIDResponse()
+        Args:
+            response (RFIDData): The new RFID response.
 
-    def get_name_from_mapping(self, rfid_response: RFIDData) -> Optional[str]:
-        if self.mapping:
-            return self.mapping.get(rfid_response.uid)
-
-    def register(self, name: Optional[str] = None):
-        self.response.current = self.rfid_module.read()
-        response_handler = ResponseHandler(self.response)
-        handled_response = response_handler.handle()
-        if handled_response:
-            if self.response.current.uid:
-                if self.registry.get_by_uid(self.response.current.uid) is None:
-                    name = input("Enter card name: ")
-                    self.registry.add(uid=self.response.current.uid, name=name)
-                    self.registry.save()
-                    logger.info(
-                        "Successfully registered uid %s with name %s",
-                        self.response.current.uid,
-                        name,
-                    )
-                else:
-                    logging.info("UID %s already registered", self.response.current.uid)
-
-        self.response.update()
+        Returns:
+            Optional[RFIDData]: The new RFID response if it is different from the
+            previous response, None otherwise.
+        """
+        self.current_response = response
+        if not self._is_current_eq_previous():
+            self.previous_response = self.current_response
+            return self.current_response
+        else:
+            return None

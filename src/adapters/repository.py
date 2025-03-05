@@ -1,14 +1,19 @@
+import csv
 import json
 import os
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
 from app.cardmanager.models import Card
 
 
-class AbstractUIDMappingRepository(ABC):
+class UIDAlreadyExistsError(Exception):
+    pass
+
+
+class AbstractCardRepository(ABC):
     @abstractmethod
     def get_all(self):
         """Retrieve all UID mappings"""
@@ -34,14 +39,14 @@ class AbstractUIDMappingRepository(ABC):
         """Persist the current state to the storage"""
 
 
-class SqlAlchemyUIDMappingRepositoriy(AbstractUIDMappingRepository):
+class SqlAlchemyCardRepositoriy(AbstractCardRepository):
     def __init__(self, session: Session):
         self.session = session
 
-    def get_all(self):
+    def get_all(self) -> List[Card]:
         return self.session.query(Card).all()
 
-    def get_by_uid(self, uid):
+    def get_by_uid(self, uid) -> Card:
         return self.session.query(Card).filter_by(uid=uid).first()
 
     def add(self, uid, name):
@@ -49,8 +54,11 @@ class SqlAlchemyUIDMappingRepositoriy(AbstractUIDMappingRepository):
         self.session.add(card)
 
     def update(self, uid, name):
-        card = Card(uid=uid, name=name)
-        self.session.add(card)
+        card = self.session.query(Card).filter_by(uid=uid).first()
+        if card:
+            card.name = name
+        else:
+            raise ValueError(f"Card with uid {uid} not found")
 
     def remove(self, uid):
         record_to_delete = self.session.query(Card).filter_by(uid=uid).first()
@@ -64,7 +72,7 @@ class SqlAlchemyUIDMappingRepositoriy(AbstractUIDMappingRepository):
         self.session.rollback()
 
 
-class JsonUIDMappingRepository(AbstractUIDMappingRepository):
+class JsonCardRepository(AbstractCardRepository):
     def __init__(self, file_path: str):
         self.file_path = file_path
         self._mapping = self._load()
@@ -95,3 +103,44 @@ class JsonUIDMappingRepository(AbstractUIDMappingRepository):
         """Persist the current state to the storage (e.g., JSON file)."""
         with open(self.file_path, "w", encoding="utf-8") as f:
             json.dump(self._mapping, f, ensure_ascii=False, indent=4)
+
+
+class CsvCardRepository(AbstractCardRepository):
+    def __init__(self, file_path: str):
+        self.file_path = file_path
+        self._mapping = self._load()
+
+    def _load(self):
+        mapping = {}
+        if os.path.exists(self.file_path):
+            with open(self.file_path, "r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    mapping[row["uid"]] = {"name": row["name"]}
+        return mapping
+
+    def get_all(self):
+        return self._mapping
+
+    def get_by_uid(self, uid: str):
+        return self._mapping.get(uid)
+
+    def add(self, uid: str, name: Optional[str]):
+        if uid in self._mapping:
+            raise UIDAlreadyExistsError(f"UID {uid} already exists")
+        self._mapping[uid] = {"name": name}
+
+    def update(self, uid: str, name: Optional[str]):
+        self._mapping[uid] = {"name": name}
+
+    def remove(self, uid: str):
+        if uid in self._mapping:
+            del self._mapping[uid]
+
+    def save(self):
+        with open(self.file_path, "w", encoding="utf-8", newline="") as f:
+            fieldnames = ["uid", "name"]
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            for uid, data in self._mapping.items():
+                writer.writerow({"uid": uid, "name": data["name"]})

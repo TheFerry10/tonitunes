@@ -1,0 +1,18 @@
+[Unit]
+Description=Tonitunes Service
+After=network.target sound.target
+Requires=sound.target
+
+[Service]
+ExecStart=${PWD}/tonitunes.sh
+Restart=always
+RestartSec=5
+User=${USER}
+Environment="TONITUNES_CONFIG_NAME=development"
+Environment="TONITUNES_HOME=${TONITUNES_HOME}"
+WorkingDirectory=${PWD}
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,55 +1,74 @@
+import configparser
+import logging
 import os
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+from dotenv import load_dotenv
+from pydantic import BaseModel, PositiveFloat, PositiveInt
+
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+
+logger = logging.getLogger(__name__)
+
+ROOTDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SETTINGS_FILE_PATH = os.path.join(ROOTDIR, "settings.ini")
+ENV_FILE_PATH = os.path.join(ROOTDIR, ".env")
+load_dotenv(ENV_FILE_PATH, override=True)
+
+
+settings = configparser.ConfigParser()
+settings.read(SETTINGS_FILE_PATH)
+
+
+class GPIOSettings(BaseModel):
+    pin_clk: PositiveInt
+    pin_dt: PositiveInt
+    button_pin_next: PositiveInt
+    button_pin_previous: PositiveInt
+
+
+class PlayerSettings(BaseModel):
+    vlc_instance_params: str = ""
+    volume_step: PositiveInt = 5
+
+
+class RfidReaderSettings(BaseModel):
+    timeout_between_reads_in_seconds: PositiveFloat = 3.0
+
+
+class Settings(BaseModel):
+    gpio_settings: GPIOSettings
+    player_settings: PlayerSettings
+    rfid_reader_settings: RfidReaderSettings
 
 
 class Config:
-    SLEEP_TIME_BETWEEN_READS_IN_SECONDS = 1
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    FLASK_CONFIG = "development"
+    SECRET_KEY = os.environ.get("SECRET_KEY") or "hard to guess string"
+    AUDIO_DIR = os.getenv("AUDIO_DIR")
+    FLASK_APP = "cardmanager.py"
+    TONITUNES_HOME = os.getenv("TONITUNES_HOME", "/home")
+    TONITUNES_SONGS_DIR = os.path.join(TONITUNES_HOME, "songs")
+    TONITUNES_CARDS_DIR = os.path.join(TONITUNES_HOME, "cards")
+    DATABASE_URI = f"sqlite:///{TONITUNES_HOME}/sqlite/data.sqlite"
+    SETTINGS = settings
 
 
 class DevelopmentConfig(Config):
-    def init_queue_client(self):
-        pass
-
-    def init_rfid_module(self):
-        pass
+    FLASK_CONFIG = "development"
+    DEBUG = True
 
 
 class TestingConfig(Config):
-    pass
+    FLASK_CONFIG = "testing"
+    TESTING = True
 
 
 class ProductionConfig(Config):
-    QUEUE_NAME = os.getenv("QUEUE_NAME")
-
-
-class AzureConfig(ProductionConfig):
-
-    CONNECTION_STRING = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
-
-    @classmethod
-    def init_queue_client(cls):
-        import logging
-
-        from azure.core.exceptions import ResourceExistsError
-        from azure.storage.queue import QueueServiceClient
-
-        logging.basicConfig(
-            level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
-        )
-
-        queue_service_client = QueueServiceClient.from_connection_string(
-            cls.CONNECTION_STRING
-        )
-        queue_client = queue_service_client.get_queue_client(queue=cls.QUEUE_NAME)
-
-        try:
-            queue_client.create_queue()
-            logging.info("Queue %s created successfully.", cls.QUEUE_NAME)
-
-        except ResourceExistsError:
-            logging.info("Queue %s already exists.", cls.QUEUE_NAME)
-        return queue_client
+    FLASK_CONFIG = "production"
+    DEBUG = False
 
 
 config = {
@@ -57,5 +76,4 @@ config = {
     "development": DevelopmentConfig,
     "testing": TestingConfig,
     "production": ProductionConfig,
-    "azure": AzureConfig,
 }
