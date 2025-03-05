@@ -14,9 +14,9 @@ fi
 envsubst < "$FILE" > "$SERVICE_FILE"
 
 sudo chmod +x ${PWD}/tonitunes.sh
-cp $SERVICE_FILE /etc/systemd/system/
+sudo cp $SERVICE_FILE /etc/systemd/system/
 
-systemctl daemon-reload
-systemctl enable $SERVICE_FILE
-systemctl start $SERVICE_FILE
-echo "Service started successfully"
+sudo systemctl daemon-reload
+sudo systemctl enable $SERVICE_FILE
+sudo systemctl start $SERVICE_FILE
+echo "Service ${SERVICE_FILE} started successfully"
