@@ -1,0 +1,21 @@
+[Unit]
+Description=Tonitunes Service
+After=network.target sound.target
+Requires=sound.target
+
+[Service]
+# should reference a script in a bin directory
+ExecStart=/usr/local/bin/tonibox-rfid/tonitunes.sh
+Restart=always
+RestartSec=5
+User=malte
+# Environment variables can be specified here if needed
+# add env dynamically before copying
+Environment="TONITUNES_CONFIG_NAME=development"
+Environment="TONITUNES_HOME=/home/malte/.tonitunes"
+WorkingDirectory=/home/malte/Documents/tonibox-rfid
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

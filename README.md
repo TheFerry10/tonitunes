@@ -112,3 +112,15 @@ For any questions or suggestions, please contact us at [email@example.com](mailt
 - [Freesound.org](https://freesound.org/) for providing free sound samples
 - [SQLAlchemy](https://www.sqlalchemy.org/) for the ORM
 - [VLC](https://www.videolan.org/vlc/) for the media player
+
+
+# install
+sudo apt install mediainfo
+
+# enable SPI over raspi-config
+# install docker for webapp
+
+Linux raspberrypi 6.6.51+rpt-rpi-v7 #1 SMP Raspbian 1:6.6.51-1+rpt3 (2024-10-08) armv7l GNU/Linux
+machine hardware: arm7l
+kernal Linux
+kernal version: #1 SMP Raspbian 1:6.6.51-1+rpt3 (2024-10-08)
