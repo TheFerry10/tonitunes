@@ -1,0 +1,13 @@
+[Unit]
+Description=Shutdown Raspberry Pi Service
+After=network.target
+
+[Service]
+ExecStart=/home/malte/tonibox-rfid/shutdown.sh
+User=root
+WorkingDirectory=/home/malte/tonibox-rfid
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
