@@ -29,65 +29,66 @@ The Tonibox RFID Project is a Python-based application that integrates RFID tech
     ```bash
     cd tonibox-rfid
     ```
-3. Create a virtual environment and activate it:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+
+
+## Setup Instructions
+
+### 1. Set Static IP Address
+Configure your device to have a static IP address.
+
+### 2. RFID Configuration
+1. Enable SPI:
+  ```sh
+  sudo raspi-config
+  ```
+  - Navigate to `Interfacing Options` -> `SPI` and enable it.
+2. Reboot the device:
+  ```sh
+  sudo reboot
+  ```
+3. Verify SPI is enabled:
+  ```sh
+  lsmod | grep spi
+  ```
+  - Expected response (example):
     ```
-4. Install the required packages:
-    ```bash
-    pip install -r requirements.txt
-    ```
-5. Set up the environment variables:
-    Create a `.env` file in the project root directory and add the following variables:
-    ```env
-    AUDIO_DIR=/path/to/your/audio/files
-    DATABASE_URI=sqlite:///path/to/your/database.db
-    VALID_FILE_PATH_SONG_1=/path/to/your/audio/files/song1.mp3
-    VALID_FILE_PATH_SONG_2=/path/to/your/audio/files/song2.mp3
-    VALID_FILE_PATH_SONG_3=/path/to/your/audio/files/song3.mp3
-    INVALID_FILE_PATH_SONG=/path/to/your/audio/files/invalid_song.mp3
-    ```
+    spidev                 16384  2
+    spi_bcm2835            16384  0
 
-## Usage
+ ```
+* set up .env file from .env-default
 
-### Running the Application
+### 3. Set `settings.ini`
+Configure your `settings.ini` file with the necessary settings.
 
-1. Run the main script to start the application:
-    ```bash
-    python main.py
-    ```
+### 4. Run Initialization Script
+Run the provided initialization script to set up the environment:
+  ```sh
+  ./initialize.sh
+  ```
 
-### Running Tests
+### 5. Copy MP3 Files to Device
+Transfer your MP3 files to the device. You can use `scp` or any other file transfer method:
+  ```sh
+  scp /path/to/your/mp3/files/* user@device_ip:/path/to/device/mp3_directory/
+  ```
 
-1. To run the tests, use `pytest`:
-    ```bash
-    pytest
-    ```
+### 6. Extract Song Metadata from MP3 Files
+Run the script to extract metadata:
+  ```sh
+  create-song-metadata.sh /path/to/audio/dir
+  ```
 
-## Project Structure
-tonibox-rfid/
-├── src/
-│   ├── adapters/
-│   │   ├── rfid_interface.py
-│   │   └── ...
-│   ├── app/
-│   │   ├── cardmanager/
-│   │   │   ├── models.py
-│   │   │   ├── repository.py
-│   │   │   └── ...
-│   ├── player/
-│   │   ├── player.py
-│   │   └── ...
-│   └── ...
-├── tests/
-│   ├── test_player.py
-│   ├── test_e2e_player.py
-│   └── ...
-├── .env
-├── requirements.txt
-├── README.md
-└── main.py
+
+
+
+## Additional Information
+- Ensure your device is connected to the internet.
+- Regularly update your system and packages to the latest versions.
+- For detailed documentation, refer to the `docs` directory in the project repository.
+
+
+
 
 ## Contributing
 
@@ -109,18 +110,6 @@ For any questions or suggestions, please contact us at [email@example.com](mailt
 
 ## Acknowledgements
 
-- [Freesound.org](https://freesound.org/) for providing free sound samples
+
 - [SQLAlchemy](https://www.sqlalchemy.org/) for the ORM
 - [VLC](https://www.videolan.org/vlc/) for the media player
-
-
-# install
-sudo apt install mediainfo
-
-# enable SPI over raspi-config
-# install docker for webapp
-
-Linux raspberrypi 6.6.51+rpt-rpi-v7 #1 SMP Raspbian 1:6.6.51-1+rpt3 (2024-10-08) armv7l GNU/Linux
-machine hardware: arm7l
-kernal Linux
-kernal version: #1 SMP Raspbian 1:6.6.51-1+rpt3 (2024-10-08)

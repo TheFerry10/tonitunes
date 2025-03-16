@@ -99,5 +99,4 @@ def start_rfid_player():
 
 
 if __name__ == "__main__":
-
     start_rfid_player()

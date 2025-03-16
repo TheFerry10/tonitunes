@@ -3,9 +3,10 @@ Description=Shutdown Raspberry Pi Service
 After=network.target
 
 [Service]
-ExecStart=/home/malte/tonibox-rfid/shutdown.sh
+ExecStart=${PWD}/shutdown.sh
 User=root
-WorkingDirectory=/home/malte/tonibox-rfid
+Environment="TONITUNES_CONFIG_NAME=development"
+WorkingDirectory=${PWD}
 StandardOutput=journal
 StandardError=journal
 

@@ -1,46 +1,53 @@
-# reference: https://gist.github.com/lbussy/9e81cbcc617952f1250e353bd42e7775
-from os import getuid, system
-from sys import exit
+import logging
+import os
+import sys
 from time import sleep
 
 from gpiozero import Button
 
-stopPin = 15
-stopButton = Button(stopPin)  # defines the button as an object and chooses GPIO pin
+from config import config
+
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+
+logger = logging.getLogger(__name__)
+config_name = os.getenv("TONITUNES_CONFIG_NAME", "default")
+application_config = config.get(config_name)
+application_settings = application_config.SETTINGS
+gpio_settings = application_settings["gpio"]
+
+shutdown_pin = gpio_settings.getint("button_pin_shutdown")
+button_shutdown = Button(shutdown_pin)
 
 
-def isRoot():
-    if getuid() != 0:
+def is_root():
+    if os.getuid() != 0:
         return False
     else:
         return True
 
 
 def main():
-    print("\nMonitoring pin {} for reboot signal.".format(stopPin))
-    print("Ctrl-C to quit.\n")
+    logging.info("\nMonitoring pin {} for reboot signal.".format(shutdown_pin))
+    logging.info("Ctrl-C to quit.\n")
 
     try:
         while True:
-            if stopButton.is_pressed:
+            if button_shutdown.is_pressed:
                 sleep(0.5)
-                if stopButton.is_pressed:
-                    system("shutdown now -h")
+                if button_shutdown.is_pressed:
+                    os.system("shutdown now -h")
             sleep(0.1)
 
     except KeyboardInterrupt:
-        print("\n\nKeyboard interrupt.")
-
-    finally:
-        pass
-
-    return
+        logging.info("\n\nKeyboard interrupt.")
 
 
 if __name__ == "__main__":
-    if not (isRoot()):
+    if not (is_root()):
         print("\nScript must be run as root.")
-        exit(1)
+        sys.exit(1)
     else:
         main()
-        exit(0)
+        sys.exit(0)
