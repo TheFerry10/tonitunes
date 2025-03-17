@@ -42,6 +42,10 @@ Tonitunes is a Python-based application for Raspberry Pi that integrates RFID te
 - Python 3.8 or higher
 - Raspbian OS (bookworm or bullseye)
 - MFRC522 (RFID Reader module)
+- mediainfo for extracting metadata from audio files
+```bash
+sudo apt get install mediainfo
+```
 
 ### Steps
 
