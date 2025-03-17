@@ -51,7 +51,7 @@ sudo apt get install mediainfo
 
 Clone the repository:
 ```bash
-git clone https://github.com/yourusername/tonibox-rfid.git
+git clone https://github.com/TheFerry10/tonitunes
 ```
 
 ### 1. RFID Configuration
