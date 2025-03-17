@@ -172,5 +172,6 @@ out.json
 
 .vscode/
 
-# tonitunes
+# defined services
 tonitunes.service
+shutdown.service

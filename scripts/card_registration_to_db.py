@@ -1,18 +1,13 @@
 import logging
+import os
+
 import RPi.GPIO as GPIO
 from mfrc522 import SimpleMFRC522
-from config import config, Config
-from adapters.repository import (
-    CsvCardRepository,
-    UIDAlreadyExistsError,
-    SqlAlchemyCardRepositoriy,
-)
-import os
+
+from adapters.repository import SqlAlchemyCardRepositoriy, UIDAlreadyExistsError
 from app.cardmanager.db import db_session, init_db
-from config import DevelopmentConfig, config
-
+from config import Config, config
 from utils import transform_user_input_to_binary
-
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"

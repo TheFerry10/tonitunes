@@ -1,0 +1,14 @@
+[Unit]
+Description=Shutdown Raspberry Pi Service
+After=network.target
+
+[Service]
+ExecStart=${PWD}/shutdown.sh
+User=root
+Environment="TONITUNES_CONFIG_NAME=development"
+WorkingDirectory=${PWD}
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

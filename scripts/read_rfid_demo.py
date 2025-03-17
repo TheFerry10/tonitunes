@@ -1,10 +1,11 @@
 import logging
+import os
 from time import sleep
 
 from mfrc522 import SimpleMFRC522
 from RPi import GPIO
-import os
-from config import config, Config
+
+from config import Config, config
 
 config_name = os.getenv("TONITUNES_CONFIG_NAME", "default")
 application_config: Config = config.get(config_name)

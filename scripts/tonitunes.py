@@ -1,21 +1,19 @@
-import time
+import logging
 import os
+import time
+
 import vlc
-from gpiozero import Button, RotaryEncoder
+from gpiozero import LED, Button, RotaryEncoder
 from mfrc522 import SimpleMFRC522
 from RPi import GPIO
-import logging
-from config import ROOTDIR
 
 from adapters.repository import SqlAlchemyCardRepositoriy
 from adapters.rfid_interface import ResponseHandler
-
 from app.cardmanager.db import db_session, init_db
 from config import DevelopmentConfig, config
 from player.controller import PlayerActionHandler, rfid_to_player_action
 from player.player import VlcAudioController
 from rfid.mfrc import MFRCModule
-
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -39,7 +37,7 @@ rotary_encoder = RotaryEncoder(
 )
 button_next = Button(pin=gpio_settings.getint("button_pin_next"), pull_up=True)
 button_previous = Button(pin=gpio_settings.getint("button_pin_previous"), pull_up=True)
-
+led_running = LED(gpio_settings.getint("led_pin_on"))
 init_db(application_config.DATABASE_URI)
 session = db_session()
 
@@ -75,9 +73,10 @@ def start_rfid_player():
     rotary_encoder.when_rotated_counter_clockwise = on_counter_clockwise_rotate
     button_next.when_pressed = on_button_next_pressed
     button_previous.when_pressed = on_button_previous_pressed
-    
     logging.info("TONITUNES running. Hold your RFID card near the reader.")
+
     try:
+        led_running.on()
         while True:
             response = rfid_module.read()
             handled_response = handler.handle(response)
@@ -94,10 +93,10 @@ def start_rfid_player():
     except KeyboardInterrupt:
         logging.info("KeyboardInterrupt detected. Cleaning up...")
     finally:
+        led_running.close()
         GPIO.cleanup()
         logging.info("Cleaning done")
 
 
 if __name__ == "__main__":
-
     start_rfid_player()

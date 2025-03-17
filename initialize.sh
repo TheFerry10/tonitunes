@@ -1,4 +1,11 @@
 #!/bin/bash
+# This script initializes the directory structure and environment variables for the ToniTunes project.
+# It performs the following tasks:
+# 1. Defines the TONITUNES_HOME directory and subdirectories (songs, cards, sqlite).
+# 2. Creates the subdirectories under TONITUNES_HOME if they do not already exist.
+# 3. Adds the TONITUNES_HOME environment variable to the .bashrc file if it is not already present.
+# 4. Sources the .bashrc file to apply the changes.
+
 TONITUNES_HOME="${HOME}/.tonitunes"
 SUB_DIRS=("songs" "cards" "sqlite")
 BASHRC_FILE="${HOME}/.bashrc"

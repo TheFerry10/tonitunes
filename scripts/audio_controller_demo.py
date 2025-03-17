@@ -1,9 +1,9 @@
 import logging
 import os
 import time
+
 from config import config
 from player.player import VlcAudioController, create_playlist
-
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
