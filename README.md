@@ -129,9 +129,9 @@ Control shutting off the Raspberry Pi by installing the shutdown service:
 ## CardManager
 
 - Add new cards via scripts:
-  - `scripts/card_registration_to_csv.py`: Running with default configuration, will create a `cards.csv` file in the `.tonibox/cards` directory (directory initialized in step 4).
-  - `scripts/card_registration_to_db.py`: Will create new cards directly in the default SQLite database also stored in `.tonibox/sqlite`.
-- Add new songs via executing `create-song-metadata.bash`: Will create a `songs.csv` file in the `.tonibox/songs` directory.
+  - `scripts/card_registration_to_csv.py`: Running with default configuration, will create a `cards.csv` file in the `.tonitunes/cards` directory (directory initialized in step 4).
+  - `scripts/card_registration_to_db.py`: Will create new cards directly in the default SQLite database also stored in `.tonitunes/sqlite`.
+- Add new songs via executing `create-song-metadata.bash`: Will create a `songs.csv` file in the `.tonitunes/songs` directory.
 - Run Flask app for loading the songs and cards from the CSV files into the SQLite DB.
 - Create playlists from songs.
 - Map playlists to cards.
