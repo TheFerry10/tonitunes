@@ -31,3 +31,12 @@ def bind_query_property(database_uri):
     from .models import Base
 
     Base.query = db_session.query_property()
+
+
+def drop_db(database_uri):
+    """Drop all tables in the database."""
+    engine = create_engine(database_uri, echo=False)
+    from .models import Base
+
+    Base.metadata.drop_all(bind=engine)
+    logging.info("Database tables dropped")

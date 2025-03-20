@@ -5,7 +5,7 @@ from ..models import Playlist, Song
 from . import api
 
 
-@api.route("/playlists/<int:playlist_id>/songs/", methods=["GET"])
+@api.route("/playlists/<int:playlist_id>/songs", methods=["GET"])
 def get_songs_from_playlist(playlist_id: int):
     playlist = Playlist.query.filter_by(id=playlist_id).first()
     if playlist:
@@ -13,7 +13,7 @@ def get_songs_from_playlist(playlist_id: int):
         return jsonify(songs_)
 
 
-@api.route("/playlists/", methods=["GET"])
+@api.route("/playlists", methods=["GET"])
 def get_playlists():
     playlists = Playlist.query.all()
     playlists_ = [playlist.to_json() for playlist in playlists]
@@ -31,7 +31,7 @@ def delete_playlist(playlist_id: int):
         return jsonify({"msg": f"Playlist with id {playlist_id} does not exist"})
 
 
-@api.route("/playlists/", methods=["POST"])
+@api.route("/playlists", methods=["POST"])
 def create_playlist():
     data = request.get_json()
     name = data.get("name")
