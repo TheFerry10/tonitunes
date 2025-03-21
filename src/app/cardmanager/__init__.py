@@ -1,8 +1,3 @@
-"""
-This module initializes the Flask application and sets up the database, CLI commands,
-and shell context.
-"""
-
 import click
 from flask import Flask
 from flask_bootstrap import Bootstrap

@@ -7,7 +7,7 @@ from . import api
 
 @api.route("/playlists/<int:playlist_id>/songs", methods=["GET"])
 def get_songs_from_playlist(playlist_id: int):
-    playlist = Playlist.query.filter_by(id=playlist_id).first()
+    playlist = db_session.get(Playlist, playlist_id)
     if playlist:
         songs_ = [song.to_json() for song in playlist.songs]
         return jsonify(songs_)
@@ -15,14 +15,14 @@ def get_songs_from_playlist(playlist_id: int):
 
 @api.route("/playlists", methods=["GET"])
 def get_playlists():
-    playlists = Playlist.query.all()
+    playlists = db_session.query(Playlist).all()
     playlists_ = [playlist.to_json() for playlist in playlists]
     return jsonify(playlists_)
 
 
 @api.route("/playlists/<int:playlist_id>", methods=["DELETE"])
 def delete_playlist(playlist_id: int):
-    playlist = Playlist.query.get(playlist_id)
+    playlist = db_session.get(Playlist, playlist_id)
     if playlist:
         db_session.delete(playlist)
         db_session.commit()

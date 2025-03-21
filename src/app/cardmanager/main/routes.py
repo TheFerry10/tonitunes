@@ -2,12 +2,14 @@ import csv
 import os
 from pathlib import Path
 
-from flask import flash, redirect, render_template, url_for
+from flask import current_app, flash, redirect, render_template, url_for
 
 from ..db import db_session
 from ..models import Card, Playlist, Song
 from . import main
 from .forms import CardPlaylistMappingForm, PlaylistAddSongForm, PlaylistForm
+
+app = current_app
 
 
 def get_playlist_choices() -> list:
@@ -46,7 +48,7 @@ def edit_playlist(playlist_id: int):
     artists = [song[0] for song in db_session.query(Song.artist).distinct().all()]
     form.artist_select.choices = [(artist, artist) for artist in artists]
     form.title_select.choices = []  # filled dynamically in the template
-    playlist = Playlist.query.get(playlist_id)
+    playlist = db_session.get(Playlist, playlist_id)
 
     if form.validate_on_submit():
         song_id = form.title_select.data
@@ -77,6 +79,7 @@ def manage_playlists():
 
 @main.route("/songs/load", methods=["GET"])
 def load_songs():
+    # TODO that sould be a know folder for the app
     home_dir = os.environ.get("TONITUNES_HOME")
     if home_dir:
         file_path_songs = Path(home_dir, "songs/songs.csv")
@@ -106,26 +109,27 @@ def load_songs():
 
 @main.route("/cards/load", methods=["GET"])
 def load_cards():
-    home_dir = os.environ.get("TONITUNES_HOME")
-    if home_dir:
-        file_path_cards = Path(home_dir, "cards/cards.csv")
-    else:
-        raise ValueError(
-            "Environment variable TONITUNES_HOME not defined. Run init script."
-        )
-    if file_path_cards.is_file():
-        with open(file_path_cards, "r", encoding="utf-8") as csvfile:
-            reader = csv.DictReader(csvfile)
-            cards = []
-            for row in reader:
-                if not Card.query.filter_by(uid=row["uid"]).first():
-                    cards.append(Card(**row))
-        if cards:
-            db_session.add_all(cards)
-            db_session.commit()
-            flash(f"Loaded {len(cards)} cards into the database")
-        else:
-            flash("No new cards to load")
-    else:
+    file_path_cards = Path(app.config["TONITUNES_CARDS_DIR"], "cards.csv")
+    if not file_path_cards.is_file():
         flash("No cards file found", category="error")
+        return redirect(url_for(".index"))
+
+    rows = read_csv(file_path_cards)
+    cards = filter(lambda row: not card_exists(Card(**row)), rows)
+    if cards:
+        db_session.add_all(cards)
+        db_session.commit()
+        flash(f"Loaded {len(cards)} cards into the database")
+    else:
+        flash("No new cards to load")
     return redirect(url_for(".index"))
+
+
+def read_csv(file_path: Path) -> list:
+    with open(file_path, "r", encoding="utf-8") as csvfile:
+        reader = csv.DictReader(csvfile)
+        return [row for row in reader]
+
+
+def card_exists(card: Card) -> bool:
+    return db_session.get(Card, card.uid) is not None
