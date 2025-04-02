@@ -1,11 +1,13 @@
 import csv
 import os
 from pathlib import Path
+from typing import List
 
 from flask import current_app, flash, redirect, render_template, url_for
+from sqlalchemy.orm import Session
 
 from ..db import db_session
-from ..models import Card, Playlist, Song
+from ..models import Base, Card, Playlist, Song
 from . import main
 from .forms import CardPlaylistMappingForm, PlaylistAddSongForm, PlaylistForm
 
@@ -114,22 +116,26 @@ def load_cards():
         flash("No cards file found", category="error")
         return redirect(url_for(".index"))
 
-    rows = read_csv(file_path_cards)
-    cards = filter(lambda row: not card_exists(Card(**row)), rows)
-    if cards:
-        db_session.add_all(cards)
+    cards = load_model_instances_from_csv(Card, file_path_cards)
+    new_cards = filter_new_cards(cards, db_session)
+    if new_cards:
+        db_session.add_all(new_cards)
         db_session.commit()
-        flash(f"Loaded {len(cards)} cards into the database")
+        flash(f"Loaded {len(new_cards)} cards into the database")
     else:
-        flash("No new cards to load")
+        flash("No new cards to load", category="info")
     return redirect(url_for(".index"))
 
 
-def read_csv(file_path: Path) -> list:
+def load_model_instances_from_csv(model: Base, file_path: Path) -> list[Base]:
     with open(file_path, "r", encoding="utf-8") as csvfile:
         reader = csv.DictReader(csvfile)
-        return [row for row in reader]
+        return [model(**row) for row in reader]
 
 
-def card_exists(card: Card) -> bool:
-    return db_session.get(Card, card.uid) is not None
+def is_card_in_db(card: Card, session: Session) -> bool:
+    return session.get(Card, card.uid) is not None
+
+
+def filter_new_cards(cards: List[Card], session: Session) -> List[Card]:
+    return [card for card in cards if session.get(Card, card.uid) is None]
