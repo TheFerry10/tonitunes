@@ -82,17 +82,17 @@ def manage_playlists():
 def load_songs():
     file_path = Path(app.config["TONITUNES_SONGS_DIR"], "songs.csv")
     if not file_path.is_file():
-        flash("No songs file found", category="error")
+        flash(f"Songs file {file_path} does not exist", category="error")
         return redirect(url_for(".index"))
 
     songs = load_model_instances_from_csv(Song, file_path)
     new_songs = filter_new_songs(songs, db_session)
-    if songs:
+    if new_songs:
         db_session.add_all(new_songs)
         db_session.commit()
-        flash(f"Loaded {len(new_songs)} new songs into the database")
+        flash(f"Loaded {len(new_songs)} new songs from {file_path} into the database")
     else:
-        flash("No new songs to load", category="info")
+        flash(f"All songs from {file_path} already exist", category="info")
     return redirect(url_for(".index"))
 
 
@@ -100,7 +100,7 @@ def load_songs():
 def load_cards():
     file_path = Path(app.config["TONITUNES_CARDS_DIR"], "cards.csv")
     if not file_path.is_file():
-        flash("No cards file found", category="error")
+        flash(f"Cards file {file_path} does not exist", category="error")
         return redirect(url_for(".index"))
 
     cards = load_model_instances_from_csv(Card, file_path)
@@ -108,9 +108,9 @@ def load_cards():
     if new_cards:
         db_session.add_all(new_cards)
         db_session.commit()
-        flash(f"Loaded {len(new_cards)} cards into the database")
+        flash(f"Loaded {len(new_cards)} cards from {file_path} into the database")
     else:
-        flash("No new cards to load", category="info")
+        flash(f"All cards from {file_path} already exist", category="info")
     return redirect(url_for(".index"))
 
 
