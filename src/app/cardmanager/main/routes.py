@@ -1,5 +1,4 @@
 import csv
-import os
 from pathlib import Path
 from typing import List
 
@@ -81,42 +80,30 @@ def manage_playlists():
 
 @main.route("/songs/load", methods=["GET"])
 def load_songs():
-    # TODO that sould be a know folder for the app
-    home_dir = os.environ.get("TONITUNES_HOME")
-    if home_dir:
-        file_path_songs = Path(home_dir, "songs/songs.csv")
-    else:
-        raise ValueError(
-            "Environment variable TONITUNES_HOME not defined. Run init script."
-        )
-    if file_path_songs.is_file():
-        with open(file_path_songs, "r", encoding="utf-8") as csvfile:
-            reader = csv.DictReader(csvfile)
-            songs = []
-            for row in reader:
-                if not Song.query.filter_by(
-                    title=row["title"], artist=row["artist"]
-                ).first():
-                    songs.append(Song(**row))
-        if songs:
-            db_session.add_all(songs)
-            db_session.commit()
-            flash(f"Loaded {len(songs)} new songs into the database")
-        else:
-            flash("No new songs to load")
-    else:
+    file_path = Path(app.config["TONITUNES_SONGS_DIR"], "songs.csv")
+    if not file_path.is_file():
         flash("No songs file found", category="error")
+        return redirect(url_for(".index"))
+
+    songs = load_model_instances_from_csv(Song, file_path)
+    new_songs = filter_new_songs(songs, db_session)
+    if songs:
+        db_session.add_all(new_songs)
+        db_session.commit()
+        flash(f"Loaded {len(new_songs)} new songs into the database")
+    else:
+        flash("No new songs to load", category="info")
     return redirect(url_for(".index"))
 
 
 @main.route("/cards/load", methods=["GET"])
 def load_cards():
-    file_path_cards = Path(app.config["TONITUNES_CARDS_DIR"], "cards.csv")
-    if not file_path_cards.is_file():
+    file_path = Path(app.config["TONITUNES_CARDS_DIR"], "cards.csv")
+    if not file_path.is_file():
         flash("No cards file found", category="error")
         return redirect(url_for(".index"))
 
-    cards = load_model_instances_from_csv(Card, file_path_cards)
+    cards = load_model_instances_from_csv(Card, file_path)
     new_cards = filter_new_cards(cards, db_session)
     if new_cards:
         db_session.add_all(new_cards)
@@ -139,3 +126,11 @@ def is_card_in_db(card: Card, session: Session) -> bool:
 
 def filter_new_cards(cards: List[Card], session: Session) -> List[Card]:
     return [card for card in cards if session.get(Card, card.uid) is None]
+
+
+def filter_new_songs(songs: List[Song], session: Session) -> List[Song]:
+    return [
+        song
+        for song in songs
+        if session.query(Song).filter_by(filename=song.filename).first() is None
+    ]
