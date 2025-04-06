@@ -58,15 +58,15 @@ class Card(Base):
     @staticmethod
     def from_json(json_card: Dict[str, Union[str, str]]):
         uid = json_card.get("uid")
-        if uid:
-            uid = int(uid)
-        else:
-            raise ValueError("uid is is empty")
         name = json_card.get("name")
-        return Card(uid=uid, name=name)
+        return Card(uid=int(uid), name=name)
 
     def to_json(self):
-        card_json = {"uid": self.uid, "name": self.name}
+        card_json = {
+            "uid": self.uid,
+            "name": self.name,
+            "playlist_id": self.playlist_id,
+        }
         return card_json
 
     def get_playlist_as_file_paths(self) -> List[str]:
@@ -81,11 +81,6 @@ class Playlist(Base):
     name: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
     songs: Mapped[List[Song]] = relationship(secondary=association_table)
     cards: Mapped[List[Card]] = relationship("Card", back_populates="playlist")
-
-    def from_json(
-        self, json_playlist: Dict[str, Union[str, List[Dict[str, Union[str, str]]]]]
-    ):
-        raise NotImplementedError()
 
     def to_json(self):
         playlist_json = {

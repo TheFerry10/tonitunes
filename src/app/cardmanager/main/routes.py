@@ -1,17 +1,16 @@
 import csv
-import os
 from pathlib import Path
+from typing import List
 
-from flask import flash, redirect, render_template, url_for
+from flask import current_app, flash, redirect, render_template, url_for
+from sqlalchemy.orm import Session
 
 from ..db import db_session
-from ..models import Card, Playlist, Song
+from ..models import Base, Card, Playlist, Song
 from . import main
 from .forms import CardPlaylistMappingForm, PlaylistAddSongForm, PlaylistForm
 
-
-def get_playlist_choices() -> list:
-    return [(playlist.id, playlist.name) for playlist in Playlist.query.all()]
+app = current_app
 
 
 @main.route("/", methods=["GET", "POST"])
@@ -23,7 +22,7 @@ def index():
 @main.route("/card/map/<int:card_uid>", methods=["GET", "POST"])
 def map_card(card_uid: int):
     form = CardPlaylistMappingForm()
-    form.playlist_select.choices = get_playlist_choices()
+    form.playlist_select.choices = db_session.query(Playlist.id, Playlist.name).all()
     if form.validate_on_submit():
         card = Card.query.get(card_uid)
         if card:
@@ -46,7 +45,7 @@ def edit_playlist(playlist_id: int):
     artists = [song[0] for song in db_session.query(Song.artist).distinct().all()]
     form.artist_select.choices = [(artist, artist) for artist in artists]
     form.title_select.choices = []  # filled dynamically in the template
-    playlist = Playlist.query.get(playlist_id)
+    playlist = db_session.get(Playlist, playlist_id)
 
     if form.validate_on_submit():
         song_id = form.title_select.data
@@ -77,55 +76,57 @@ def manage_playlists():
 
 @main.route("/songs/load", methods=["GET"])
 def load_songs():
-    home_dir = os.environ.get("TONITUNES_HOME")
-    if home_dir:
-        file_path_songs = Path(home_dir, "songs/songs.csv")
+    file_path = Path(app.config["TONITUNES_SONGS_DIR"], "songs.csv")
+    if not file_path.is_file():
+        flash(f"Songs file {file_path} does not exist", category="error")
+        return redirect(url_for(".index"))
+
+    songs = load_model_instances_from_csv(Song, file_path)
+    new_songs = filter_new_songs(songs, db_session)
+    if new_songs:
+        db_session.add_all(new_songs)
+        db_session.commit()
+        flash(f"Loaded {len(new_songs)} new songs from {file_path} into the database")
     else:
-        raise ValueError(
-            "Environment variable TONITUNES_HOME not defined. Run init script."
-        )
-    if file_path_songs.is_file():
-        with open(file_path_songs, "r", encoding="utf-8") as csvfile:
-            reader = csv.DictReader(csvfile)
-            songs = []
-            for row in reader:
-                if not Song.query.filter_by(
-                    title=row["title"], artist=row["artist"]
-                ).first():
-                    songs.append(Song(**row))
-        if songs:
-            db_session.add_all(songs)
-            db_session.commit()
-            flash(f"Loaded {len(songs)} new songs into the database")
-        else:
-            flash("No new songs to load")
-    else:
-        flash("No songs file found", category="error")
+        flash(f"All songs from {file_path} already exist", category="info")
     return redirect(url_for(".index"))
 
 
 @main.route("/cards/load", methods=["GET"])
 def load_cards():
-    home_dir = os.environ.get("TONITUNES_HOME")
-    if home_dir:
-        file_path_cards = Path(home_dir, "cards/cards.csv")
+    file_path = Path(app.config["TONITUNES_CARDS_DIR"], "cards.csv")
+    if not file_path.is_file():
+        flash(f"Cards file {file_path} does not exist", category="error")
+        return redirect(url_for(".index"))
+
+    cards = load_model_instances_from_csv(Card, file_path)
+    new_cards = filter_new_cards(cards, db_session)
+    if new_cards:
+        db_session.add_all(new_cards)
+        db_session.commit()
+        flash(f"Loaded {len(new_cards)} cards from {file_path} into the database")
     else:
-        raise ValueError(
-            "Environment variable TONITUNES_HOME not defined. Run init script."
-        )
-    if file_path_cards.is_file():
-        with open(file_path_cards, "r", encoding="utf-8") as csvfile:
-            reader = csv.DictReader(csvfile)
-            cards = []
-            for row in reader:
-                if not Card.query.filter_by(uid=row["uid"]).first():
-                    cards.append(Card(**row))
-        if cards:
-            db_session.add_all(cards)
-            db_session.commit()
-            flash(f"Loaded {len(cards)} cards into the database")
-        else:
-            flash("No new cards to load")
-    else:
-        flash("No cards file found", category="error")
+        flash(f"All cards from {file_path} already exist", category="info")
     return redirect(url_for(".index"))
+
+
+def load_model_instances_from_csv(model: Base, file_path: Path) -> list[Base]:
+    with open(file_path, "r", encoding="utf-8") as csvfile:
+        reader = csv.DictReader(csvfile)
+        return [model(**row) for row in reader]
+
+
+def is_card_in_db(card: Card, session: Session) -> bool:
+    return session.get(Card, card.uid) is not None
+
+
+def filter_new_cards(cards: List[Card], session: Session) -> List[Card]:
+    return [card for card in cards if session.get(Card, card.uid) is None]
+
+
+def filter_new_songs(songs: List[Song], session: Session) -> List[Song]:
+    return [
+        song
+        for song in songs
+        if session.query(Song).filter_by(filename=song.filename).first() is None
+    ]

@@ -1,0 +1,2 @@
+pytest src/app/tests/ --cov=src/app/cardmanager --cov-report=html
+pytest tests/ --cov=src/ --cov-report=html

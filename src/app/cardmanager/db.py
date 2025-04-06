@@ -24,10 +24,10 @@ def init_db(database_uri):
     logging.info(f"Database URI: {database_uri}")
 
 
-def bind_query_property(database_uri):
-    """Bind query property to the database session."""
+def drop_db(database_uri):
+    """Drop all tables in the database."""
     engine = create_engine(database_uri, echo=False)
-    db_session.configure(bind=engine)
     from .models import Base
 
-    Base.query = db_session.query_property()
+    Base.metadata.drop_all(bind=engine)
+    logging.info("Database tables dropped")
