@@ -1,7 +1,7 @@
 import pytest
 
-from ..cardmanager import create_app
-from ..cardmanager.db import db_session, drop_db, init_db
+from app.cardmanager import create_app
+from app.cardmanager.db import db_session, drop_db, init_db
 
 
 @pytest.fixture

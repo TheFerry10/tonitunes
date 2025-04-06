@@ -1,5 +1,5 @@
-from ..cardmanager.db import db_session
-from ..cardmanager.models import Card
+from app.cardmanager.db import db_session
+from app.cardmanager.models import Card
 
 
 def test_get_cards(client):
@@ -10,7 +10,7 @@ def test_get_cards(client):
 
 def test_post_card(client):
     new_card_data = {"name": "John Doe", "uid": 12345678}
-    expected_card = {"name": "John Doe", "uid": 12345678}
+    expected_card = {"name": "John Doe", "uid": 12345678, "playlist_id": None}
     response = client.post("api/card", json=new_card_data)
     assert response.status_code == 200
     card = db_session.query(Card).filter_by(uid=12345678).first()

@@ -1,13 +1,13 @@
 import csv
 
-from ..cardmanager.db import db_session
-from ..cardmanager.main.routes import (
+from app.cardmanager.db import db_session
+from app.cardmanager.main.routes import (
     filter_new_cards,
     filter_new_songs,
     is_card_in_db,
     load_model_instances_from_csv,
 )
-from ..cardmanager.models import Card, Playlist, Song
+from app.cardmanager.models import Card, Playlist, Song
 
 
 def test_index(client):

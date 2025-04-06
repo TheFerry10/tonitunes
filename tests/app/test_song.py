@@ -1,5 +1,5 @@
-from ..cardmanager.db import db_session
-from ..cardmanager.models import Song
+from app.cardmanager.db import db_session
+from app.cardmanager.models import Song
 
 
 def test_get_songs_by_artist(client):

@@ -13,10 +13,6 @@ from .forms import CardPlaylistMappingForm, PlaylistAddSongForm, PlaylistForm
 app = current_app
 
 
-def get_playlist_choices() -> list:
-    return [(playlist.id, playlist.name) for playlist in Playlist.query.all()]
-
-
 @main.route("/", methods=["GET", "POST"])
 def index():
     cards = Card.query.all()
@@ -26,7 +22,7 @@ def index():
 @main.route("/card/map/<int:card_uid>", methods=["GET", "POST"])
 def map_card(card_uid: int):
     form = CardPlaylistMappingForm()
-    form.playlist_select.choices = get_playlist_choices()
+    form.playlist_select.choices = db_session.query(Playlist.id, Playlist.name).all()
     if form.validate_on_submit():
         card = Card.query.get(card_uid)
         if card:
