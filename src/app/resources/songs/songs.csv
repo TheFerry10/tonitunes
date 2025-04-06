@@ -1,0 +1,3 @@
+title,artist,album,filename,duration
+"dummy title 1","dummy artist 1","dummy album 1","dummy1.mp3",10000
+"dummy title 2","dummy artist 2","dummy album 2","dummy2.mp3",20000

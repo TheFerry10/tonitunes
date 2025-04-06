@@ -49,14 +49,14 @@ class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY") or "hard to guess string"
     AUDIO_DIR = os.getenv("AUDIO_DIR")
     FLASK_APP = "cardmanager.py"
-    TONITUNES_HOME = os.getenv("TONITUNES_HOME")
-    TONITUNES_SONGS_DIR = os.path.join(TONITUNES_HOME, "songs")
-    TONITUNES_CARDS_DIR = os.path.join(TONITUNES_HOME, "cards")
-    DATABASE_URI = f"sqlite:///{TONITUNES_HOME}/sqlite/data.sqlite"
     SETTINGS = settings
 
 
 class DevelopmentConfig(Config):
+    TONITUNES_HOME = os.getenv("TONITUNES_HOME")
+    TONITUNES_SONGS_DIR = os.path.join(TONITUNES_HOME, "songs")
+    TONITUNES_CARDS_DIR = os.path.join(TONITUNES_HOME, "cards")
+    DATABASE_URI = f"sqlite:///{TONITUNES_HOME}/sqlite/data.sqlite"
     FLASK_CONFIG = "development"
     DEBUG = True
 
@@ -72,6 +72,10 @@ class TestingConfig(Config):
 
 
 class ProductionConfig(Config):
+    TONITUNES_HOME = os.getenv("TONITUNES_HOME")
+    TONITUNES_SONGS_DIR = os.path.join(TONITUNES_HOME, "songs")
+    TONITUNES_CARDS_DIR = os.path.join(TONITUNES_HOME, "cards")
+    DATABASE_URI = f"sqlite:///{TONITUNES_HOME}/sqlite/data.sqlite"
     FLASK_CONFIG = "production"
     DEBUG = False
 
