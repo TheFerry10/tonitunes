@@ -66,9 +66,10 @@ class TestingConfig(Config):
     TESTING = True
     TONITUNES_SONGS_DIR = os.path.join(ROOTDIR, "tests/app/resources", "songs")
     TONITUNES_CARDS_DIR = os.path.join(ROOTDIR, "tests/app/resources", "cards")
-    DATABASE_URI = "sqlite:///" + os.path.join(
-        ROOTDIR, "tests/app/resources/sqlite/test-data.sqlite"
-    )
+    # DATABASE_URI = "sqlite:///" + os.path.join(
+    #     ROOTDIR, "tests/app/resources/sqlite/test-data.sqlite"
+    # )
+    DATABASE_URI = "sqlite:///:memory:"
 
 
 class ProductionConfig(Config):
