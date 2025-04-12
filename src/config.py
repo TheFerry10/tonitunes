@@ -64,10 +64,10 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     FLASK_CONFIG = "testing"
     TESTING = True
-    TONITUNES_SONGS_DIR = os.path.join(ROOTDIR, "src/app/resources", "songs")
-    TONITUNES_CARDS_DIR = os.path.join(ROOTDIR, "src/app/resources", "cards")
+    TONITUNES_SONGS_DIR = os.path.join(ROOTDIR, "tests/app/resources", "songs")
+    TONITUNES_CARDS_DIR = os.path.join(ROOTDIR, "tests/app/resources", "cards")
     DATABASE_URI = "sqlite:///" + os.path.join(
-        ROOTDIR, "src/app/resources/sqlite/test-data.sqlite"
+        ROOTDIR, "tests/app/resources/sqlite/test-data.sqlite"
     )
 
 
