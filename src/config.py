@@ -53,7 +53,7 @@ class Config:
 
 
 class DevelopmentConfig(Config):
-    TONITUNES_HOME = os.getenv("TONITUNES_HOME")
+    TONITUNES_HOME = os.getenv("TONITUNES_HOME", "./")
     TONITUNES_SONGS_DIR = os.path.join(TONITUNES_HOME, "songs")
     TONITUNES_CARDS_DIR = os.path.join(TONITUNES_HOME, "cards")
     DATABASE_URI = f"sqlite:///{TONITUNES_HOME}/sqlite/data.sqlite"
