@@ -175,3 +175,6 @@ out.json
 # defined services
 tonitunes.service
 shutdown.service
+
+# test resources
+tests/app/resources/sqlite/test-data.sqlite
