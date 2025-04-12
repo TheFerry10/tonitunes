@@ -1,3 +1,4 @@
+[![codecov](https://codecov.io/gh/TheFerry10/tonitunes/graph/badge.svg?token=8VJC5PQGJI)](https://codecov.io/gh/TheFerry10/tonitunes)
 # Tonitunes
 
 ## Project Description
