@@ -63,12 +63,23 @@
 
 
 <script>
-    document.getElementById('artist_select').addEventListener('change', function() {
+    const artistSelect = document.getElementById('artist_select');
+    const titleSelect = document.getElementById('title_select');
+
+    // Disable title dropdown initially
+    titleSelect.disabled = true;
+
+    artistSelect.addEventListener('change', function() {
         const artist = this.value;
+        titleSelect.disabled = true; // Disable while fetching
         fetch(`/api/songs/artist/${artist}`)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch songs');
+                }
+                return response.json();
+            })
             .then(data => {
-                const titleSelect = document.getElementById('title_select');
                 titleSelect.innerHTML = '';
                 data.forEach(song => {
                     const option = document.createElement('option');
@@ -76,8 +87,18 @@
                     option.textContent = song.title;
                     titleSelect.appendChild(option);
                 });
+                titleSelect.disabled = false; // Enable after fetching
             })
-            .catch(error => console.error('Error fetching songs:', error));
+            .catch(error => {
+                console.error('Error fetching songs:', error);
+                alert('Failed to load songs. Please try again later.');
+            });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (artistSelect.value) {
+            artistSelect.dispatchEvent(new Event('change'));
+        }
     });
 
     function removeSongFromPlaylist(playlist_id, song_id) {
@@ -89,8 +110,16 @@
         })
         .then(response => {
             if (response.ok) {
-                window.location.reload();
+                // Dynamically remove the row instead of reloading the page
+                const row = document.querySelector(`button[onclick="removeSongFromPlaylist('${playlist_id}', '${song_id}')"]`).closest('tr');
+                if (row) row.remove();
+            } else {
+                alert('Failed to remove the song. Please try again.');
             }
+        })
+        .catch(error => {
+            console.error('Error removing song:', error);
+            alert('Failed to remove the song. Please try again.');
         });
     }
 </script>
