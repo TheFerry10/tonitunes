@@ -12,6 +12,7 @@
                 <tr>
                     <th>Artist</th>
                     <th>Title</th>
+                    <th>Album</th>
                     <th>Player</th>
                     <th>Action</th>
                 </tr>
@@ -21,6 +22,7 @@
                 <tr>
                     <td>{{ song.artist }}</td>
                     <td>{{ song.title }}</td>
+                    <td>{{ song.album }}</td>
                     <td>
                         <audio controls>
                             <source src="/static/audio/{{song.filename.split('/').pop()}}" type="audio/mpeg">
@@ -28,7 +30,7 @@
                         </audio>
                     </td>
                     <td>
-                        <button type="button" onclick="removeSongFromPlaylist('{{ playlist.id }}', '{{ song.id }}')" class="btn btn-danger">Delete</button>
+                        <button type="button" onclick="removeSongFromPlaylist('{{ playlist.id }}', '{{ song.id }}')" class="btn btn-danger btn-sm">Delete</button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -37,9 +39,9 @@
     </div>
 </div>
 
-<div class="card wtf-form-card">
+<div class="card wtf-form-card mt-4">
     <div class="card-body">
-        <h5 class="card-title">Add songs</h5>
+        <h5 class="card-title">Add Songs</h5>
         <div class="form-group">
             <label for="artist_select">Artist</label>
             <select id="artist_select" name="artist_select" class="form-control">
@@ -49,23 +51,34 @@
             </select>
         </div>
         <div class="form-group">
-            <label for="title_list">Titles</label>
-            <ul id="title_list" class="list-group">
-                <!-- Titles will be populated dynamically -->
-            </ul>
+            <label for="title_table">Titles</label>
+            <div style="max-height: 300px; overflow-y: auto;">
+                <table class="table table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Album</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="title_table">
+                        <!-- Titles will be populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
     const artistSelect = document.getElementById('artist_select');
-    const titleList = document.getElementById('title_list');
+    const titleTable = document.getElementById('title_table');
     const playlistTableBody = document.getElementById('playlist_table_body');
 
     // Fetch and populate titles based on the selected artist
     artistSelect.addEventListener('change', () => {
         const artist = artistSelect.value;
-        titleList.innerHTML = ''; // Clear the list before fetching
+        titleTable.innerHTML = ''; // Clear the table before fetching
 
         fetch(`/api/songs/artist/${artist}`)
             .then(response => {
@@ -73,7 +86,7 @@
                 return response.json();
             })
             .then(data => {
-                populateTitleList(data);
+                populateTitleTable(data);
             })
             .catch(error => {
                 console.error('Error fetching songs:', error);
@@ -81,24 +94,37 @@
             });
     });
 
-    // Populate the title list with add buttons
-    function populateTitleList(songs) {
-        songs.sort((a, b) => a.title.localeCompare(b.title)); // Sort titles alphabetically
+    // Populate the title table with add buttons
+    function populateTitleTable(songs) {
+        songs.sort((a, b) => a.title.localeCompare(b.title));
         songs.forEach(song => {
-            const listItem = document.createElement('li');
-            listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+            const row = document.createElement('tr');
 
-            const titleSpan = document.createElement('span');
-            titleSpan.textContent = song.title;
+            // Create the title cell
+            const titleCell = document.createElement('td');
+            titleCell.textContent = song.title;
 
+            // Create the album cell
+            const albumCell = document.createElement('td');
+            albumCell.textContent = song.album || 'Unknown';
+
+            // Create the action cell
+            const actionCell = document.createElement('td');
             const addButton = document.createElement('button');
             addButton.className = 'btn btn-success btn-sm';
             addButton.textContent = 'Add';
             addButton.onclick = () => addSongToPlaylist('{{ playlist.id }}', song);
 
-            listItem.appendChild(titleSpan);
-            listItem.appendChild(addButton);
-            titleList.appendChild(listItem);
+            // Append the button to the action cell
+            actionCell.appendChild(addButton);
+
+            // Append cells to the row
+            row.appendChild(titleCell);
+            row.appendChild(albumCell);
+            row.appendChild(actionCell);
+
+            // Append the row to the table
+            titleTable.appendChild(row);
         });
     }
 
@@ -128,6 +154,7 @@
         newRow.innerHTML = `
             <td>${song.artist}</td>
             <td>${song.title}</td>
+            <td>${song.album || 'Unknown'}</td> <!-- Added album column -->
             <td>
                 <audio controls>
                     <source src="/static/audio/${song.filename.split('/').pop()}" type="audio/mpeg">
@@ -135,7 +162,7 @@
                 </audio>
             </td>
             <td>
-                <button type="button" onclick="removeSongFromPlaylist('{{ playlist.id }}', '${song.id}')" class="btn btn-danger">Delete</button>
+                <button type="button" onclick="removeSongFromPlaylist('{{ playlist.id }}', '${song.id}')" class="btn btn-danger btn-sm">Delete</button>
             </td>
         `;
 
