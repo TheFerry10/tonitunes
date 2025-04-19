@@ -44,17 +44,7 @@ def edit_playlist(playlist_id: int):
     form = PlaylistAddSongForm()
     artists = [song[0] for song in db_session.query(Song.artist).distinct().all()]
     form.artist_select.choices = [(artist, artist) for artist in artists]
-    form.title_select.choices = []  # filled dynamically in the template
     playlist = db_session.get(Playlist, playlist_id)
-
-    if form.validate_on_submit():
-        song_id = form.title_select.data
-        song_to_add = Song.query.get(song_id)
-        playlist.songs.append(song_to_add)
-        db_session.add(playlist)
-        db_session.commit()
-        flash("Song added to playlist successfully!")
-        return redirect(url_for(".edit_playlist", playlist_id=playlist_id))
 
     return render_template(
         "playlist-edit.html", form=form, playlist=playlist, artists=artists
