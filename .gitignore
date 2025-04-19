@@ -178,3 +178,6 @@ shutdown.service
 
 # test resources
 tests/app/resources/sqlite/test-data.sqlite
+
+# static audio files
+src/app/cardmanager/static/audio/*

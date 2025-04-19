@@ -4,100 +4,201 @@
 {% block title %}Playlist{% endblock %}
 
 {% block page_content %}
-
-
-
-
-    <div class="card wtf-form-card">
-        <div class="card-body">
-            <h5 class="card-title">Playlist {{playlist.name}}</h5>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Artist</th>
-            <th>Title</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for song in playlist.songs%}
-        <tr>
-            <td>{{ song.artist }}</td>
-            <td>{{ song.title }}</td>
-            <td>
-                <button type="submit" onclick="removeSongFromPlaylist('{{ playlist.id }}', '{{ song.id }}')" class="btn btn-danger">Delete</button>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-</div>
-</div>
-
-
-
 <div class="card wtf-form-card">
     <div class="card-body">
-    <h5 class="card-title">Add songs</h5>
-        <form action="{{ url_for('main.edit_playlist', playlist_id=playlist.id) }}" method="post" class="wtf-form">
-            {{ form.hidden_tag() }}
-            <div class="form-group">
-                <label for="artist_select">Artist</label>
-                <select id="artist_select" name="artist_select" class="form-control">
-                    {% for artist in artists %}
-                    <option value="{{ artist }}">{{ artist }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="title_select">Title</label>
-                <select id="title_select" name="title_select" class="form-control">
-                    <!-- Options will be populated dynamically -->
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Add Song</button>
-        </form>
+        <h5 class="card-title">Playlist {{ playlist.name }}</h5>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Artist</th>
+                    <th>Title</th>
+                    <th>Album</th>
+                    <th>Player</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="playlist_table_body">
+                {% for song in playlist.songs %}
+                <tr>
+                    <td>{{ song.artist }}</td>
+                    <td>{{ song.title }}</td>
+                    <td>{{ song.album }}</td>
+                    <td>
+                        <audio controls>
+                            <source src="/static/audio/{{song.filename.split('/').pop()}}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td>
+                        <button type="button" onclick="removeSongFromPlaylist('{{ playlist.id }}', '{{ song.id }}')" class="btn btn-danger btn-sm">Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 
+<div class="card wtf-form-card mt-4">
+    <div class="card-body">
+        <h5 class="card-title">Add Songs</h5>
+        <div class="form-group">
+            <label for="artist_select">Artist</label>
+            <select id="artist_select" name="artist_select" class="form-control">
+                {% for artist in artists %}
+                <option value="{{ artist }}">{{ artist }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="title_table">Titles</label>
+            <div style="max-height: 300px; overflow-y: auto;">
+                <table class="table table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Album</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="title_table">
+                        <!-- Titles will be populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
-    document.getElementById('artist_select').addEventListener('change', function() {
-        const artist = this.value;
+    const artistSelect = document.getElementById('artist_select');
+    const titleTable = document.getElementById('title_table');
+    const playlistTableBody = document.getElementById('playlist_table_body');
+
+    // Fetch and populate titles based on the selected artist
+    artistSelect.addEventListener('change', () => {
+        const artist = artistSelect.value;
+        titleTable.innerHTML = ''; // Clear the table before fetching
+
         fetch(`/api/songs/artist/${artist}`)
-            .then(response => response.json())
-            .then(data => {
-                const titleSelect = document.getElementById('title_select');
-                titleSelect.innerHTML = '';
-                data.forEach(song => {
-                    const option = document.createElement('option');
-                    option.value = song.id;
-                    option.textContent = song.title;
-                    titleSelect.appendChild(option);
-                });
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to fetch songs');
+                return response.json();
             })
-            .catch(error => console.error('Error fetching songs:', error));
+            .then(data => {
+                populateTitleTable(data);
+            })
+            .catch(error => {
+                console.error('Error fetching songs:', error);
+                alert('Failed to load songs. Please try again later.');
+            });
     });
 
-    function removeSongFromPlaylist(playlist_id, song_id) {
-        fetch(`/api/playlists/${playlist_id}/songs/${song_id}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            }
+    // Populate the title table with add buttons
+    function populateTitleTable(songs) {
+        songs.sort((a, b) => a.title.localeCompare(b.title));
+        songs.forEach(song => {
+            const row = document.createElement('tr');
+
+            // Create the title cell
+            const titleCell = document.createElement('td');
+            titleCell.textContent = song.title;
+
+            // Create the album cell
+            const albumCell = document.createElement('td');
+            albumCell.textContent = song.album || 'Unknown';
+
+            // Create the action cell
+            const actionCell = document.createElement('td');
+            const addButton = document.createElement('button');
+            addButton.className = 'btn btn-success btn-sm';
+            addButton.textContent = 'Add';
+            addButton.onclick = () => addSongToPlaylist('{{ playlist.id }}', song);
+
+            // Append the button to the action cell
+            actionCell.appendChild(addButton);
+
+            // Append cells to the row
+            row.appendChild(titleCell);
+            row.appendChild(albumCell);
+            row.appendChild(actionCell);
+
+            // Append the row to the table
+            titleTable.appendChild(row);
+        });
+    }
+
+    // Add a song to the playlist and update the table dynamically
+    function addSongToPlaylist(playlistId, song) {
+        fetch(`/api/playlists/${playlistId}/songs/${song.id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
         })
         .then(response => {
             if (response.ok) {
-                window.location.reload();
+                addSongToTable(song);
+            } else {
+                throw new Error('Failed to add the song');
             }
+        })
+        .catch(error => {
+            console.error('Error adding song:', error);
+            alert('Failed to add the song. Please try again.');
         });
     }
+
+    // Add a new row to the playlist table
+    function addSongToTable(song) {
+        const newRow = document.createElement('tr');
+
+        newRow.innerHTML = `
+            <td>${song.artist}</td>
+            <td>${song.title}</td>
+            <td>${song.album || 'Unknown'}</td> <!-- Added album column -->
+            <td>
+                <audio controls>
+                    <source src="/static/audio/${song.filename.split('/').pop()}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+            </td>
+            <td>
+                <button type="button" onclick="removeSongFromPlaylist('{{ playlist.id }}', '${song.id}')" class="btn btn-danger btn-sm">Delete</button>
+            </td>
+        `;
+
+        playlistTableBody.appendChild(newRow);
+    }
+
+    // Remove a song from the playlist and update the table dynamically
+    function removeSongFromPlaylist(playlistId, songId) {
+        fetch(`/api/playlists/${playlistId}/songs/${songId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => {
+            if (response.ok) {
+                const row = document.querySelector(`button[onclick="removeSongFromPlaylist('${playlistId}', '${songId}')"]`).closest('tr');
+                if (row) row.remove();
+            } else {
+                throw new Error('Failed to remove the song');
+            }
+        })
+        .catch(error => {
+            console.error('Error removing song:', error);
+            alert('Failed to remove the song. Please try again.');
+        });
+    }
+
+    // Sort artists alphabetically on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        const options = Array.from(artistSelect.options);
+        options.sort((a, b) => a.text.localeCompare(b.text));
+        artistSelect.innerHTML = '';
+        options.forEach(option => artistSelect.appendChild(option));
+
+        if (artistSelect.value) {
+            artistSelect.dispatchEvent(new Event('change'));
+        }
+    });
 </script>
-
-
-
-
-
-
 {% endblock %}

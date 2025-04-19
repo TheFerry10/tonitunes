@@ -22,7 +22,11 @@ def index():
 @main.route("/card/map/<int:card_uid>", methods=["GET", "POST"])
 def map_card(card_uid: int):
     form = CardPlaylistMappingForm()
-    form.playlist_select.choices = db_session.query(Playlist.id, Playlist.name).all()
+    playlist_choices = [
+        (playlist.id, playlist.name) for playlist in db_session.query(Playlist).all()
+    ]
+
+    form.playlist_select.choices = playlist_choices
     if form.validate_on_submit():
         card = Card.query.get(card_uid)
         if card:
@@ -44,17 +48,7 @@ def edit_playlist(playlist_id: int):
     form = PlaylistAddSongForm()
     artists = [song[0] for song in db_session.query(Song.artist).distinct().all()]
     form.artist_select.choices = [(artist, artist) for artist in artists]
-    form.title_select.choices = []  # filled dynamically in the template
     playlist = db_session.get(Playlist, playlist_id)
-
-    if form.validate_on_submit():
-        song_id = form.title_select.data
-        song_to_add = Song.query.get(song_id)
-        playlist.songs.append(song_to_add)
-        db_session.add(playlist)
-        db_session.commit()
-        flash("Song added to playlist successfully!")
-        return redirect(url_for(".edit_playlist", playlist_id=playlist_id))
 
     return render_template(
         "playlist-edit.html", form=form, playlist=playlist, artists=artists

@@ -27,7 +27,7 @@ def test_edit_playlist(client):
 
     response = client.get("/playlist/edit/1")
     assert response.status_code == 200
-    assert b"Add songs" in response.data
+    assert b"Add Songs" in response.data
 
 
 def test_manage_playlists(client):
