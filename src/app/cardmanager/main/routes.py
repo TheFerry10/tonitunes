@@ -22,7 +22,11 @@ def index():
 @main.route("/card/map/<int:card_uid>", methods=["GET", "POST"])
 def map_card(card_uid: int):
     form = CardPlaylistMappingForm()
-    form.playlist_select.choices = db_session.query(Playlist.id, Playlist.name).all()
+    playlist_choices = [
+        (playlist.id, playlist.name) for playlist in db_session.query(Playlist).all()
+    ]
+
+    form.playlist_select.choices = playlist_choices
     if form.validate_on_submit():
         card = Card.query.get(card_uid)
         if card:
