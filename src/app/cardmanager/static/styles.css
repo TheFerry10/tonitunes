@@ -57,6 +57,17 @@ body {
     transform: scale(1.05);
 }
 
+.btn-action {
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-family: 'Baloo 2', cursive, sans-serif;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-action:hover {
+    transform: scale(1.05);
+}
+
 .alert-success {
     background-color: #98fb98;
     border-color: #98fb98;
