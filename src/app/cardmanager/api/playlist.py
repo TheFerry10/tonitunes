@@ -131,3 +131,54 @@ def add_song_to_playlist(playlist_id: int, song_id: int):
             "msg": f"Song {song.artist} - {song.title} added to playlist {playlist.name}"  # noqa: E501
         }
     )
+
+
+@api.route("/playlists/<int:playlist_id>/songs", methods=["POST"])
+def add_songs_to_playlist(playlist_id: int):
+    """
+    Add one or multiple songs to a specific playlist.
+
+    Args:
+        playlist_id (int): The ID of the playlist.
+
+    Request Body:
+        {
+            "song_ids": [1, 2, 3]  # List of song IDs to add
+        }
+
+    Returns:
+        Response: JSON response confirming the addition or an error message.
+    """
+    playlist = Playlist.query.filter_by(id=playlist_id).first()
+    if not playlist:
+        return jsonify({"msg": "Playlist not found"}), 404
+
+    data = request.get_json()
+    song_ids = data.get("song_ids", [])
+    if not song_ids:
+        return jsonify({"msg": "No song IDs provided"}), 400
+
+    added_songs = []
+    for song_id in song_ids:
+        song = Song.query.filter_by(id=song_id).first()
+        if song and song not in playlist.songs:
+            playlist.songs.append(song)
+            added_songs.append(song)
+
+    if added_songs:
+        db_session.add(playlist)
+        db_session.commit()
+        return (
+            jsonify(
+                {
+                    "msg": f"Added {len(added_songs)} songs to playlist {playlist.name}",  # noqa: E501
+                    "songs": [
+                        {"id": song.id, "artist": song.artist, "title": song.title}
+                        for song in added_songs
+                    ],
+                }
+            ),
+            200,
+        )
+    else:
+        return jsonify({"msg": "No new songs were added to the playlist"}), 400

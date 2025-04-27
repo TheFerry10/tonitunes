@@ -4,6 +4,7 @@
 {% block title %}Playlist{% endblock %}
 
 {% block page_content %}
+<div id="notification" class="alert" style="display: none;"></div>
 <div class="card wtf-form-card">
     <div class="card-body">
         <h5 class="card-title">Playlist {{ playlist.name }}</h5>
@@ -25,7 +26,7 @@
                     <td>{{ song.album }}</td>
                     <td>
                         <audio controls>
-                            <source src="/static/audio/{{song.filename.split('/').pop()}}" type="audio/mpeg">
+                            <source src="/static/audio/{{ song.filename.split('/').pop() }}" type="audio/mpeg">
                             Your browser does not support the audio element.
                         </audio>
                     </td>
@@ -43,50 +44,55 @@
     <div class="card-body">
         <h5 class="card-title">Add Songs</h5>
         <div class="form-group">
-            <label for="artist_select">Artist</label>
-            <select id="artist_select" name="artist_select" class="form-control">
-                {% for artist in artists %}
-                <option value="{{ artist }}">{{ artist }}</option>
-                {% endfor %}
-            </select>
+            <label for="song_search">Search Songs</label>
+            <input
+                type="text"
+                id="song_search"
+                class="form-control"
+                placeholder="Search by artist, title, or album"
+            />
         </div>
         <div class="form-group">
-            <label for="title_table">Titles</label>
+            <label for="song_results">Results</label>
             <div style="max-height: 300px; overflow-y: auto;">
                 <table class="table table-hover table-bordered">
                     <thead>
                         <tr>
+                            <th>Select</th>
+                            <th>Artist</th>
                             <th>Title</th>
                             <th>Album</th>
-                            <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody id="title_table">
-                        <!-- Titles will be populated dynamically -->
+                    <tbody id="song_results">
+                        <!-- Results will be populated dynamically -->
                     </tbody>
                 </table>
             </div>
         </div>
+        <button id="add_songs_button" class="btn btn-success">Add Songs</button>
     </div>
 </div>
 
 <script>
-    const artistSelect = document.getElementById('artist_select');
-    const titleTable = document.getElementById('title_table');
+    const songSearchInput = document.getElementById('song_search');
+    const songResultsTable = document.getElementById('song_results');
+    const addSongsButton = document.getElementById('add_songs_button');
     const playlistTableBody = document.getElementById('playlist_table_body');
+    let selectedSongs = [];
 
-    // Fetch and populate titles based on the selected artist
-    artistSelect.addEventListener('change', () => {
-        const artist = artistSelect.value;
-        titleTable.innerHTML = ''; // Clear the table before fetching
+    // Fetch and display songs based on search input
+    songSearchInput.addEventListener('input', () => {
+        const query = songSearchInput.value.trim();
+        if (query.length < 2) return; // Avoid unnecessary requests for short queries
 
-        fetch(`/api/songs/artist/${artist}`)
+        fetch(`/songs/search?q=${encodeURIComponent(query)}`)
             .then(response => {
                 if (!response.ok) throw new Error('Failed to fetch songs');
                 return response.json();
             })
             .then(data => {
-                populateTitleTable(data);
+                populateSongResults(data);
             })
             .catch(error => {
                 console.error('Error fetching songs:', error);
@@ -94,70 +100,87 @@
             });
     });
 
-    // Populate the title table with add buttons
-    function populateTitleTable(songs) {
-        songs.sort((a, b) => a.title.localeCompare(b.title));
+    // Populate the song results table
+    function populateSongResults(songs) {
+        songResultsTable.innerHTML = ''; // Clear previous results
         songs.forEach(song => {
             const row = document.createElement('tr');
 
-            // Create the title cell
+            // Checkbox for selection
+            const selectCell = document.createElement('td');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = song.id;
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    selectedSongs.push(song);
+                } else {
+                    selectedSongs = selectedSongs.filter(s => s.id !== song.id);
+                }
+            });
+            selectCell.appendChild(checkbox);
+
+            // Artist, Title, Album cells
+            const artistCell = document.createElement('td');
+            artistCell.textContent = song.artist;
+
             const titleCell = document.createElement('td');
             titleCell.textContent = song.title;
 
-            // Create the album cell
             const albumCell = document.createElement('td');
             albumCell.textContent = song.album || 'Unknown';
 
-            // Create the action cell
-            const actionCell = document.createElement('td');
-            const addButton = document.createElement('button');
-            addButton.className = 'btn btn-success btn-sm';
-            addButton.textContent = 'Add';
-            addButton.onclick = () => addSongToPlaylist('{{ playlist.id }}', song);
-
-            // Append the button to the action cell
-            actionCell.appendChild(addButton);
-
             // Append cells to the row
+            row.appendChild(selectCell);
+            row.appendChild(artistCell);
             row.appendChild(titleCell);
             row.appendChild(albumCell);
-            row.appendChild(actionCell);
 
             // Append the row to the table
-            titleTable.appendChild(row);
+            songResultsTable.appendChild(row);
         });
     }
 
-    // Add a song to the playlist and update the table dynamically
-    function addSongToPlaylist(playlistId, song) {
-        fetch(`/api/playlists/${playlistId}/songs/${song.id}`, {
+    // Add selected songs to the playlist
+    addSongsButton.addEventListener('click', () => {
+        if (selectedSongs.length === 0) {
+            showNotification('No songs selected', 'error');
+            return;
+        }
+
+        const playlistId = '{{ playlist.id }}';
+        const songIds = selectedSongs.map(song => song.id);
+
+        fetch(`/api/playlists/${playlistId}/songs`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ song_ids: songIds })
         })
-        .then(response => {
-            if (response.ok) {
-                addSongToTable(song);
-            } else {
-                throw new Error('Failed to add the song');
-            }
-        })
-        .catch(error => {
-            console.error('Error adding song:', error);
-            alert('Failed to add the song. Please try again.');
-        });
-    }
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to add songs');
+                return response.json();
+            })
+            .then(() => {
+                selectedSongs.forEach(song => addSongToTable(song));
+                selectedSongs = []; // Clear selection
+                showNotification('Songs added successfully!', 'success');
+            })
+            .catch(error => {
+                console.error('Error adding songs:', error);
+                showNotification('Failed to add songs. Please try again.', 'error');
+            });
+    });
 
     // Add a new row to the playlist table
     function addSongToTable(song) {
         const newRow = document.createElement('tr');
-
         newRow.innerHTML = `
             <td>${song.artist}</td>
             <td>${song.title}</td>
-            <td>${song.album || 'Unknown'}</td> <!-- Added album column -->
+            <td>${song.album || 'Unknown'}</td>
             <td>
                 <audio controls>
-                    <source src="/static/audio/${song.filename.split('/').pop()}" type="audio/mpeg">
+                    <source src="/static/audio/${song.filename ? song.filename.split('/').pop() : ''}" type="audio/mpeg">
                     Your browser does not support the audio element.
                 </audio>
             </td>
@@ -189,16 +212,18 @@
         });
     }
 
-    // Sort artists alphabetically on page load
-    document.addEventListener('DOMContentLoaded', () => {
-        const options = Array.from(artistSelect.options);
-        options.sort((a, b) => a.text.localeCompare(b.text));
-        artistSelect.innerHTML = '';
-        options.forEach(option => artistSelect.appendChild(option));
+    function showNotification(message, type = "success") {
+        const notification = document.getElementById("notification");
+        notification.textContent = message;
 
-        if (artistSelect.value) {
-            artistSelect.dispatchEvent(new Event('change'));
-        }
-    });
+        // Set the appropriate class based on the type
+        notification.className = `alert alert-${type}`;
+        notification.style.display = "block";
+
+        // Automatically hide the notification after 3 seconds
+        setTimeout(() => {
+            notification.style.display = "none";
+        }, 3000);
+    }
 </script>
 {% endblock %}

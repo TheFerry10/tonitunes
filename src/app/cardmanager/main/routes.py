@@ -2,7 +2,15 @@ import csv
 from pathlib import Path
 from typing import List
 
-from flask import current_app, flash, redirect, render_template, url_for
+from flask import (
+    current_app,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from sqlalchemy.orm import Session
 
 from ..db import db_session
@@ -102,6 +110,35 @@ def load_cards():
     else:
         flash(f"All cards from {file_path} already exist", category="info")
     return redirect(url_for(".index"))
+
+
+@main.route("/songs/search", methods=["GET"])
+def search_songs():
+    query = request.args.get("q", "").strip()
+    if not query:
+        return jsonify([])
+
+    songs = (
+        db_session.query(Song)
+        .filter(
+            Song.artist.ilike(f"%{query}%")
+            | Song.title.ilike(f"%{query}%")
+            | Song.album.ilike(f"%{query}%")
+        )
+        .all()
+    )
+    return jsonify(
+        [
+            {
+                "id": song.id,
+                "artist": song.artist,
+                "title": song.title,
+                "album": song.album,
+                "filename": song.filename,
+            }
+            for song in songs
+        ]
+    )
 
 
 def load_model_instances_from_csv(model: Base, file_path: Path) -> list[Base]:
