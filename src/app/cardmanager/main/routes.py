@@ -135,6 +135,7 @@ def search_songs():
                 "title": song.title,
                 "album": song.album,
                 "filename": song.filename,
+                "duration": song.duration,
             }
             for song in songs
         ]

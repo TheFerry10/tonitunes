@@ -82,6 +82,19 @@ class Playlist(Base):
     songs: Mapped[List[Song]] = relationship(secondary=association_table)
     cards: Mapped[List[Card]] = relationship("Card", back_populates="playlist")
 
+    @property
+    def songs_in_playlist(self) -> int:
+        return len(self.songs)
+
+    @property
+    def duration(self) -> int:
+        return sum(song.duration for song in self.songs if song.duration is not None)
+
+    def get_position_by_id(self, song_id: int):
+        for position, song in enumerate(self.songs):
+            if song.id == song_id:
+                return position
+
     def to_json(self):
         playlist_json = {
             "id": self.id,
