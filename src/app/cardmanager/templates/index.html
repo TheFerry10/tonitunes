@@ -5,45 +5,46 @@
 {% block title %}Toni Tunes{% endblock %}
 
 {% block page_content %}
+<div class="container">
+    <div class="card-section py-4">
+        <div class="d-flex align-items-center mb-3">
+            <div class="ms-3">
+                <h1 class="card-manager">Card Manager</h1>
+            </div>
+        </div>
+        <table class="table table-striped modern-table">
+                <thead>
+                    <tr>
+                        <th>Card Id</th>
+                        <th>Card Name</th>
+                        <th>Playlist Id</th>
+                        <th>Playlist Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for card in cards %}
+                    <tr>
+                        <td>{{ card.uid }}</td>
+                        <td>{{ card.name }}</td>
+                        <td>{{ card.playlist.id }}</td>
+                        <td>{{ card.playlist.name }}</td>
+                        <td>
+                            <a href="{{ url_for('main.map_card', card_uid=card.uid) }}" class="btn btn-primary">Edit</a>
+                            <button type="submit" onclick="deleteCard('{{ card.uid }}')" class="btn btn-danger">Delete</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
 
+    </div>
 
-
-<div class="container mt-5">
-    <div class="card wtf-form-card">
-        <div class="card-body">
-            <h5 class="card-title">Card Mappings</h5>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Card Id</th>
-            <th>Card Name</th>
-            <th>Playlist Id</th>
-            <th>Playlist Name</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for card in cards %}
-        <tr>
-            <td>{{ card.uid }}</td>
-            <td>{{ card.name }}</td>
-            <td>{{ card.playlist.id }}</td>
-            <td>{{ card.playlist.name }}</td>
-            <td>
-
-                <a href="{{ url_for('main.map_card', card_uid=card.uid) }}" class="btn btn-primary">Edit</a>
-                <button type="submit" onclick="deleteCard('{{ card.uid }}')" class="btn btn-danger">Delete</button>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-
-</table>
+    <div class="mt-4">
+        <a href="{{ url_for('main.load_songs') }}" class="btn btn-primary">Load songs</a>
+        <a href="{{ url_for('main.load_cards') }}" class="btn btn-primary">Load cards</a>
+    </div>
 </div>
-</div>
-
-<a href="{{ url_for('main.load_songs') }}" class="btn btn-primary">Load songs</a>
-<a href="{{ url_for('main.load_cards') }}" class="btn btn-primary">Load cards</a>
 
 <script>
     function deleteCard(uid) {

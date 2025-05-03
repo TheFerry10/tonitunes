@@ -6,7 +6,7 @@
 {{ super() }}
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-<link rel="icon" href="{{ url_for('static', filename='bagger-icon.png') }}" type="image/png">
+<link rel="icon" href="{{ url_for('static', filename='icons/bagger-icon.png') }}" type="image/png">
 <style>
     body {
         background-color:rgb(240, 254, 255);
@@ -50,7 +50,7 @@
 {% block content %}
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand" href="{{ url_for('main.index') }}">
-        <img src="{{ url_for('static', filename='toni-tunes-logo-01.webp') }}" alt="Toni Tunes Logo">
+        <img src="{{ url_for('static', filename='images/toni-tunes-logo-01.webp') }}" alt="Toni Tunes Logo">
     </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -59,14 +59,14 @@
         <ul class="navbar-nav">
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('main.index') }}">
-                    <img src="{{ url_for('static', filename='rfid-icon.png') }}" alt="RFID Icon" style="width: 30px; height: auto;">
+                    <img src="{{ url_for('static', filename='icons/rfid-icon.png') }}" alt="RFID Icon" style="width: 30px; height: auto;">
                     <br>
                     <span class="text-center">Cards</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('main.manage_playlists') }}">
-                    <img src="{{ url_for('static', filename='playlist-icon.png') }}" alt="Playlist Icon" style="width: 30px; height: auto;">
+                    <img src="{{ url_for('static', filename='icons/playlist-icon.png') }}" alt="Playlist Icon" style="width: 30px; height: auto;">
                     <br>
                     <span class="text-center">Playlists</span>
                 </a>
