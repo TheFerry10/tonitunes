@@ -49,6 +49,7 @@ class Card(Base):
     name: Mapped[str] = mapped_column(nullable=False)
     song_id: Mapped[int] = mapped_column(ForeignKey("songs.id"), nullable=True)
     song: Mapped[Song] = relationship("Song", back_populates="cards")
+    image_filename: Mapped[str] = mapped_column(nullable=True)
     playlist_id: Mapped[int] = mapped_column(ForeignKey("playlists.id"), nullable=True)
     playlist: Mapped["Playlist"] = relationship("Playlist", back_populates="cards")
 

@@ -284,6 +284,10 @@ body {
     height: 16px;
 }
 
+.card-image {
+    height: 45px;
+}
+
 .section-title {
     font-size: 3rem; /* Increased title font size */
     font-weight: bold;
