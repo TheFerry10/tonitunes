@@ -33,10 +33,11 @@ def map_card(card_uid: int):
     playlist_choices = [
         (playlist.id, playlist.name) for playlist in db_session.query(Playlist).all()
     ]
+    card = Card.query.get(card_uid)
 
     form.playlist_select.choices = playlist_choices
+    print("data", form.playlist_select.data)
     if form.validate_on_submit():
-        card = Card.query.get(card_uid)
         if card:
             card.playlist_id = form.playlist_select.data
             db_session.add(card)
@@ -45,7 +46,7 @@ def map_card(card_uid: int):
         else:
             flash("Card does not exist")
         return redirect(url_for(".index"))
-    return render_template("map-card.html", form=form, card_uid=card_uid)
+    return render_template("map-card.html", form=form, card=card)
 
 
 @main.route("/playlist/edit/<int:playlist_id>", methods=["GET", "POST"])

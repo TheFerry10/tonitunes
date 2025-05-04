@@ -8,30 +8,34 @@
 <div class="container">
     <div class="card-section py-4">
         <div class="d-flex align-items-center mb-3">
-            <div class="ms-3">
-                <h1 class="card-manager">Card Manager</h1>
+            <div class="ms-3 text-center w-75 mx-auto">
+                <h1 class="headline">Card Manager</h1>
+                <p class="text-muted">Manage your cards and playlists here. You can view, edit or delete existing cards. Use the buttons below to load new songs or cards into the system.</p>
             </div>
         </div>
         <table class="table table-striped modern-table">
                 <thead>
                     <tr>
-                        <th>Card Id</th>
-                        <th>Card Name</th>
-                        <th>Playlist Id</th>
-                        <th>Playlist Name</th>
-                        <th>Actions</th>
+                        <th>CARD</th>
+                        <th>PLAYLIST</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for card in cards %}
                     <tr>
-                        <td>{{ card.uid }}</td>
-                        <td>{{ card.name }}</td>
-                        <td>{{ card.playlist.id }}</td>
+                        <td>
+                            <div class="card-info">
+                                <p class="card-name mb-0">{{ card.name }}</p>
+                                <p class="card-uid mb-0">{{ card.uid }}</p>
+                            </div>
+                        </td>
                         <td>{{ card.playlist.name }}</td>
                         <td>
                             <a href="{{ url_for('main.map_card', card_uid=card.uid) }}" class="btn btn-primary">Edit</a>
-                            <button type="submit" onclick="deleteCard('{{ card.uid }}')" class="btn btn-danger">Delete</button>
+                            <button type="submit" onclick="deleteCard('{{ card.uid }}')" class="btn btn-danger">
+                                <img src="/static/icons/trash-icon.png" alt="Delete" class="action-icon">
+                            </button>
                         </td>
                     </tr>
                     {% endfor %}

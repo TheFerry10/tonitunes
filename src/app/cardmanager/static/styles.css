@@ -3,11 +3,16 @@
 body {
     background-color: #f0f8ff;
     font-family: 'Baloo 2', cursive, sans-serif;
+    font-size: 1.65rem; /* Increased base font size to simulate 150% zoom */
+    line-height: 1.8; /* Adjusted line height for readability */
+    font-weight: normal;
+    color: #666;
 }
 
 .navbar {
     background-color: #ffcccb;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px 20px;
 }
 
 .navbar-brand, .nav-link {
@@ -19,6 +24,7 @@ body {
 .navbar-brand img {
     border-radius: 50%;
     border: 2px solid #ff69b4;
+    height: 180px; /* Increased logo size for better proportions */
 }
 
 .nav-link {
@@ -36,6 +42,7 @@ body {
     border-radius: 20px;
     padding: 10px 20px;
     transition: background-color 0.3s ease, transform 0.3s ease;
+    font-size: 1.8rem; /* Increased button font size */
 }
 
 .btn-primary:hover {
@@ -50,6 +57,7 @@ body {
     border-radius: 20px;
     padding: 10px 20px;
     transition: background-color 0.3s ease, transform 0.3s ease;
+    font-size: 1.8rem; /* Increased button font size */
 }
 
 .btn-danger:hover {
@@ -74,43 +82,6 @@ body {
     font-family: 'Baloo 2', cursive, sans-serif;
 }
 
-.table {
-    background-color: #fffacd;
-    font-family: 'Baloo 2', cursive, sans-serif;
-}
-
-.table th, .table td {
-    border-color: #ffebcd;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-    font-size: clamp(12px, 1.5vw, 16px);
-    text-align: left;
-}
-
-thead tr {
-    background-color: #009879;
-    color: #ffffff;
-    text-align: left;
-    font-weight: bold;
-}
-
-th, td {
-    padding: 8px 10px;
-    border: 1px solid #dddddd;
-}
-
-tbody tr:nth-child(even) {
-    background-color: #f3f3f3;
-}
-
-tbody tr:hover {
-    background-color: #f1f1f1;
-}
-
 .form-inline {
     display: flex;
     align-items: center;
@@ -123,6 +94,45 @@ tbody tr:hover {
 
 .navbar-nav .nav-link {
     margin-right: 15px;
+}
+
+body {
+    background-color:rgb(240, 254, 255);
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+.navbar {
+    background-color: #ffcccb;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px 20px;
+}
+.navbar-brand, .nav-link {
+    color: #ff69b4 !important;
+    font-weight: bold;
+}
+.navbar-brand img {
+    border-radius: 30%;
+    border: 2px solid #ff69b4;
+    height: 180px; /* Increased logo size for better proportions */
+}
+.nav-link {
+    transition: color 0.3s ease;
+}
+.nav-link:hover {
+    color: #ff1493 !important;
+}
+.btn-primary {
+    background-color: #ff69b4;
+    border-color: #ff69b4;
+    font-size: 1.5rem; /* Increased button font size */
+    }
+.btn-danger {
+    background-color: #ff6347;
+    border-color: #ff6347;
+    font-size: 1.5rem; /* Increased button font size */
+    }
+.alert-success {
+    background-color: #98fb98;
+    border-color: #98fb98;
 }
 
 /* Custom styles for wtf.quick_form */
@@ -151,6 +161,7 @@ tbody tr:hover {
     transition: background-color 0.3s ease, transform 0.3s ease;
     background-color: #ff69b4;
     border-color: #ff69b4;
+    font-size: 1.5rem; /* Increased button font size */
 }
 
 .wtf-form .btn-primary {
@@ -206,7 +217,8 @@ tbody tr:hover {
     border: 1px solid #f5c6cb;
 }
 .container {
-    max-width: 90%; /* Increase the container width */
+    max-width: 95%; /* Increased container width for better alignment */
+    padding:0 5px; /* Adjusted padding for spacing */
     margin: 0 auto;
 }
 
@@ -218,7 +230,7 @@ tbody tr:hover {
 }
 
 .playlist-title {
-    font-size: 2rem; /* Increased font size */
+    font-size: 3rem; /* Increased title font size */
     font-weight: bold;
     color: #333;
 }
@@ -228,33 +240,30 @@ tbody tr:hover {
     color: #666;
 }
 
-.modern-table {
-    background-color: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.modern-table th {
-    background-color: #f8f9fa;
-    font-weight: bold;
-    color: #333;
-    text-align: left;
-    font-size: 1.1rem; /* Increased font size */
-}
-
-.modern-table td {
-    vertical-align: middle;
-    font-size: 1rem; /* Increased font size */
-}
-
 .song-info {
     display: flex;
     flex-direction: column;
 }
 
 .song-title {
-    font-size: 1.3rem; /* Increased font size */
+    font-size: 1.5rem; /* Increased font size for better visibility */
+    font-weight: bold;
+    color: #333;
+}
+
+.card-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-uid {
+    font-size: 1.1rem; /* Increased font size */
+    font-weight: normal;
+    color: #666;
+}
+
+.card-name {
+    font-size: 1.5rem; /* Increased font size for better visibility */
     font-weight: bold;
     color: #333;
 }
@@ -266,7 +275,7 @@ tbody tr:hover {
 }
 
 .audio-player {
-    width: 120px;
+    width: 100px;
     height: 30px;
 }
 
@@ -276,7 +285,7 @@ tbody tr:hover {
 }
 
 .section-title {
-    font-size: 1.8rem; /* Increased font size */
+    font-size: 3rem; /* Increased title font size */
     font-weight: bold;
     color: #333;
     margin-bottom: 20px;
@@ -284,8 +293,8 @@ tbody tr:hover {
 
 .search-input {
     border-radius: 10px;
-    font-size: 1.2rem; /* Increased font size */
-    padding: 10px;
+    font-size: 1.8rem; /* Increased input font size */
+    padding: 15px; /* Adjusted padding for better proportions */
 }
 
 .search-input:focus {
@@ -297,4 +306,33 @@ tbody tr:hover {
     height: 1px;
     background-color: #ddd;
     margin: 20px 0;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    color: #ff69b4 !important;
+    margin-right: 20px; /* Add spacing between the logo and links */
+}
+
+.navbar-brand .logo {
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #ff69b4;
+}
+
+.navbar-nav {
+    margin-left: 20px; /* Add spacing between the logo and links */
+}
+
+.navbar-nav .nav-link {
+    color: #ff69b4 !important;
+    font-weight: bold;
+    margin-right: 15px;
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #ff1493 !important;
 }
