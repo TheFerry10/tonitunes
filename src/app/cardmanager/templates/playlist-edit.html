@@ -16,7 +16,10 @@
                 <p class="playlist-info">{{ playlist.songs_in_playlist }} songs • <span id="playlist-duration"></span></p>
             </div>
         </div>
-        <button type="button" class="btn btn-primary mb-3" onclick="scrollToAddSongs()">Add Songs</button>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-primary" onclick="scrollToAddSongs()">Add Songs</button>
+            <button type="button" class="btn btn-secondary" onclick="location.reload()">Refresh Playlist</button>
+          </div>
         <table class="table table-striped modern-table">
             <thead>
                 <tr>
@@ -88,41 +91,81 @@
 
 <script>
     const songSearchInput = document.getElementById('song_search');
-    const playlistTableBody = document.getElementById('playlist_table_body');
+    const artistFilter = document.createElement('select'); // Create the artist filter dropdown dynamically
+    artistFilter.id = 'artist_filter';
+    artistFilter.className = 'form-select mb-3';
+    artistFilter.innerHTML = '<option value="">Filter by artist</option>';
+    songSearchInput.parentNode.insertAdjacentElement('afterend', artistFilter); // Add the dropdown below the search field
+
     const searchResultsBody = document.getElementById('search_results_body');
 
-    // Fetch and display songs based on search input
-    songSearchInput.addEventListener('input', () => {
-        const query = songSearchInput.value.trim();
-        if (query.length < 2) {
-            searchResultsBody.innerHTML = ''; // Clear search results for short queries
-            return;
-        }
-
-        fetch(`/songs/search?q=${encodeURIComponent(query)}`)
+    // Fetch and populate artist filter
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('/api/songs/artist')
             .then(response => {
-            if (!response.ok) throw new Error('Failed to fetch songs');
-            return response.json();
+                if (!response.ok) throw new Error('Failed to fetch artists');
+                return response.json();
             })
-            .then(songs => {
-            // Sort songs by artist, album, and title
-            songs.sort((a, b) => {
-                if (a.artist.toLowerCase() !== b.artist.toLowerCase()) {
-                return a.artist.toLowerCase().localeCompare(b.artist.toLowerCase());
-                } else if (a.album.toLowerCase() !== b.album.toLowerCase()) {
-                return a.album.toLowerCase().localeCompare(b.album.toLowerCase());
-                } else {
-                return a.title.toLowerCase().localeCompare(b.title.toLowerCase());
-                }
-            });
-            populateSearchResults(songs);
+            .then(data => {
+                populateArtistDropdown(data.artists); // Use the "artists" array from the response
             })
             .catch(error => {
-            console.error('Error fetching songs:', error);
-            showNotification('Failed to load songs. Please try again.', 'error');
+                console.error('Error fetching artists:', error);
+                showNotification('Failed to load artists. Please try again.', 'error');
             });
-        });
 
+        // Fetch and display all songs initially
+        fetchAndDisplaySongs();
+    });
+
+    // Populate the artist dropdown
+    function populateArtistDropdown(artists) {
+        artists.forEach(artist => {
+            const option = document.createElement('option');
+            option.value = artist;
+            option.textContent = artist;
+            artistFilter.appendChild(option);
+        });
+    }
+
+    // Fetch and display songs based on filters and search input
+    function fetchAndDisplaySongs() {
+        const query = songSearchInput.value.trim();
+        const artist = artistFilter.value;
+
+        let url = '/songs/search';
+        const params = new URLSearchParams();
+        if (query) params.append('q', query); // Include search query
+        if (artist) params.append('artist', artist); // Include artist filter
+        if (params.toString()) url += `?${params.toString()}`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to fetch songs');
+                return response.json();
+            })
+            .then(songs => {
+                // Sort songs by artist, album, and title
+                songs.sort((a, b) => {
+                    if (a.artist.toLowerCase() !== b.artist.toLowerCase()) {
+                        return a.artist.toLowerCase().localeCompare(b.artist.toLowerCase());
+                    } else if (a.album.toLowerCase() !== b.album.toLowerCase()) {
+                        return a.album.toLowerCase().localeCompare(b.album.toLowerCase());
+                    } else {
+                        return a.title.toLowerCase().localeCompare(b.title.toLowerCase());
+                    }
+                });
+                populateSearchResults(songs);
+            })
+            .catch(error => {
+                console.error('Error fetching songs:', error);
+                showNotification('Failed to load songs. Please try again.', 'error');
+            });
+    }
+
+    // Event listeners for filters and search input
+    songSearchInput.addEventListener('input', fetchAndDisplaySongs); // Trigger fetch on search input
+    artistFilter.addEventListener('change', fetchAndDisplaySongs); // Trigger fetch on artist filter change
 
     // Populate the search results table
     function populateSearchResults(songs) {
@@ -295,6 +338,30 @@
                 removeSongFromPlaylist(playlistId, songId);
             });
         });
+
+        // Fetch and display all songs initially
+        fetch('/api/songs')
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to fetch songs');
+                return response.json();
+            })
+            .then(songs => {
+                // Sort songs by artist, album, and title
+                songs.sort((a, b) => {
+                    if (a.artist.toLowerCase() !== b.artist.toLowerCase()) {
+                        return a.artist.toLowerCase().localeCompare(b.artist.toLowerCase());
+                    } else if (a.album.toLowerCase() !== b.album.toLowerCase()) {
+                        return a.album.toLowerCase().localeCompare(b.album.toLowerCase());
+                    } else {
+                        return a.title.toLowerCase().localeCompare(b.title.toLowerCase());
+                    }
+                });
+                populateSearchResults(songs);
+            })
+            .catch(error => {
+                console.error('Error fetching songs:', error);
+                showNotification('Failed to load songs. Please try again.', 'error');
+            });
     });
 
     function scrollToAddSongs() {

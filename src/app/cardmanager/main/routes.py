@@ -36,7 +36,6 @@ def map_card(card_uid: int):
     card = Card.query.get(card_uid)
 
     form.playlist_select.choices = playlist_choices
-    print("data", form.playlist_select.data)
     if form.validate_on_submit():
         if card:
             card.playlist_id = form.playlist_select.data
@@ -116,18 +115,23 @@ def load_cards():
 @main.route("/songs/search", methods=["GET"])
 def search_songs():
     query = request.args.get("q", "").strip()
-    if not query:
+    artist = request.args.get("artist", "").strip()
+    album = request.args.get("album", "").strip()
+    if not query and not artist and not album:
         return jsonify([])
 
-    songs = (
-        db_session.query(Song)
-        .filter(
-            Song.artist.ilike(f"%{query}%")
-            | Song.title.ilike(f"%{query}%")
-            | Song.album.ilike(f"%{query}%")
+    filters = []
+    if query:
+        filters.append(
+            (Song.title.ilike(f"%{query}%") | Song.album.ilike(f"%{query}%"))
         )
-        .all()
-    )
+    if artist:
+        filters.append(Song.artist.ilike(f"%{artist}%"))
+
+    if album:
+        filters.append(Song.album.ilike(f"%{album}%"))
+
+    songs = db_session.query(Song).filter(*filters).all()
     return jsonify(
         [
             {

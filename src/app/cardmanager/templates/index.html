@@ -25,7 +25,7 @@
                 <tbody>
                     {% for card in cards %}
                     <tr>
-                        <td style="width: 100px;">
+                        <td style="width: 80px;">
                         {% if card.image_filename %}
                         <img src="{{ url_for('static', filename=card.image_filename) }}" alt="Card Image" class="card-image me-2" style="max-width: 100%; max-height: 100px;">
                         {% endif %}

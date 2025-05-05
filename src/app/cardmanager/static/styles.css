@@ -50,6 +50,21 @@ body {
     transform: scale(1.05);
 }
 
+.btn-secondary {
+    background-color: #87ceeb;
+    border-color: #87ceeb;
+    font-family: 'Baloo 2', cursive, sans-serif;
+    border-radius: 20px;
+    padding: 10px 20px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    font-size: 1.8rem; /* Increased button font size */
+}
+
+.btn-secondary:hover {
+    background-color: #4682b4;
+    transform: scale(1.05);
+}
+
 .btn-danger {
     background-color: #ff6347;
     border-color: #ff6347;
