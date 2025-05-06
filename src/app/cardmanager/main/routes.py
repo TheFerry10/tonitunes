@@ -67,6 +67,10 @@ def edit_playlist(playlist_id: int):
 def manage_playlists():
     form = PlaylistForm()
     if form.validate_on_submit():
+        playlist = db_session.query(Playlist).filter_by(name=form.name.data).first()
+        if playlist:
+            flash(f"Playlist {form.name.data} already exists", category="error")
+            return redirect(url_for(".manage_playlists"))
         new_playlist = Playlist(name=form.name.data)
         db_session.add(new_playlist)
         db_session.commit()

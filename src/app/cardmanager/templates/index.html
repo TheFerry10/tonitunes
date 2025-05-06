@@ -31,7 +31,6 @@
                         {% endif %}
                         </td>
                         <td>
-
                                 <div>
                                     <p class="card-name mb-0">{{ card.name }}</p>
                                     <p class="card-uid mb-0">{{ card.uid }}</p>
@@ -40,7 +39,9 @@
                         </td>
                         <td>{{ card.playlist.name }}</td>
                         <td>
-                            <a href="{{ url_for('main.map_card', card_uid=card.uid) }}" class="btn btn-primary">Edit</a>
+                            <a href="{{ url_for('main.map_card', card_uid=card.uid) }}" class="btn btn-primary">
+                                <img src="/static/icons/pencil-icon.png" alt="Edit" class="action-icon">
+                            </a>
                             <button type="submit" onclick="deleteCard('{{ card.uid }}')" class="btn btn-danger">
                                 <img src="/static/icons/trash-icon.png" alt="Delete" class="action-icon">
                             </button>
