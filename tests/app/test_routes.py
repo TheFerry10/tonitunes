@@ -17,7 +17,7 @@ def test_index(client):
 
     response = client.get("/")
     assert response.status_code == 200
-    assert b"Card Mappings" in response.data
+    assert b"Card Manager" in response.data
 
 
 def test_edit_playlist(client):
@@ -33,7 +33,7 @@ def test_edit_playlist(client):
 def test_manage_playlists(client):
     response = client.get("/playlist/manage")
     assert response.status_code == 200
-    assert b"Create a New Playlist" in response.data
+    assert b"Playlist Manager" in response.data
 
 
 def test_load_model_from_csv(tmp_path):
