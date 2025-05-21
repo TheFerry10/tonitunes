@@ -5,45 +5,59 @@
 {% block title %}Toni Tunes{% endblock %}
 
 {% block page_content %}
+<div class="container">
+    <div class="card-section py-4">
+        <div class="d-flex align-items-center mb-3">
+            <div class="ms-3 text-center w-75 mx-auto">
+                <h1 class="headline">Card Manager</h1>
+                <p class="text-muted">Manage your cards and playlists here. You can view, edit or delete existing cards. Use the buttons below to load new songs or cards into the system.</p>
+            </div>
+        </div>
+        <table class="table table-striped modern-table">
+                <thead>
+                    <tr>
+                        <th>CARD</th>
+                        <th></th>
+                        <th>PLAYLIST</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for card in cards %}
+                    <tr>
+                        <td style="width: 80px;">
+                        {% if card.image_filename %}
+                        <img src="{{ url_for('static', filename=card.image_filename) }}" alt="Card Image" class="card-image me-2" style="max-width: 100%; max-height: 100px;">
+                        {% endif %}
+                        </td>
+                        <td>
+                                <div>
+                                    <p class="card-name mb-0">{{ card.name }}</p>
+                                    <p class="mb-0">{{ card.uid }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ card.playlist.name }}</td>
+                        <td>
+                            <a href="{{ url_for('main.map_card', card_uid=card.uid) }}" class="btn btn-primary">
+                                <img src="/static/icons/pencil-icon.png" alt="Edit" class="action-icon">
+                            </a>
+                            <button type="submit" onclick="deleteCard('{{ card.uid }}')" class="btn btn-danger">
+                                <img src="/static/icons/trash-icon.png" alt="Delete" class="action-icon">
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
 
+    </div>
 
-
-<div class="container mt-5">
-    <div class="card wtf-form-card">
-        <div class="card-body">
-            <h5 class="card-title">Card Mappings</h5>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Card Id</th>
-            <th>Card Name</th>
-            <th>Playlist Id</th>
-            <th>Playlist Name</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for card in cards %}
-        <tr>
-            <td>{{ card.uid }}</td>
-            <td>{{ card.name }}</td>
-            <td>{{ card.playlist.id }}</td>
-            <td>{{ card.playlist.name }}</td>
-            <td>
-
-                <a href="{{ url_for('main.map_card', card_uid=card.uid) }}" class="btn btn-primary">Edit</a>
-                <button type="submit" onclick="deleteCard('{{ card.uid }}')" class="btn btn-danger">Delete</button>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-
-</table>
+    <div class="mt-4">
+        <a href="{{ url_for('main.load_songs') }}" class="btn btn-primary">Load songs</a>
+        <a href="{{ url_for('main.load_cards') }}" class="btn btn-primary">Load cards</a>
+    </div>
 </div>
-</div>
-
-<a href="{{ url_for('main.load_songs') }}" class="btn btn-primary">Load songs</a>
-<a href="{{ url_for('main.load_cards') }}" class="btn btn-primary">Load cards</a>
 
 <script>
     function deleteCard(uid) {

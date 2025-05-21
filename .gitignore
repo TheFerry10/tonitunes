@@ -181,3 +181,4 @@ tests/app/resources/sqlite/test-data.sqlite
 
 # static audio files
 src/app/cardmanager/static/audio/*
+src/app/cardmanager/static/images/cards/*

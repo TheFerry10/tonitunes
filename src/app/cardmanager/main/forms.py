@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, SubmitField
+from wtforms import RadioField, SelectField, StringField, SubmitField
 from wtforms.validators import DataRequired
 
 
@@ -17,3 +17,14 @@ class PlaylistAddSongForm(FlaskForm):
 class PlaylistForm(FlaskForm):
     name = StringField("Playlist Name", validators=[DataRequired()])
     submit = SubmitField("Create Playlist")
+
+
+class CardInfoForm(FlaskForm):
+    image_select = RadioField(
+        "Image", choices=["A", "B", "C", "D"], validators=[DataRequired()]
+    )
+    name = StringField(
+        "Card Name",
+        validators=[DataRequired()],
+    )
+    submit = SubmitField("Save")

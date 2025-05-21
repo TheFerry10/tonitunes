@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% from "macros.html" import render_table %}
+
+{% block title %}Card Information{% endblock %}
+
+{% block page_content %}
+
+<form action="{{ url_for('main.update_card', card_uid=card.uid) }}" method="post" class="wtf-form">
+    {{ form.hidden_tag() }}
+<div class="text-center mb-4">
+    <h1>Update Card</h1>
+    <p>Change the card name or select a new image.</p>
+    {% if card.image_filename %}
+    <img src="{{ url_for('static', filename=card.image_filename) }}" alt="Card Image" class="card-image img-fluid rounded" style="width: 100%; max-width: 100px; height: auto;">
+    {% endif %}
+    <div class="form-group text-center">
+        <label for="name">Card Name</label>
+        {{ form.name(class="form-control mx-auto", style="max-width: 300px;", value=card.name) }}
+    </div>
+    <p>UID: {{ card.uid }}</p>
+    {% if card.playlist.id %}
+    <p class="d-inline">Playlist:</p>
+    <a class="d-inline" href="/playlist/edit/{{ card.playlist.id }}">{{ card.playlist.name }}</a>
+    {% endif %}
+</div>
+<div class="text-center mb-4">
+        <label for="image_select">Select Card Image</label>
+        <div class="image-selection-grid">
+            {% for image in available_images %}
+            <label for="image_select-{{ loop.index }}" class="image-option">
+                <input
+                    type="radio"
+                    id="image_select-{{ loop.index }}"
+                    name="image_select"
+                    value="{{ image }}" {% if card.image_filename|string == image|string %}checked{% endif %}
+                    >
+                    <img
+                    src="{{ url_for('static', filename=image) }}"
+                    alt="Card Image"
+                    class="card-image img-fluid rounded"
+                    >
+            </label>
+                {% endfor %}
+        </div>
+        <div class="form-group text-center mt-3">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </div>
+</div>
+</form>
+
+<div class="text-center mb-4">
+    <a href="{{ url_for('main.upload_file', card_uid=card.uid) }}" class="btn btn-primary">
+        <img src="/static/icons/upload-icon.png" alt="Edit" class="action-icon">
+    </a>
+</div>
+
+
+{% endblock %}

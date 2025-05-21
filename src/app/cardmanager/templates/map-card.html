@@ -6,14 +6,46 @@
 
 {% block page_content %}
 
-<div class="card wtf-form-card">
-    <div class="card-body">
-        <h5 class="card-title">Mapping for Card UID {{card_uid}}</h5>
-<form action="{{ url_for('main.map_card', card_uid=card_uid) }}" method="post", class="wtf-form">
-    {{ wtf.quick_form(form) }}
-</form>
-</div>
-</div>
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 50vh;">
+    <div class="card-mapping-section py-4" style="max-width: 600px; width: 100%;">
+        {% if card.image_filename %}
+        <div class="text-center mb-4">
+            <img src="{{ url_for('static', filename=card.image_filename) }}" alt="Card Image" class="card-image img-fluid rounded" style="width: 100%; max-width: 100px; height: auto;">
+        </div>
+        {% else %}
+        <div class="text-center mb-4">
+            <img src="{{ url_for('static', filename='images/default/no-image-placeholder.png') }}" alt="Default Card Image" class="card-image img-fluid rounded" style="width: 100%; max-width: 100px; height: auto;">
+        </div>
+        {% endif %}
+        <div class="text-center mb-4">
+            <a href="{{ url_for('main.update_card', card_uid=card.uid) }}" class="btn btn-primary">
+                <img src="/static/icons/pencil-icon.png" alt="Edit" class="action-icon">
+            </a>
+        </div>
+        <div class="text-center mb-4">
+            <h1>{{ card.name }}</h1>
+            <p>UID: {{ card.uid }}</p>
+            {% if card.playlist.id %}
+                <p class="d-inline">Playlist:</p>
+                <a class="d-inline" href="/playlist/edit/{{ card.playlist.id }}">{{ card.playlist.name }}</a>
+            {% endif %}
+        </div>
 
+        <form action="{{ url_for('main.map_card', card_uid=card.uid) }}" method="post" class="wtf-form">
+            {{ form.hidden_tag() }}
+            <div class="card-mapping-table">
+                <h2 class="text-center">Connect Card with Playlist</h2>
+                <p class="text-center">Choose an existing playlist to map to this card.</p>
+                <div class="form-group">
+                    <label for="playlist">Playlist</label>
+                    {{ form.playlist_select(class="form-control") }}
+                </div>
+                <div class="form-group text-center mt-3">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
 {% endblock %}

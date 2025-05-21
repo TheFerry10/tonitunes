@@ -3,45 +3,53 @@
 
 {% block title %}Manage Playlists{% endblock %}
 
-
-
 {% block page_content %}
-<div class="container mt-5">
-    <div class="card wtf-form-card">
-        <div class="card-body">
-            <h5 class="card-title">Create a New Playlist</h5>
-            <form action="{{ url_for('main.manage_playlists') }}" method="post" class="wtf-form">
-                {{ wtf.quick_form(form) }}
-            </form>
+<div class="d-flex justify-content-center align-items-center flex-column py-5">
+    <div class="container w-75">
+        <div class="card-section py-4 text-center">
+            <div class="ms-3">
+                <h1 class="headline">Playlist Manager</h1>
+                <p>Create new playlists or edit existing ones.</p>
+            </div>
         </div>
-    </div>
 
-    <div class="card wtf-form-card">
-        <div class="card-body">
-            <h5 class="card-title">Existing Playlists</h5>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for playlist in playlists %}
-            <tr>
-                <td>{{ playlist.id }}</td>
-                <td>{{ playlist.name }}</td>
-                <td>
-                    <a href="/playlist/edit/{{ playlist.id }}" class="btn btn-primary">Edit</a>
-                    <button type="submit" onclick="deletePlaylist('{{ playlist.id }}')" class="btn btn-danger">Delete</button>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-</div>
+        <table class="table table-striped modern-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>PLAYLIST</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for playlist in playlists %}
+                <tr>
+                    <td>{{ playlist.id }}</td>
+                    <td>{{ playlist.name }}</td>
+                    <td>
+                        <a href="/playlist/edit/{{ playlist.id }}" class="btn btn-primary">
+                            <img src="/static/icons/pencil-icon.png" alt="Edit" class="action-icon">
+                        </a>
+                        <button type="submit" onclick="deletePlaylist('{{ playlist.id }}')" class="btn btn-danger">
+                            <img src="/static/icons/trash-icon.png" alt="Delete" class="action-icon">
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <form action="{{ url_for('main.manage_playlists') }}" method="post" class="wtf-form mt-4">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                <label for="playlist">Create new Playlist</label>
+                {{ form.name(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>

@@ -3,11 +3,16 @@
 body {
     background-color: #f0f8ff;
     font-family: 'Baloo 2', cursive, sans-serif;
+    font-size: 1.65rem; /* Increased base font size to simulate 150% zoom */
+    line-height: 1.8; /* Adjusted line height for readability */
+    font-weight: normal;
+    color: #666;
 }
 
 .navbar {
     background-color: #ffcccb;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px 20px;
 }
 
 .navbar-brand, .nav-link {
@@ -17,8 +22,9 @@ body {
 }
 
 .navbar-brand img {
-    border-radius: 50%;
+    border-radius: 30%;
     border: 2px solid #ff69b4;
+    height: 180px; /* Increased logo size for better proportions */
 }
 
 .nav-link {
@@ -29,13 +35,17 @@ body {
     color: #ff1493 !important;
 }
 
+.btn-primary, .btn-secondary, .btn-danger {
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-family: 'Baloo 2', cursive, sans-serif;
+    font-size: 1.8rem; /* Increased button font size */
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
 .btn-primary {
     background-color: #ff69b4;
     border-color: #ff69b4;
-    font-family: 'Baloo 2', cursive, sans-serif;
-    border-radius: 20px;
-    padding: 10px 20px;
-    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .btn-primary:hover {
@@ -43,13 +53,19 @@ body {
     transform: scale(1.05);
 }
 
+.btn-secondary {
+    background-color: #87ceeb;
+    border-color: #87ceeb;
+}
+
+.btn-secondary:hover {
+    background-color: #4682b4;
+    transform: scale(1.05);
+}
+
 .btn-danger {
     background-color: #ff6347;
     border-color: #ff6347;
-    font-family: 'Baloo 2', cursive, sans-serif;
-    border-radius: 20px;
-    padding: 10px 20px;
-    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .btn-danger:hover {
@@ -63,65 +79,19 @@ body {
     font-family: 'Baloo 2', cursive, sans-serif;
 }
 
-.table {
-    background-color: #fffacd;
-    font-family: 'Baloo 2', cursive, sans-serif;
-}
-
-.table th, .table td {
-    border-color: #ffebcd;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-    font-size: clamp(12px, 1.5vw, 16px);
-    text-align: left;
-}
-
-thead tr {
-    background-color: #009879;
-    color: #ffffff;
-    text-align: left;
-    font-weight: bold;
-}
-
-th, td {
-    padding: 8px 10px;
-    border: 1px solid #dddddd;
-}
-
-tbody tr:nth-child(even) {
-    background-color: #f3f3f3;
-}
-
-tbody tr:hover {
-    background-color: #f1f1f1;
-}
-
 .form-inline {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.navbar-brand {
-    font-weight: bold;
-}
-
-.navbar-nav .nav-link {
-    margin-right: 15px;
-}
-
-/* Custom styles for wtf.quick_form */
 .wtf-form .form-group {
     margin-bottom: 1.5rem;
 }
 
 .wtf-form .form-control {
     border-radius: 10px;
-    font-size: 1rem;
+    font-size: 1.65rem;
 }
 
 .wtf-form .form-control:focus {
@@ -140,11 +110,7 @@ tbody tr:hover {
     transition: background-color 0.3s ease, transform 0.3s ease;
     background-color: #ff69b4;
     border-color: #ff69b4;
-}
-
-.wtf-form .btn-primary {
-    background-color: #ff69b4;
-    border-color: #ff69b4;
+    font-size: 1.5rem; /* Increased button font size */
 }
 
 .wtf-form .btn-primary:hover {
@@ -152,17 +118,11 @@ tbody tr:hover {
     transform: scale(1.05);
 }
 
-.wtf-form .btn-danger {
-    background-color: #ff6347;
-    border-color: #ff6347;
-}
-
 .wtf-form .btn-danger:hover {
     background-color: #ff4500;
     transform: scale(1.05);
 }
 
-/* Custom styles for form cards */
 .wtf-form-card {
     margin-top: 20px;
     border-radius: 15px;
@@ -171,4 +131,128 @@ tbody tr:hover {
 
 .wtf-form-card .card-body {
     padding: 20px;
+}
+
+.alert {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1050;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    display: none;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.container {
+    max-width: 95%; /* Increased container width for better alignment */
+    padding: 0 5px; /* Adjusted padding for spacing */
+    margin: 0 auto;
+}
+
+.playlist-cover {
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.playlist-title {
+    font-size: 3rem; /* Increased title font size */
+    font-weight: bold;
+    color: #333;
+}
+
+.playlist-info {
+    font-size: 1.2rem; /* Increased font size */
+    color: #666;
+}
+
+.song-info, .card-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.song-title, .card-name {
+
+    font-weight: bold;
+
+}
+
+.card-uid, .song-artist {
+    font-size: 1.1rem; /* Increased font size */
+    font-weight: normal;
+    color: #666;
+}
+
+.audio-player {
+    width: 100px;
+    height: 30px;
+}
+
+.action-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.card-image {
+    height: 45px;
+}
+
+.section-title {
+    font-size: 3rem; /* Increased title font size */
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.search-input {
+    border-radius: 10px;
+    font-size: 1.8rem; /* Increased input font size */
+    padding: 15px; /* Adjusted padding for better proportions */
+}
+
+.search-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.section-divider {
+    border: 0;
+    height: 1px;
+    background-color: #ddd;
+    margin: 20px 0;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    margin-right: 20px; /* Add spacing between the logo and links */
+}
+
+.navbar-brand .logo {
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #ff69b4;
+}
+
+.navbar-nav {
+    margin-left: 20px; /* Add spacing between the logo and links */
+}
+
+.navbar-nav .nav-link {
+    margin-right: 15px;
 }

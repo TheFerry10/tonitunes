@@ -49,6 +49,7 @@ class Card(Base):
     name: Mapped[str] = mapped_column(nullable=False)
     song_id: Mapped[int] = mapped_column(ForeignKey("songs.id"), nullable=True)
     song: Mapped[Song] = relationship("Song", back_populates="cards")
+    image_filename: Mapped[str] = mapped_column(nullable=True)
     playlist_id: Mapped[int] = mapped_column(ForeignKey("playlists.id"), nullable=True)
     playlist: Mapped["Playlist"] = relationship("Playlist", back_populates="cards")
 
@@ -81,6 +82,19 @@ class Playlist(Base):
     name: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
     songs: Mapped[List[Song]] = relationship(secondary=association_table)
     cards: Mapped[List[Card]] = relationship("Card", back_populates="playlist")
+
+    @property
+    def songs_in_playlist(self) -> int:
+        return len(self.songs)
+
+    @property
+    def duration(self) -> int:
+        return sum(song.duration for song in self.songs if song.duration is not None)
+
+    def get_position_by_id(self, song_id: int):
+        for position, song in enumerate(self.songs):
+            if song.id == song_id:
+                return position
 
     def to_json(self):
         playlist_json = {
