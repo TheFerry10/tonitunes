@@ -12,7 +12,16 @@
         <div class="text-center mb-4">
             <img src="{{ url_for('static', filename=card.image_filename) }}" alt="Card Image" class="card-image img-fluid rounded" style="width: 100%; max-width: 100px; height: auto;">
         </div>
+        {% else %}
+        <div class="text-center mb-4">
+            <img src="{{ url_for('static', filename='images/default/no-image-placeholder.png') }}" alt="Default Card Image" class="card-image img-fluid rounded" style="width: 100%; max-width: 100px; height: auto;">
+        </div>
         {% endif %}
+        <div class="text-center mb-4">
+            <a href="{{ url_for('main.update_card', card_uid=card.uid) }}" class="btn btn-primary">
+                <img src="/static/icons/pencil-icon.png" alt="Edit" class="action-icon">
+            </a>
+        </div>
         <div class="text-center mb-4">
             <h1>{{ card.name }}</h1>
             <p>UID: {{ card.uid }}</p>

@@ -1,4 +1,5 @@
 import csv
+import os
 from pathlib import Path
 from typing import List
 
@@ -12,11 +13,17 @@ from flask import (
     url_for,
 )
 from sqlalchemy.orm import Session
+from werkzeug.utils import secure_filename
 
 from ..db import db_session
 from ..models import Base, Card, Playlist, Song
 from . import main
-from .forms import CardPlaylistMappingForm, PlaylistAddSongForm, PlaylistForm
+from .forms import (
+    CardInfoForm,
+    CardPlaylistMappingForm,
+    PlaylistAddSongForm,
+    PlaylistForm,
+)
 
 app = current_app
 
@@ -27,24 +34,57 @@ def index():
     return render_template("index.html", cards=cards)
 
 
+@main.route("/card/update/<int:card_uid>", methods=["GET", "POST"])
+def update_card(card_uid: int):
+    card = Card.query.get(card_uid)
+    if not card:
+        flash("Card not found", category="error")
+        return redirect(url_for(".index"))
+    image_folder = os.path.join(app.config["STATIC_PATH"], "images/cards")
+    available_images = [
+        os.path.join("images/cards", filename)
+        for filename in os.listdir(image_folder)
+        if filename.lower().endswith((".png", ".jpg", ".jpeg", ".gif"))
+    ]
+    form = CardInfoForm()
+    form.image_select.choices = available_images
+    if form.validate_on_submit():
+        selected_image = form.image_select.data
+        selected_name = form.name.data
+
+        if (selected_image == card.image_filename) & (selected_name == card.name):
+            return redirect(url_for(".index"))
+        card.name = selected_name
+        card.image_filename = selected_image
+        db_session.add(card)
+        db_session.commit()
+        flash("Card mapping updated successfully!")
+        return redirect(url_for(".index"))
+
+    return render_template(
+        "update-card.html", form=form, card=card, available_images=available_images
+    )
+
+
 @main.route("/card/map/<int:card_uid>", methods=["GET", "POST"])
 def map_card(card_uid: int):
+    card = Card.query.get(card_uid)
+    if not card:
+        flash("Card not found", category="error")
+        return redirect(url_for(".index"))
+
     form = CardPlaylistMappingForm()
-    playlist_choices = [
+    form.playlist_select.choices = [
         (playlist.id, playlist.name) for playlist in db_session.query(Playlist).all()
     ]
-    card = Card.query.get(card_uid)
 
-    form.playlist_select.choices = playlist_choices
     if form.validate_on_submit():
-        if card:
-            card.playlist_id = form.playlist_select.data
-            db_session.add(card)
-            db_session.commit()
-            flash("Card mapping successful!")
-        else:
-            flash("Card does not exist")
+        card.playlist_id = form.playlist_select.data
+        db_session.add(card)
+        db_session.commit()
+        flash("Card mapping updated successfully!")
         return redirect(url_for(".index"))
+
     return render_template("map-card.html", form=form, card=card)
 
 
@@ -149,6 +189,44 @@ def search_songs():
             for song in songs
         ]
     )
+
+
+def allowed_file(filename):
+    ALLOWED_EXTENSIONS = {"txt", "pdf", "png", "jpg", "jpeg", "gif"}
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@main.route("/upload/card/<int:card_uid>", methods=["GET", "POST"])
+def upload_file(card_uid: int):
+    card = db_session.get(Card, card_uid)
+    if not card:
+        flash("Card not found", category="error")
+        return redirect(url_for(".index"))
+
+    if request.method == "POST":
+        if "file" not in request.files:
+            flash("No file part")
+            return redirect(request.url)
+        file = request.files["file"]
+        if file.filename == "":
+            flash("No selected file")
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+
+            UPLOAD_FOLDER = os.path.join(app.config["STATIC_PATH"], "images/cards")
+
+            file_path = os.path.join(UPLOAD_FOLDER, filename)
+            if os.path.exists(file_path):
+                flash("File already exists. Please rename your file and try again.")
+                return redirect(request.url)
+            file.save(file_path)
+            card.image_filename = os.path.join("images/cards/", filename)
+            db_session.add(card)
+            db_session.commit()
+            flash("File successfully uploaded")
+            return redirect(url_for(".update_card", card_uid=card.uid))
+    return render_template("card-upload.html", card=card)
 
 
 def load_model_instances_from_csv(model: Base, file_path: Path) -> list[Base]:

@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 ROOTDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SETTINGS_FILE_PATH = os.path.join(ROOTDIR, "settings.ini")
 ENV_FILE_PATH = os.path.join(ROOTDIR, ".env")
+STATIC_PATH = os.path.join(ROOTDIR, "src/app/cardmanager/static")
 load_dotenv(ENV_FILE_PATH, override=True)
 
 
@@ -49,6 +50,7 @@ class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY") or "hard to guess string"
     AUDIO_DIR = os.getenv("AUDIO_DIR")
     FLASK_APP = "cardmanager.py"
+    STATIC_PATH = os.path.join(ROOTDIR, "src/app/cardmanager/static")
     SETTINGS = settings
 
 
