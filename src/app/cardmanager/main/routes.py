@@ -12,6 +12,7 @@ from flask import (
     request,
     url_for,
 )
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from werkzeug.utils import secure_filename
 
@@ -160,22 +161,22 @@ def load_cards():
 def search_songs():
     query = request.args.get("q", "").strip()
     artist = request.args.get("artist", "").strip()
-    album = request.args.get("album", "").strip()
-    if not query and not artist and not album:
-        return jsonify([])
 
     filters = []
     if query:
         filters.append(
-            (Song.title.ilike(f"%{query}%") | Song.album.ilike(f"%{query}%"))
+            (Song.title.ilike(f"%{query}%"))
+            | (Song.album.ilike(f"%{query}%"))
+            | (Song.artist.ilike(f"%{query}%"))
         )
     if artist:
         filters.append(Song.artist.ilike(f"%{artist}%"))
 
-    if album:
-        filters.append(Song.album.ilike(f"%{album}%"))
+    if filters:
+        songs = db_session.query(Song).filter(and_(*filters)).all()
+    else:
+        songs = db_session.query(Song).all()
 
-    songs = db_session.query(Song).filter(*filters).all()
     return jsonify(
         [
             {
